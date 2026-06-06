@@ -29,7 +29,7 @@ A program MIT Liszensz alatt liszenszelt, szabadon felhazsnálható, és fejelsz
 [sumegizoltan73 - Novel proofreading and linker](https://github.com/sumegizoltan73/novel-proofreading)
 
 ## Harmadik fél kódjai
-A plugin használ harmadik féltől származó komponenseket, különösen a következpőket:
+A plugin használ harmadik féltől származó komponenseket, különösen a következőket:
 - [FullCalendar](https://fullcalendar.io)
 - [SweetAllert2](https://sweetalert2.github.io)
 - [Date Range Picker](https://www.daterangepicker.com)

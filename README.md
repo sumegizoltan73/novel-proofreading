@@ -14,7 +14,7 @@ I was thinking about self-publishing my upcoming books, but I realized that with
 I (Zoltan Peter Sumegi) am the development team, with artificial intelligence also involved in the development process.
 
 ## Internationalization
-The plugin translated to two languages, Hungarian and English. The Calendar control is also multi language.
+The plugin translated to three languages, Hungarian, German and English. The Calendar control is also multi language.
 
 ## Releases
 It has no releases yet.
