@@ -22,7 +22,6 @@ add_action( 'plugins_loaded', 'novel_proofreading_plugin_load_textdomain' );
 require_once __DIR__ . '/includes/shortcode.php';
 require_once __DIR__ . '/includes/widget.php';
 require_once __DIR__ . '/includes/routes.php';
-require_once plugin_dir_path(__FILE__) . 'includes/roles.php';
 require_once plugin_dir_path(__FILE__) . 'includes/db.php';
 require_once __DIR__ . '/includes/admin.php';
 
@@ -32,11 +31,11 @@ require_once __DIR__ . '/includes/admin.php';
  */
 register_activation_hook(
     __FILE__,
-    'novel_proofreading_plugin_install'
+    'novel_proofreading_install'
 );
 add_action(
     'plugins_loaded',
-    'novel_proofreading_plugin_update_db_check'
+    'novel_proofreading_update_db_check'
 );
 
 /**
