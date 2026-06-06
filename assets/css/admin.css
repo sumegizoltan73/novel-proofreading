@@ -2,3 +2,6 @@
   font-size: 13px;
 }
 
+.books-wrap.hidden {
+  display: none;
+}
