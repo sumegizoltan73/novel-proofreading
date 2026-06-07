@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define('NOVEL_PROOFREADING_DB_VERSION', '0.1');
+define('NOVEL_PROOFREADING_DB_VERSION', '0.2');
 
 function novel_proofreading_install() {
 
@@ -70,8 +70,318 @@ function novel_proofreading_create_tables() {
     );
 
     dbDelta($sql);
+
+    $types_table_name =
+        $wpdb->prefix . 'novel_proofreading_types';
+
+    $common_mapping_table_name =
+        $wpdb->prefix . 'novel_proofreading_common_mapping';
+
+    $datetimes_table_name =
+        $wpdb->prefix . 'novel_proofreading_datetimes';
+
+    $professions_table_name =
+        $wpdb->prefix . 'novel_proofreading_professions';
+
+    $persons_table_name =
+        $wpdb->prefix . 'novel_proofreading_persons';
+
+    $locations_table_name =
+        $wpdb->prefix . 'novel_proofreading_locations';
+
+    $presence_mapping_table_name =
+        $wpdb->prefix . 'novel_proofreading_presence_mapping';
+
+    $sql = "
+    CREATE TABLE $types_table_name (
+
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+        name VARCHAR(64) NOT NULL,
+        category VARCHAR(32) NOT NULL,
+
+        created_at DATETIME NOT NULL,
+        created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
+
+        PRIMARY KEY  (id),
+
+        UNIQUE KEY idx_name_category (
+            name,
+            category
+        ),
+
+        KEY idx_category (
+            category
+        )
+
+    ) $charset_collate;
+
+    CREATE TABLE $common_mapping_table_name (
+
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+        book_id BIGINT UNSIGNED NOT NULL,
+        type VARCHAR(32) NOT NULL,
+        person_related_subtype VARCHAR(32) NULL,
+        description VARCHAR(2048) NULL,
+        page VARCHAR(64) NULL,
+        chapter VARCHAR(255) NULL,
+        storyline_id BIGINT UNSIGNED NULL,
+        event_id BIGINT UNSIGNED NULL,
+        person_id BIGINT UNSIGNED NULL,
+        location_id BIGINT UNSIGNED NULL,
+        time_id BIGINT UNSIGNED NULL,
+
+        created_at DATETIME NOT NULL,
+        created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        updated_at DATETIME NULL,
+        updated_by BIGINT UNSIGNED NULL,
+        suggested_at DATETIME NULL,
+        suggested_by BIGINT UNSIGNED NULL,
+        to_be_solved CHAR(1) NOT NULL DEFAULT 'N',
+        is_solved CHAR(1) NOT NULL DEFAULT 'N',
+        solved_at DATETIME NULL,
+        solved_type VARCHAR(32) NULL,
+
+        PRIMARY KEY  (id),
+
+        KEY idx_book_type (
+            book_id,
+            type
+        ),
+
+        KEY idx_storyline (
+            storyline_id
+        ),
+
+        KEY idx_event (
+            event_id
+        ),
+
+        KEY idx_person (
+            person_id
+        ),
+
+        KEY idx_location (
+            location_id
+        ),
+
+        KEY idx_time (
+            time_id
+        ),
+
+        KEY idx_solved (
+            to_be_solved,
+            is_solved
+        )
+
+    ) $charset_collate;
+
+    CREATE TABLE $datetimes_table_name (
+
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+        book_id BIGINT UNSIGNED NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        time_description TEXT NULL,
+        description TEXT NULL,
+        time_type VARCHAR(32) NOT NULL,
+        is_inaccurate CHAR(1) NOT NULL DEFAULT 'N',
+
+        created_at DATETIME NOT NULL,
+        created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        updated_at DATETIME NULL,
+        updated_by BIGINT UNSIGNED NULL,
+
+        PRIMARY KEY  (id),
+
+        KEY idx_book_time_type (
+            book_id,
+            time_type
+        ),
+
+        KEY idx_book_name (
+            book_id,
+            name
+        )
+
+    ) $charset_collate;
+
+    CREATE TABLE $professions_table_name (
+
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+        book_id BIGINT UNSIGNED NOT NULL,
+        person_id BIGINT UNSIGNED NOT NULL,
+        profession_name VARCHAR(255) NOT NULL,
+        description TEXT NULL,
+        is_inaccurate CHAR(1) NOT NULL DEFAULT 'N',
+
+        created_at DATETIME NOT NULL,
+        created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        updated_at DATETIME NULL,
+        updated_by BIGINT UNSIGNED NULL,
+
+        PRIMARY KEY  (id),
+
+        KEY idx_book_person (
+            book_id,
+            person_id
+        ),
+
+        KEY idx_profession_name (
+            profession_name
+        )
+
+    ) $charset_collate;
+
+    CREATE TABLE $persons_table_name (
+
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+        book_id BIGINT UNSIGNED NOT NULL,
+        name VARCHAR(255) NULL,
+        alias VARCHAR(255) NULL,
+        description TEXT NULL,
+        is_inaccurate CHAR(1) NOT NULL DEFAULT 'N',
+
+        created_at DATETIME NOT NULL,
+        created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        updated_at DATETIME NULL,
+        updated_by BIGINT UNSIGNED NULL,
+
+        PRIMARY KEY  (id),
+
+        KEY idx_book_name (
+            book_id,
+            name
+        ),
+
+        KEY idx_book_alias (
+            book_id,
+            alias
+        )
+
+    ) $charset_collate;
+
+    CREATE TABLE $locations_table_name (
+
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+        book_id BIGINT UNSIGNED NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        alias VARCHAR(255) NULL,
+        area VARCHAR(32) NULL,
+        region VARCHAR(255) NULL,
+        description TEXT NULL,
+        is_in_alternative_universe CHAR(1) NOT NULL DEFAULT 'N',
+        is_inaccurate CHAR(1) NOT NULL DEFAULT 'N',
+
+        created_at DATETIME NOT NULL,
+        created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        updated_at DATETIME NULL,
+        updated_by BIGINT UNSIGNED NULL,
+
+        PRIMARY KEY  (id),
+
+        KEY idx_book_name (
+            book_id,
+            name
+        ),
+
+        KEY idx_book_area (
+            book_id,
+            area
+        )
+
+    ) $charset_collate;
+
+    CREATE TABLE $presence_mapping_table_name (
+
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+        book_id BIGINT UNSIGNED NOT NULL,
+        common_mapping_id BIGINT UNSIGNED NOT NULL,
+        description TEXT NULL,
+        is_suspected CHAR(1) NOT NULL DEFAULT 'N',
+        is_inaccurate CHAR(1) NOT NULL DEFAULT 'N',
+
+        created_at DATETIME NOT NULL,
+        created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        updated_at DATETIME NULL,
+        updated_by BIGINT UNSIGNED NULL,
+
+        PRIMARY KEY  (id),
+
+        KEY idx_book_common_mapping (
+            book_id,
+            common_mapping_id
+        )
+
+    ) $charset_collate;
+    ";
+
+    dbDelta($sql);
+
+    // SEED common_types
+    $wpdb->query(
+        "
+        INSERT INTO $types_table_name (
+            name,
+            category,
+            created_at,
+            created_by
+        )
+        SELECT
+            seed.name,
+            seed.category,
+            " . $wpdb->prepare('%s', current_time('mysql')) . ",
+            0
+        FROM (
+            SELECT 'STORYLINE' AS name, 'COMMON_TYPE' AS category
+            UNION ALL SELECT 'EVENT', 'COMMON_TYPE'
+            UNION ALL SELECT 'PERSON', 'COMMON_TYPE'
+            UNION ALL SELECT 'LOCATION', 'COMMON_TYPE'
+            UNION ALL SELECT 'TIME', 'COMMON_TYPE'
+            UNION ALL SELECT 'MISTAKE', 'COMMON_TYPE'
+            UNION ALL SELECT 'SUGGESTION', 'COMMON_TYPE'
+            UNION ALL SELECT 'AGREEMENT', 'COMMON_TYPE'
+            UNION ALL SELECT 'REWRITTED', 'SOLVED_TYPE'
+            UNION ALL SELECT 'ADDITION', 'SOLVED_TYPE'
+            UNION ALL SELECT 'DELETED', 'SOLVED_TYPE'
+            UNION ALL SELECT 'BIRTHDATE', 'DATETIME_TYPE'
+            UNION ALL SELECT 'EVENTDATE', 'DATETIME_TYPE'
+            UNION ALL SELECT 'AGE', 'DATETIME_TYPE'
+            UNION ALL SELECT 'LIFEPATH', 'DATETIME_TYPE'
+            UNION ALL SELECT 'SERVICETIME', 'DATETIME_TYPE'
+            UNION ALL SELECT 'LOCATION', 'PRESENCE_TYPE'
+            UNION ALL SELECT 'TIME', 'PRESENCE_TYPE'
+            UNION ALL SELECT 'PERSON', 'PRESENCE_TYPE'
+            UNION ALL SELECT 'EVENT', 'PRESENCE_TYPE'
+            UNION ALL SELECT 'STORYLINE', 'PRESENCE_TYPE'
+            UNION ALL SELECT 'ACTOR', 'PERSON_SUBTYPE'
+            UNION ALL SELECT 'HIGHLIGHTED', 'PERSON_SUBTYPE'
+            UNION ALL SELECT '2ND_ACTOR', 'PERSON_SUBTYPE'
+            UNION ALL SELECT 'EVIL', 'PERSON_SUBTYPE'
+            UNION ALL SELECT 'HERO', 'PERSON_SUBTYPE'
+            UNION ALL SELECT 'SPACE', 'AREA_TYPE'
+            UNION ALL SELECT 'GALAXY', 'AREA_TYPE'
+            UNION ALL SELECT 'ANOTHER_GALAXY', 'AREA_TYPE'
+            UNION ALL SELECT 'ANOTHER_PLANET', 'AREA_TYPE'
+            UNION ALL SELECT 'EARTH', 'AREA_TYPE'
+            UNION ALL SELECT 'COUNTRY', 'AREA_TYPE'
+            UNION ALL SELECT 'CITY', 'AREA_TYPE'
+        ) seed
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM $types_table_name existing
+            WHERE existing.name = seed.name
+                AND existing.category = seed.category
+        )
+        "
+    );
     
-		update_option(
+	update_option(
         'novel_proofreading_db_version',
         NOVEL_PROOFREADING_DB_VERSION
     );

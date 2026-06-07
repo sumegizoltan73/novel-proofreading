@@ -111,7 +111,7 @@
     - kapcsoló tábla, mapping tábla tulajdonságai
 ... többszörös értékek, jellemzően külön tábla, vagy mapping tábla többszörös rekordjai
 
-# Adatmodell
+# Adatmodell (v0.2, IMPLEMENTED)
 
 ## novel_proofreading_books (IMPLEMENTED)
 - id
@@ -129,6 +129,8 @@
 - category  (COMMON_TYPE, SOLVED_TYPE, DATETIME_TYPE, PRESENCE_TYPE, PERSON_SUBTYPE, AREA_TYPE)
 - created_at
 - created_by
+
+For insert scripts:
 VALUES of COMMON_TYPE : (STORYLINE, EVENT, PERSON, LOCATION, TIME, MISTAKE, SUGGESTION, AGREEMENT)
 VALUES of SOLVED_TYPE : (REWRITTED, ADDITION, DELETED)
 VALUES of DATETIME_TYPE : (BIRTHDATE, EVENTDATE, AGE, LIFEPATH, SERVICETIME)
