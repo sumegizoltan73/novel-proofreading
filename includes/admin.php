@@ -1219,6 +1219,241 @@ function novel_proofreading_remove_datetime($id) {
 
     return __( 'Datetime deleted.', 'novel-proofreading' );
 }
+
+function novel_proofreading_get_professions() {
+    global $wpdb;
+
+    $items = [];
+
+    $table_professions =
+        $wpdb->prefix . 'novel_proofreading_professions';
+    $table_books =
+        $wpdb->prefix . 'novel_proofreading_books';
+    $table_persons =
+        $wpdb->prefix . 'novel_proofreading_persons';
+
+    $result = $wpdb->get_results(
+        "
+        SELECT
+            pr.*,
+            b.title AS book_title,
+            p.name AS person_name,
+            p.alias AS person_alias
+
+        FROM
+            {$table_professions} pr
+        LEFT JOIN
+            {$table_books} b ON b.id = pr.book_id
+        LEFT JOIN
+            {$table_persons} p ON p.id = pr.person_id
+
+        ORDER BY pr.id
+        "
+    );
+
+    foreach ($result as $row) {
+
+        $items[] = [
+            'id' => intval($row->id),
+
+            'book_id' => intval($row->book_id),
+
+            'book_title' => isset($row->book_title) ? $row->book_title : '',
+
+            'person_id' => intval($row->person_id),
+
+            'person_name' => isset($row->person_name) ? $row->person_name : '',
+
+            'person_alias' => isset($row->person_alias) ? $row->person_alias : '',
+
+            'profession_name' => $row->profession_name,
+
+            'description' => $row->description,
+
+            'is_inaccurate' => $row->is_inaccurate
+        ];
+    }
+
+    return $items;
+}
+
+function novel_proofreading_sanitize_profession_data() {
+    $book_id = intval($_POST['book_id'] ?? 0);
+
+    if ($book_id <= 0) {
+        return new WP_Error(
+            'missing_profession_book',
+            __( 'Book is required.', 'novel-proofreading' )
+        );
+    }
+
+    $person_id = intval($_POST['person_id'] ?? 0);
+
+    if ($person_id <= 0) {
+        return new WP_Error(
+            'missing_profession_person',
+            __( 'Person is required.', 'novel-proofreading' )
+        );
+    }
+
+    $profession_name = sanitize_text_field(
+        wp_unslash($_POST['profession_name'] ?? '')
+    );
+
+    if ($profession_name === '') {
+        return new WP_Error(
+            'missing_profession_name',
+            __( 'Profession name is required.', 'novel-proofreading' )
+        );
+    }
+
+    return [
+        'book_id' => $book_id,
+
+        'person_id' => $person_id,
+
+        'profession_name' => $profession_name,
+
+        'description' => sanitize_textarea_field(
+            wp_unslash($_POST['description'] ?? '')
+        ),
+
+        'is_inaccurate' => isset($_POST['is_inaccurate']) ? 'Y' : 'N'
+    ];
+}
+
+function novel_proofreading_add_profession() {
+    global $wpdb;
+
+    $data = novel_proofreading_sanitize_profession_data();
+
+    if (is_wp_error($data)) {
+        return $data->get_error_message();
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_professions';
+
+    $now = current_time(
+        'mysql',
+        true
+    );
+
+    $result = $wpdb->insert(
+        $table,
+        array_merge(
+            $data,
+            [
+                'created_at' => $now,
+
+                'created_by' => get_current_user_id(),
+
+                'updated_at' => $now,
+
+                'updated_by' => get_current_user_id()
+            ]
+        ),
+        [
+            '%d',
+            '%d',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%d',
+            '%s',
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'INSERT ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Profession could not be added.', 'novel-proofreading' );
+    }
+
+    return __( 'Profession added.', 'novel-proofreading' );
+}
+
+function novel_proofreading_update_profession($id) {
+    global $wpdb;
+
+    if ($id <= 0) {
+        return __( 'Profession could not be updated.', 'novel-proofreading' );
+    }
+
+    $data = novel_proofreading_sanitize_profession_data();
+
+    if (is_wp_error($data)) {
+        return $data->get_error_message();
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_professions';
+
+    $result = $wpdb->update(
+        $table,
+        array_merge(
+            $data,
+            [
+                'updated_at' => current_time(
+                    'mysql',
+                    true
+                ),
+
+                'updated_by' => get_current_user_id()
+            ]
+        ),
+        [
+            'id' => $id
+        ],
+        [
+            '%d',
+            '%d',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%d'
+        ],
+        [
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'UPDATE ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Profession could not be updated.', 'novel-proofreading' );
+    }
+
+    return __( 'Profession updated.', 'novel-proofreading' );
+}
+
+function novel_proofreading_remove_profession($id) {
+    global $wpdb;
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_professions';
+
+    $wpdb->query(
+        $wpdb->prepare(
+            "
+            DELETE FROM {$table}
+
+            WHERE
+                id = %d
+            ",
+            $id
+        )
+    );
+
+    return __( 'Profession deleted.', 'novel-proofreading' );
+}
 function novel_proofreading_admin_page() {
 
     $admin_notice = "";
@@ -1324,6 +1559,22 @@ function novel_proofreading_admin_page() {
                 intval($_POST['datetime_id'] ?? 0)
             );
         }
+
+        if ($action === 'add_profession') {
+            $admin_notice = novel_proofreading_add_profession();
+        }
+
+        if ($action === 'remove_profession') {
+            $admin_notice = novel_proofreading_remove_profession(
+                intval($_POST['profession_id'] ?? 0)
+            );
+        }
+
+        if ($action === 'update_profession') {
+            $admin_notice = novel_proofreading_update_profession(
+                intval($_POST['profession_id'] ?? 0)
+            );
+        }
     }
 
     $items = novel_proofreading_get_books();
@@ -1334,6 +1585,7 @@ function novel_proofreading_admin_page() {
     $area_type_items = novel_proofreading_get_type_options('AREA_TYPE');
     $datetime_items = novel_proofreading_get_datetimes();
     $datetime_type_items = novel_proofreading_get_type_options('DATETIME_TYPE');
+    $profession_items = novel_proofreading_get_professions();
     ?>
 
     <div class="wrap">
@@ -2046,6 +2298,143 @@ function novel_proofreading_admin_page() {
 
                 <button type="submit" class="button button-primary" <?php disabled(empty($items) || empty($datetime_type_items)); ?>>
                     + <?php _e( 'Add Datetime', 'novel-proofreading' ); ?>
+                </button>
+            </form>
+        </div>
+
+        <h2>6.&nbsp;<?php _e( 'Professions', 'novel-proofreading' ); ?></h2>
+        <button class="button" onclick="show_hide('.professions-wrap')"><?php _e( 'Show / Hide Professions', 'novel-proofreading' ); ?></button>
+        <div class="professions-wrap hidden">
+            <h3>6.1&nbsp;<?php _e( 'List of Professions', 'novel-proofreading' ); ?></h3>
+            <table class="widefat striped">
+                <thead>
+                    <tr>
+                        <th><?php _e( 'Book', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Person', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Profession', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Description', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Inaccurate', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Edit', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Delete', 'novel-proofreading' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody id="novel-proofreading-professions-repeater">
+                    <?php foreach ( $profession_items as $item ) : ?>
+                        <?php $profession_form_id = 'novel-proofreading-edit-profession-' . intval($item['id']); ?>
+                        <tr>
+                            <td>
+                                <select form="<?php echo esc_attr($profession_form_id); ?>" name="book_id" required>
+                                    <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $items as $book_item ) : ?>
+                                        <option value="<?php echo esc_attr($book_item['id']); ?>" <?php selected($item['book_id'], $book_item['id']); ?>>
+                                            <?php echo esc_html($book_item['title'] . ' - ' . $book_item['author'] . ' (' . $book_item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td>
+                                <select form="<?php echo esc_attr($profession_form_id); ?>" name="person_id" required>
+                                    <option value=""><?php _e( 'Select person', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $person_items as $person_item ) : ?>
+                                        <option value="<?php echo esc_attr($person_item['id']); ?>" <?php selected($item['person_id'], $person_item['id']); ?>>
+                                            <?php echo esc_html(trim($person_item['name'] . ' ' . $person_item['alias']) . ' - ' . $person_item['book_title']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td><input form="<?php echo esc_attr($profession_form_id); ?>" type="text" name="profession_name" value="<?php echo esc_attr($item['profession_name']); ?>" required /></td>
+                            <td><textarea form="<?php echo esc_attr($profession_form_id); ?>" name="description" rows="2"><?php echo esc_textarea($item['description']); ?></textarea></td>
+                            <td><input form="<?php echo esc_attr($profession_form_id); ?>" type="checkbox" name="is_inaccurate" value="Y" <?php checked($item['is_inaccurate'], 'Y'); ?> /></td>
+                            <td>
+                                <form id="<?php echo esc_attr($profession_form_id); ?>" method="post">
+                                    <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                                    <input type="hidden" name="novel_proofreading_action" value="update_profession" />
+                                    <input type="hidden" name="profession_id" value="<?php echo esc_attr($item['id']); ?>" />
+                                    <button type="submit" class="button button-primary"><?php _e( 'Save', 'novel-proofreading' ); ?></button>
+                                </form>
+                            </td>
+                            <td>
+                                <form method="post">
+                                    <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                                    <input type="hidden" name="novel_proofreading_action" value="remove_profession" />
+                                    <input type="hidden" name="profession_id" value="<?php echo esc_attr($item['id']); ?>" />
+                                    <button type="submit" class="button remove-item">-</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <h3>6.2&nbsp;<?php _e( 'Add Profession', 'novel-proofreading' ); ?></h3>
+            <form method="post">
+                <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                <input type="hidden" name="novel_proofreading_action" value="add_profession" />
+
+                <table class="form-table" role="presentation">
+                    <tbody>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-profession-book-id"><?php _e( 'Book', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-profession-book-id" name="book_id" required>
+                                    <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $items as $item ) : ?>
+                                        <option value="<?php echo esc_attr($item['id']); ?>">
+                                            <?php echo esc_html($item['title'] . ' - ' . $item['author'] . ' (' . $item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-profession-person-id"><?php _e( 'Person', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-profession-person-id" name="person_id" required>
+                                    <option value=""><?php _e( 'Select person', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $person_items as $item ) : ?>
+                                        <option value="<?php echo esc_attr($item['id']); ?>">
+                                            <?php echo esc_html(trim($item['name'] . ' ' . $item['alias']) . ' - ' . $item['book_title']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-profession-name"><?php _e( 'Profession', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" id="novel-proofreading-profession-name" name="profession_name" required />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-profession-description"><?php _e( 'Description', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <textarea id="novel-proofreading-profession-description" name="description" rows="3"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <?php _e( 'Inaccurate', 'novel-proofreading' ); ?>
+                            </th>
+                            <td>
+                                <label for="novel-proofreading-profession-is-inaccurate">
+                                    <input type="checkbox" id="novel-proofreading-profession-is-inaccurate" name="is_inaccurate" value="Y" />
+                                    <?php _e( 'Yes', 'novel-proofreading' ); ?>
+                                </label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button type="submit" class="button button-primary" <?php disabled(empty($items) || empty($person_items)); ?>>
+                    + <?php _e( 'Add Profession', 'novel-proofreading' ); ?>
                 </button>
             </form>
         </div>
