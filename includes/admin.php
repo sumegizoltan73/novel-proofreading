@@ -984,6 +984,241 @@ function novel_proofreading_remove_location($id) {
 
     return __( 'Location deleted.', 'novel-proofreading' );
 }
+
+function novel_proofreading_get_datetimes() {
+    global $wpdb;
+
+    $items = [];
+
+    $table_datetimes =
+        $wpdb->prefix . 'novel_proofreading_datetimes';
+    $table_books =
+        $wpdb->prefix . 'novel_proofreading_books';
+
+    $result = $wpdb->get_results(
+        "
+        SELECT
+            d.*,
+            b.title AS book_title
+
+        FROM
+            {$table_datetimes} d
+        LEFT JOIN
+            {$table_books} b ON b.id = d.book_id
+
+        ORDER BY d.id
+        "
+    );
+
+    foreach ($result as $row) {
+
+        $items[] = [
+            'id' => intval($row->id),
+
+            'book_id' => intval($row->book_id),
+
+            'book_title' => isset($row->book_title) ? $row->book_title : '',
+
+            'name' => $row->name,
+
+            'time_description' => $row->time_description,
+
+            'description' => $row->description,
+
+            'time_type' => $row->time_type,
+
+            'is_inaccurate' => $row->is_inaccurate
+        ];
+    }
+
+    return $items;
+}
+
+function novel_proofreading_sanitize_datetime_data() {
+    $book_id = intval($_POST['book_id'] ?? 0);
+
+    if ($book_id <= 0) {
+        return new WP_Error(
+            'missing_datetime_book',
+            __( 'Book is required.', 'novel-proofreading' )
+        );
+    }
+
+    $name = sanitize_text_field(
+        wp_unslash($_POST['name'] ?? '')
+    );
+
+    if ($name === '') {
+        return new WP_Error(
+            'missing_datetime_name',
+            __( 'Name is required.', 'novel-proofreading' )
+        );
+    }
+
+    $time_type = sanitize_text_field(
+        wp_unslash($_POST['time_type'] ?? '')
+    );
+
+    if ($time_type === '') {
+        return new WP_Error(
+            'missing_datetime_type',
+            __( 'Time type is required.', 'novel-proofreading' )
+        );
+    }
+
+    return [
+        'book_id' => $book_id,
+
+        'name' => $name,
+
+        'time_description' => sanitize_textarea_field(
+            wp_unslash($_POST['time_description'] ?? '')
+        ),
+
+        'description' => sanitize_textarea_field(
+            wp_unslash($_POST['description'] ?? '')
+        ),
+
+        'time_type' => $time_type,
+
+        'is_inaccurate' => isset($_POST['is_inaccurate']) ? 'Y' : 'N'
+    ];
+}
+
+function novel_proofreading_add_datetime() {
+    global $wpdb;
+
+    $data = novel_proofreading_sanitize_datetime_data();
+
+    if (is_wp_error($data)) {
+        return $data->get_error_message();
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_datetimes';
+
+    $now = current_time(
+        'mysql',
+        true
+    );
+
+    $result = $wpdb->insert(
+        $table,
+        array_merge(
+            $data,
+            [
+                'created_at' => $now,
+
+                'created_by' => get_current_user_id(),
+
+                'updated_at' => $now,
+
+                'updated_by' => get_current_user_id()
+            ]
+        ),
+        [
+            '%d',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%d',
+            '%s',
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'INSERT ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Datetime could not be added.', 'novel-proofreading' );
+    }
+
+    return __( 'Datetime added.', 'novel-proofreading' );
+}
+
+function novel_proofreading_update_datetime($id) {
+    global $wpdb;
+
+    if ($id <= 0) {
+        return __( 'Datetime could not be updated.', 'novel-proofreading' );
+    }
+
+    $data = novel_proofreading_sanitize_datetime_data();
+
+    if (is_wp_error($data)) {
+        return $data->get_error_message();
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_datetimes';
+
+    $result = $wpdb->update(
+        $table,
+        array_merge(
+            $data,
+            [
+                'updated_at' => current_time(
+                    'mysql',
+                    true
+                ),
+
+                'updated_by' => get_current_user_id()
+            ]
+        ),
+        [
+            'id' => $id
+        ],
+        [
+            '%d',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%d'
+        ],
+        [
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'UPDATE ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Datetime could not be updated.', 'novel-proofreading' );
+    }
+
+    return __( 'Datetime updated.', 'novel-proofreading' );
+}
+
+function novel_proofreading_remove_datetime($id) {
+    global $wpdb;
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_datetimes';
+
+    $wpdb->query(
+        $wpdb->prepare(
+            "
+            DELETE FROM {$table}
+
+            WHERE
+                id = %d
+            ",
+            $id
+        )
+    );
+
+    return __( 'Datetime deleted.', 'novel-proofreading' );
+}
 function novel_proofreading_admin_page() {
 
     $admin_notice = "";
@@ -1073,6 +1308,22 @@ function novel_proofreading_admin_page() {
                 intval($_POST['location_id'] ?? 0)
             );
         }
+
+        if ($action === 'add_datetime') {
+            $admin_notice = novel_proofreading_add_datetime();
+        }
+
+        if ($action === 'remove_datetime') {
+            $admin_notice = novel_proofreading_remove_datetime(
+                intval($_POST['datetime_id'] ?? 0)
+            );
+        }
+
+        if ($action === 'update_datetime') {
+            $admin_notice = novel_proofreading_update_datetime(
+                intval($_POST['datetime_id'] ?? 0)
+            );
+        }
     }
 
     $items = novel_proofreading_get_books();
@@ -1081,6 +1332,8 @@ function novel_proofreading_admin_page() {
 
     $location_items = novel_proofreading_get_locations();
     $area_type_items = novel_proofreading_get_type_options('AREA_TYPE');
+    $datetime_items = novel_proofreading_get_datetimes();
+    $datetime_type_items = novel_proofreading_get_type_options('DATETIME_TYPE');
     ?>
 
     <div class="wrap">
@@ -1646,6 +1899,153 @@ function novel_proofreading_admin_page() {
 
                 <button type="submit" class="button button-primary" <?php disabled(empty($items)); ?>>
                     + <?php _e( 'Add Location', 'novel-proofreading' ); ?>
+                </button>
+            </form>
+        </div>
+
+        <h2>5.&nbsp;<?php _e( 'Datetimes', 'novel-proofreading' ); ?></h2>
+        <button class="button" onclick="show_hide('.datetimes-wrap')"><?php _e( 'Show / Hide Datetimes', 'novel-proofreading' ); ?></button>
+        <div class="datetimes-wrap hidden">
+            <h3>5.1&nbsp;<?php _e( 'List of Datetimes', 'novel-proofreading' ); ?></h3>
+            <table class="widefat striped">
+                <thead>
+                    <tr>
+                        <th><?php _e( 'Book', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Name', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Time Description', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Description', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Time Type', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Inaccurate', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Edit', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Delete', 'novel-proofreading' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody id="novel-proofreading-datetimes-repeater">
+                    <?php foreach ( $datetime_items as $item ) : ?>
+                        <?php $datetime_form_id = 'novel-proofreading-edit-datetime-' . intval($item['id']); ?>
+                        <tr>
+                            <td>
+                                <select form="<?php echo esc_attr($datetime_form_id); ?>" name="book_id" required>
+                                    <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $items as $book_item ) : ?>
+                                        <option value="<?php echo esc_attr($book_item['id']); ?>" <?php selected($item['book_id'], $book_item['id']); ?>>
+                                            <?php echo esc_html($book_item['title'] . ' - ' . $book_item['author'] . ' (' . $book_item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td><input form="<?php echo esc_attr($datetime_form_id); ?>" type="text" name="name" value="<?php echo esc_attr($item['name']); ?>" required /></td>
+                            <td><textarea form="<?php echo esc_attr($datetime_form_id); ?>" name="time_description" rows="2"><?php echo esc_textarea($item['time_description']); ?></textarea></td>
+                            <td><textarea form="<?php echo esc_attr($datetime_form_id); ?>" name="description" rows="2"><?php echo esc_textarea($item['description']); ?></textarea></td>
+                            <td>
+                                <select form="<?php echo esc_attr($datetime_form_id); ?>" name="time_type" required>
+                                    <option value=""><?php _e( 'Select time type', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $datetime_type_items as $datetime_type_item ) : ?>
+                                        <option value="<?php echo esc_attr($datetime_type_item['name']); ?>" <?php selected($item['time_type'], $datetime_type_item['name']); ?>>
+                                            <?php echo esc_html($datetime_type_item['name']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td><input form="<?php echo esc_attr($datetime_form_id); ?>" type="checkbox" name="is_inaccurate" value="Y" <?php checked($item['is_inaccurate'], 'Y'); ?> /></td>
+                            <td>
+                                <form id="<?php echo esc_attr($datetime_form_id); ?>" method="post">
+                                    <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                                    <input type="hidden" name="novel_proofreading_action" value="update_datetime" />
+                                    <input type="hidden" name="datetime_id" value="<?php echo esc_attr($item['id']); ?>" />
+                                    <button type="submit" class="button button-primary"><?php _e( 'Save', 'novel-proofreading' ); ?></button>
+                                </form>
+                            </td>
+                            <td>
+                                <form method="post">
+                                    <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                                    <input type="hidden" name="novel_proofreading_action" value="remove_datetime" />
+                                    <input type="hidden" name="datetime_id" value="<?php echo esc_attr($item['id']); ?>" />
+                                    <button type="submit" class="button remove-item">-</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <h3>5.2&nbsp;<?php _e( 'Add Datetime', 'novel-proofreading' ); ?></h3>
+            <form method="post">
+                <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                <input type="hidden" name="novel_proofreading_action" value="add_datetime" />
+
+                <table class="form-table" role="presentation">
+                    <tbody>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-datetime-book-id"><?php _e( 'Book', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-datetime-book-id" name="book_id" required>
+                                    <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $items as $item ) : ?>
+                                        <option value="<?php echo esc_attr($item['id']); ?>">
+                                            <?php echo esc_html($item['title'] . ' - ' . $item['author'] . ' (' . $item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-datetime-name"><?php _e( 'Name', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" class="regular-text" id="novel-proofreading-datetime-name" name="name" required />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-datetime-time-description"><?php _e( 'Time Description', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <textarea class="large-text" id="novel-proofreading-datetime-time-description" name="time_description" rows="3"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-datetime-description"><?php _e( 'Description', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <textarea class="large-text" id="novel-proofreading-datetime-description" name="description" rows="3"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-datetime-time-type"><?php _e( 'Time Type', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-datetime-time-type" name="time_type" required>
+                                    <option value=""><?php _e( 'Select time type', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $datetime_type_items as $datetime_type_item ) : ?>
+                                        <option value="<?php echo esc_attr($datetime_type_item['name']); ?>">
+                                            <?php echo esc_html($datetime_type_item['name']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <?php _e( 'Inaccurate', 'novel-proofreading' ); ?>
+                            </th>
+                            <td>
+                                <label for="novel-proofreading-datetime-is-inaccurate">
+                                    <input type="checkbox" id="novel-proofreading-datetime-is-inaccurate" name="is_inaccurate" value="Y" />
+                                    <?php _e( 'Yes', 'novel-proofreading' ); ?>
+                                </label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button type="submit" class="button button-primary" <?php disabled(empty($items) || empty($datetime_type_items)); ?>>
+                    + <?php _e( 'Add Datetime', 'novel-proofreading' ); ?>
                 </button>
             </form>
         </div>
