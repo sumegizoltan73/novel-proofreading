@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define('NOVEL_PROOFREADING_DB_VERSION', '0.2');
+define('NOVEL_PROOFREADING_DB_VERSION', '0.3');
 
 function novel_proofreading_install() {
 
@@ -31,6 +31,62 @@ function novel_proofreading_create_tables() {
     global $wpdb;
 
     $charset_collate = $wpdb->get_charset_collate();
+
+    $series_table_name =
+        $wpdb->prefix . 'novel_proofreading_series';
+    $series_mapping_table_name =
+        $wpdb->prefix . 'novel_proofreading_series_mapping';
+
+
+    $sql = "
+    CREATE TABLE $series_table_name (
+
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+        series_title VARCHAR(1024) NOT NULL,
+        series_subtitle VARCHAR(1024) NOT NULL,
+        author VARCHAR(255) NOT NULL,
+        year VARCHAR(4) NOT NULL,
+
+        status VARCHAR(20) NOT NULL DEFAULT 'PROOFREADING',
+
+        created_at DATETIME NOT NULL,
+        updated_at DATETIME NOT NULL,
+
+        PRIMARY KEY  (id),
+
+        UNIQUE KEY idx_series_title (
+            series_title,
+            series_subtitle
+        ),
+
+        KEY idx_series_status (
+            status
+        )
+
+    ) $charset_collate ;
+
+    CREATE TABLE $series_mapping_table_name (
+
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+        series_id BIGINT UNSIGNED NOT NULL,
+        book_id BIGINT UNSIGNED NOT NULL,
+        
+        created_at DATETIME NOT NULL,
+        updated_at DATETIME NOT NULL,
+
+        PRIMARY KEY  (id),
+
+        KEY idx_series_mapping (
+            series_id,
+            book_id
+        )
+
+    ) $charset_collate ;
+    ";
+
+    dbDelta($sql);
 
     $table_name =
         $wpdb->prefix . 'novel_proofreading_books';
