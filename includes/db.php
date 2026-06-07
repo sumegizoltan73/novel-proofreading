@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define('NOVEL_PROOFREADING_DB_VERSION', '0.3');
+define('NOVEL_PROOFREADING_DB_VERSION', '0.4');
 
 function novel_proofreading_install() {
 
@@ -38,7 +38,7 @@ function novel_proofreading_create_tables() {
         $wpdb->prefix . 'novel_proofreading_series_mapping';
 
 
-    $sql = "
+    $sql_series = "
     CREATE TABLE $series_table_name (
 
         id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -86,8 +86,6 @@ function novel_proofreading_create_tables() {
     ) $charset_collate ;
     ";
 
-    dbDelta($sql);
-
     $table_name =
         $wpdb->prefix . 'novel_proofreading_books';
 
@@ -126,6 +124,7 @@ function novel_proofreading_create_tables() {
     );
 
     dbDelta($sql);
+    dbDelta($sql_series);
 
     $types_table_name =
         $wpdb->prefix . 'novel_proofreading_types';

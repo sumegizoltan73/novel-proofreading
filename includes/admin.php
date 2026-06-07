@@ -28,16 +28,24 @@ function novel_proofreading_get_books() {
 
     $table_books =
         $wpdb->prefix . 'novel_proofreading_books';
+    $table_series_mapping =
+        $wpdb->prefix . 'novel_proofreading_series_mapping';
+    $table_series =
+        $wpdb->prefix . 'novel_proofreading_series';
 
     $result = $wpdb->get_results(
         "
         SELECT
-            *
-
+            b.*,
+            s.series_title
         FROM
-            {$table_books}
+            {$table_books} b
+        LEFT JOIN
+            {$table_series_mapping} sm ON sm.book_id = b.id
+        LEFT JOIN 
+            {$table_series} s ON s.id = sm.series_id
 
-        ORDER BY id
+        ORDER BY b.id
         "
     );
 
@@ -45,6 +53,8 @@ function novel_proofreading_get_books() {
 
         $items[] = [
             'id' => intval($row->id),
+
+            'series_title' => isset($row->series_title) ? $row->series_title : '', 
 
             'title' => $row->title,
 
@@ -346,6 +356,7 @@ function novel_proofreading_admin_page() {
             <table class="widefat striped">
                 <thead>
                     <tr>
+                        <th><?php _e( 'Series', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Title', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Subtitle', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Author', 'novel-proofreading' ); ?></th>
@@ -357,6 +368,7 @@ function novel_proofreading_admin_page() {
                 <tbody id="novel-proofreading-books-repeater">
                     <?php foreach ( $items as $item ) : ?>
                         <tr>
+                            <td><?php echo esc_html($item['series_title']); ?></td>
                             <td><?php echo esc_html($item['title']); ?></td>
                             <td><?php echo esc_html($item['subtitle']); ?></td>
                             <td><?php echo esc_html($item['author']); ?></td>
@@ -502,7 +514,7 @@ function novel_proofreading_admin_page() {
                 </table>
 
                 <button type="submit" class="button button-primary" id="add-item">
-                    + <?php _e( 'Add Book', 'novel-proofreading' ); ?>
+                    + <?php _e( 'Add Series', 'novel-proofreading' ); ?>
                 </button>
             </form>
 
