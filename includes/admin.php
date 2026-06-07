@@ -573,10 +573,10 @@ function novel_proofreading_admin_page() {
         <?php endif; ?>
 
         
-        <h2><?php _e( '1. Books', 'novel-proofreading' ); ?></h2>
+        <h2>1.&nbsp;<?php _e( 'Books', 'novel-proofreading' ); ?></h2>
         <button class="button" onclick="show_hide('.books-wrap')"><?php _e( 'Show / Hide Books', 'novel-proofreading' ); ?></button>
         <div class="books-wrap hidden">
-            <h3><?php _e( '1.1 List of Books', 'novel-proofreading' ); ?></h3>
+            <h3>1.1&nbsp;<?php _e( 'List of Books', 'novel-proofreading' ); ?></h3>
             <table class="widefat striped">
                 <thead>
                     <tr>
@@ -621,7 +621,7 @@ function novel_proofreading_admin_page() {
                 </tbody>
             </table>
 
-            <h3><?php _e( '1.2 Add Book', 'novel-proofreading' ); ?></h3>
+            <h3>1.2&nbsp;<?php _e( 'Add Book', 'novel-proofreading' ); ?></h3>
             <form method="post">
                 <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
                 <input type="hidden" name="novel_proofreading_action" value="add_book" />
@@ -669,10 +669,10 @@ function novel_proofreading_admin_page() {
             </form>
         </div>
 
-        <h2><?php _e( '2. Series', 'novel-proofreading' ); ?></h2>
+        <h2>2.&nbsp;<?php _e( 'Series', 'novel-proofreading' ); ?></h2>
         <button class="button" onclick="show_hide('.series-wrap')"><?php _e( 'Show / Hide Series', 'novel-proofreading' ); ?></button>
         <div class="series-wrap hidden">
-            <h3><?php _e( '2.1 List of Series', 'novel-proofreading' ); ?></h3>
+            <h3>2.1&nbsp;<?php _e( 'List of Series', 'novel-proofreading' ); ?></h3>
             <table class="widefat striped">
                 <thead>
                     <tr>
@@ -741,7 +741,7 @@ function novel_proofreading_admin_page() {
                 </tbody>
             </table>
 
-            <h3><?php _e( '2.2 Add Series', 'novel-proofreading' ); ?></h3>
+            <h3>2.2&nbsp;<?php _e( 'Add Series', 'novel-proofreading' ); ?></h3>
             <form method="post">
                 <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
                 <input type="hidden" name="novel_proofreading_action" value="add_series" />
@@ -788,7 +788,7 @@ function novel_proofreading_admin_page() {
                 </button>
             </form>
 
-            <h3><?php _e( '2.3 Add Book to Series', 'novel-proofreading' ); ?></h3>
+            <h3>2.3&nbsp;<?php _e( 'Add Book to Series', 'novel-proofreading' ); ?></h3>
             <form method="post">
                 <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
                 <input type="hidden" name="novel_proofreading_action" value="add_book_to_series" />
