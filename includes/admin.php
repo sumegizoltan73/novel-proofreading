@@ -236,6 +236,54 @@ function novel_proofreading_remove_series($id) {
     return __( 'Series deleted.', 'novel-proofreading' );
 }
 
+function novel_proofreading_add_book_to_series() {
+    global $wpdb;
+
+    $series_id = intval($_POST['series_id'] ?? 0);
+    $book_id = intval($_POST['book_id'] ?? 0);
+
+    if ($series_id <= 0 || $book_id <= 0) {
+        return __( 'Book and series are required.', 'novel-proofreading' );
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_series_mapping';
+
+    $now = current_time(
+        'mysql',
+        true
+    );
+
+    $result = $wpdb->insert(
+        $table,
+        [
+            'series_id' => $series_id,
+
+            'book_id' => $book_id,
+
+            'created_at' => $now,
+
+            'updated_at' => $now
+        ],
+        [
+            '%d',
+            '%d',
+            '%s',
+            '%s'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'INSERT ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Book could not be added to series.', 'novel-proofreading' );
+    }
+
+    return __( 'Book added to series.', 'novel-proofreading' );
+}
+
 function novel_proofreading_admin_page() {
 
     $admin_notice = "";
@@ -270,12 +318,14 @@ function novel_proofreading_admin_page() {
                 intval($_POST['series_id'] ?? 0)
             );
         }
+
+        if ($action === 'add_book_to_series') {
+            $admin_notice = novel_proofreading_add_book_to_series();
+        }
     }
 
     $items = novel_proofreading_get_books();
     $series_items = novel_proofreading_get_series();
-
-    // TODO: 
     ?>
 
     <div class="wrap">
@@ -455,6 +505,52 @@ function novel_proofreading_admin_page() {
                     + <?php _e( 'Add Book', 'novel-proofreading' ); ?>
                 </button>
             </form>
+
+            <h3><?php _e( '2.3 Add Book to Series', 'novel-proofreading' ); ?></h3>
+            <form method="post">
+                <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                <input type="hidden" name="novel_proofreading_action" value="add_book_to_series" />
+
+                <table class="form-table" role="presentation">
+                    <tbody>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-series-book-id"><?php _e( 'Book', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-series-book-id" name="book_id" required>
+                                    <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $items as $item ) : ?>
+                                        <option value="<?php echo esc_attr($item['id']); ?>">
+                                            <?php echo esc_html($item['title'] . ' - ' . $item['author'] . ' (' . $item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-series-id"><?php _e( 'Series', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-series-id" name="series_id" required>
+                                    <option value=""><?php _e( 'Select series', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $series_items as $item ) : ?>
+                                        <option value="<?php echo esc_attr($item['id']); ?>">
+                                            <?php echo esc_html($item['series_title'] . ' - ' . $item['author'] . ' (' . $item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button type="submit" class="button button-primary" <?php disabled(empty($items) || empty($series_items)); ?>>
+                    + <?php _e( 'Add Book to Series', 'novel-proofreading' ); ?>
+                </button>
+            </form>
+
         </div>
     </div>
 
