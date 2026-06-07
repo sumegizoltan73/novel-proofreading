@@ -71,6 +71,57 @@ function novel_proofreading_get_books() {
     return $items;
 }
 
+function novel_proofreading_get_books_by_series($series_id) {
+    global $wpdb;
+
+    $items = [];
+
+    $table_books =
+        $wpdb->prefix . 'novel_proofreading_books';
+    $table_series_mapping =
+        $wpdb->prefix . 'novel_proofreading_series_mapping';
+    $table_series =
+        $wpdb->prefix . 'novel_proofreading_series';
+
+    $result = $wpdb->get_results(
+        "
+        SELECT
+            b.*,
+            s.series_title
+        FROM
+            {$table_books} b
+        JOIN
+            {$table_series_mapping} sm ON sm.book_id = b.id
+        JOIN 
+            {$table_series} s ON s.id = sm.series_id
+        WHERE
+            s.id = {$series_id}
+
+        ORDER BY b.id
+        "
+    );
+
+    foreach ($result as $row) {
+
+        $items[] = [
+            'id' => intval($row->id),
+
+            'series_title' => isset($row->series_title) ? $row->series_title : '', 
+
+            'title' => $row->title,
+
+            'subtitle' => $row->subtitle,
+
+            'author' => $row->author,
+
+            'year' => $row->year,
+
+            'status' => $row->status
+        ];
+    }
+
+    return $items;
+}
 function novel_proofreading_get_series() {
     global $wpdb;
 
@@ -294,6 +345,28 @@ function novel_proofreading_add_book_to_series() {
     return __( 'Book added to series.', 'novel-proofreading' );
 }
 
+function novel_proofreading_remove_book_from_series($series_id, $book_id) {
+    global $wpdb;
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_series_mapping';
+
+    $wpdb->query(
+        $wpdb->prepare(
+            "
+            DELETE FROM {$table}
+
+            WHERE
+                    series_id = %d
+                AND book_id = %d
+            ",
+            $series_id,
+            $book_id
+        )
+    );
+
+    return __( 'Book deleted.', 'novel-proofreading' );
+}
 function novel_proofreading_admin_page() {
 
     $admin_notice = "";
@@ -326,6 +399,13 @@ function novel_proofreading_admin_page() {
         if ($action === 'remove_series') {
             $admin_notice = novel_proofreading_remove_series(
                 intval($_POST['series_id'] ?? 0)
+            );
+        }
+
+        if ($action === 'remove_book_from_series') {
+            $admin_notice = novel_proofreading_remove_book_from_series(
+                intval($_POST['sub_series_id'] ?? 0),
+                intval($_POST['sub_book_id'] ?? 0)
             );
         }
 
@@ -465,6 +545,32 @@ function novel_proofreading_admin_page() {
                                     <input type="hidden" name="series_id" value="<?php echo esc_attr($item['id']); ?>" />
                                     <button type="submit" class="button remove-item">-</button>
                                 </form>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="padding-left: 50px;">
+                                <table>
+                                    <thead>
+                                        <th><?php _e( 'Books in this Series', 'novel-proofreading' ); ?></th>
+                                        <th><?php _e( 'Delete', 'novel-proofreading' ); ?></th>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ( novel_proofreading_get_books_by_series($item['id']) as $subitem ) : ?>
+                                            <tr>
+                                                <td><?php echo esc_html($subitem['title']); ?></td>
+                                                <td>
+                                                    <form method="post">
+                                                        <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                                                        <input type="hidden" name="novel_proofreading_action" value="remove_book_from_series" />
+                                                        <input type="hidden" name="sub_series_id" value="<?php echo esc_attr($item['id']); ?>" />
+                                                        <input type="hidden" name="sub_book_id" value="<?php echo esc_attr($subitem['id']); ?>" />
+                                                        <button type="submit" class="button remove-item">-</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
                             </td>
                         </tr>
                     <?php endforeach; ?>
