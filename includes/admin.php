@@ -230,6 +230,71 @@ function novel_proofreading_remove_book($id) {
     return __( 'Book deleted.', 'novel-proofreading' );
 }
 
+function novel_proofreading_update_book($id) {
+    global $wpdb;
+
+    if ($id <= 0) {
+        return __( 'Book could not be updated.', 'novel-proofreading' );
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_books';
+
+    $result = $wpdb->update(
+        $table,
+        [
+            'title' => sanitize_text_field(
+                wp_unslash($_POST['title'] ?? '')
+            ),
+
+            'subtitle' => sanitize_text_field(
+                wp_unslash($_POST['subtitle'] ?? '')
+            ),
+
+            'author' => sanitize_text_field(
+                wp_unslash($_POST['author'] ?? '')
+            ),
+
+            'year' => sanitize_text_field(
+                wp_unslash($_POST['year'] ?? '')
+            ),
+
+            'status' => sanitize_text_field(
+                wp_unslash($_POST['status'] ?? '')
+            ),
+
+            'updated_at' => current_time(
+                'mysql',
+                true
+            )
+        ],
+        [
+            'id' => $id
+        ],
+        [
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s'
+        ],
+        [
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'UPDATE ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Book could not be updated.', 'novel-proofreading' );
+    }
+
+    return __( 'Book updated.', 'novel-proofreading' );
+}
+
 function novel_proofreading_add_series() {
     global $wpdb;
 
@@ -276,6 +341,72 @@ function novel_proofreading_add_series() {
 
     return __( 'Series added.', 'novel-proofreading' );
 }
+
+function novel_proofreading_update_series($id) {
+    global $wpdb;
+
+    if ($id <= 0) {
+        return __( 'Series could not be updated.', 'novel-proofreading' );
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_series';
+
+    $result = $wpdb->update(
+        $table,
+        [
+            'series_title' => sanitize_text_field(
+                wp_unslash($_POST['series_title'] ?? '')
+            ),
+
+            'series_subtitle' => sanitize_text_field(
+                wp_unslash($_POST['series_subtitle'] ?? '')
+            ),
+
+            'author' => sanitize_text_field(
+                wp_unslash($_POST['author'] ?? '')
+            ),
+
+            'year' => sanitize_text_field(
+                wp_unslash($_POST['year'] ?? '')
+            ),
+
+            'status' => sanitize_text_field(
+                wp_unslash($_POST['status'] ?? '')
+            ),
+
+            'updated_at' => current_time(
+                'mysql',
+                true
+            )
+        ],
+        [
+            'id' => $id
+        ],
+        [
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s'
+        ],
+        [
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'UPDATE ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Series could not be updated.', 'novel-proofreading' );
+    }
+
+    return __( 'Series updated.', 'novel-proofreading' );
+}
+
 function novel_proofreading_remove_series($id) {
     global $wpdb;
 
@@ -392,12 +523,24 @@ function novel_proofreading_admin_page() {
             );
         }
 
+        if ($action === 'update_book') {
+            $admin_notice = novel_proofreading_update_book(
+                intval($_POST['book_id'] ?? 0)
+            );
+        }
+
         if ($action === 'add_series') {
             $admin_notice = novel_proofreading_add_series();
         }
 
         if ($action === 'remove_series') {
             $admin_notice = novel_proofreading_remove_series(
+                intval($_POST['series_id'] ?? 0)
+            );
+        }
+
+        if ($action === 'update_series') {
+            $admin_notice = novel_proofreading_update_series(
                 intval($_POST['series_id'] ?? 0)
             );
         }
@@ -416,6 +559,7 @@ function novel_proofreading_admin_page() {
 
     $items = novel_proofreading_get_books();
     $series_items = novel_proofreading_get_series();
+
     ?>
 
     <div class="wrap">
@@ -442,18 +586,28 @@ function novel_proofreading_admin_page() {
                         <th><?php _e( 'Author', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Year', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Status', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Edit', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Delete', 'novel-proofreading' ); ?></th>
                     </tr>
                 </thead>
                 <tbody id="novel-proofreading-books-repeater">
                     <?php foreach ( $items as $item ) : ?>
+                        <?php $book_form_id = 'novel-proofreading-edit-book-' . intval($item['id']); ?>
                         <tr>
                             <td><?php echo esc_html($item['series_title']); ?></td>
-                            <td><?php echo esc_html($item['title']); ?></td>
-                            <td><?php echo esc_html($item['subtitle']); ?></td>
-                            <td><?php echo esc_html($item['author']); ?></td>
-                            <td><?php echo esc_html($item['year']); ?></td>
-                            <td><?php echo esc_html($item['status']); ?></td>
+                            <td><input form="<?php echo esc_attr($book_form_id); ?>" type="text" name="title" value="<?php echo esc_attr($item['title']); ?>" required /></td>
+                            <td><input form="<?php echo esc_attr($book_form_id); ?>" type="text" name="subtitle" value="<?php echo esc_attr($item['subtitle']); ?>" required /></td>
+                            <td><input form="<?php echo esc_attr($book_form_id); ?>" type="text" name="author" value="<?php echo esc_attr($item['author']); ?>" required /></td>
+                            <td><input form="<?php echo esc_attr($book_form_id); ?>" type="text" name="year" value="<?php echo esc_attr($item['year']); ?>" maxlength="4" pattern="[0-9]{4}" required /></td>
+                            <td><input form="<?php echo esc_attr($book_form_id); ?>" type="text" name="status" value="<?php echo esc_attr($item['status']); ?>" /></td>
+                            <td>
+                                <form id="<?php echo esc_attr($book_form_id); ?>" method="post">
+                                    <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                                    <input type="hidden" name="novel_proofreading_action" value="update_book" />
+                                    <input type="hidden" name="book_id" value="<?php echo esc_attr($item['id']); ?>" />
+                                    <button type="submit" class="button button-primary"><?php _e( 'Save', 'novel-proofreading' ); ?></button>
+                                </form>
+                            </td>
                             <td>
                                 <form method="post">
                                     <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
@@ -527,17 +681,27 @@ function novel_proofreading_admin_page() {
                         <th><?php _e( 'Author', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Year', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Status', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Edit', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Delete', 'novel-proofreading' ); ?></th>
                     </tr>
                 </thead>
                 <tbody id="novel-proofreading-series-repeater">
                     <?php foreach ( $series_items as $item ) : ?>
+                        <?php $series_form_id = 'novel-proofreading-edit-series-' . intval($item['id']); ?>
                         <tr>
-                            <td><?php echo esc_html($item['series_title']); ?></td>
-                            <td><?php echo esc_html($item['series_subtitle']); ?></td>
-                            <td><?php echo esc_html($item['author']); ?></td>
-                            <td><?php echo esc_html($item['year']); ?></td>
-                            <td><?php echo esc_html($item['status']); ?></td>
+                            <td><input form="<?php echo esc_attr($series_form_id); ?>" type="text" name="series_title" value="<?php echo esc_attr($item['series_title']); ?>" required /></td>
+                            <td><input form="<?php echo esc_attr($series_form_id); ?>" type="text" name="series_subtitle" value="<?php echo esc_attr($item['series_subtitle']); ?>" required /></td>
+                            <td><input form="<?php echo esc_attr($series_form_id); ?>" type="text" name="author" value="<?php echo esc_attr($item['author']); ?>" required /></td>
+                            <td><input form="<?php echo esc_attr($series_form_id); ?>" type="text" name="year" value="<?php echo esc_attr($item['year']); ?>" maxlength="4" pattern="[0-9]{4}" required /></td>
+                            <td><input form="<?php echo esc_attr($series_form_id); ?>" type="text" name="status" value="<?php echo esc_attr($item['status']); ?>" /></td>
+                            <td>
+                                <form id="<?php echo esc_attr($series_form_id); ?>" method="post">
+                                    <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                                    <input type="hidden" name="novel_proofreading_action" value="update_series" />
+                                    <input type="hidden" name="series_id" value="<?php echo esc_attr($item['id']); ?>" />
+                                    <button type="submit" class="button button-primary"><?php _e( 'Save', 'novel-proofreading' ); ?></button>
+                                </form>
+                            </td>
                             <td>
                                 <form method="post">
                                     <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
@@ -548,7 +712,7 @@ function novel_proofreading_admin_page() {
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="4" style="padding-left: 50px;">
+                            <td colspan="7" style="padding-left: 50px;">
                                 <table>
                                     <thead>
                                         <th><?php _e( 'Books in this Series', 'novel-proofreading' ); ?></th>
