@@ -498,6 +498,225 @@ function novel_proofreading_remove_book_from_series($series_id, $book_id) {
 
     return __( 'Book deleted.', 'novel-proofreading' );
 }
+
+function novel_proofreading_get_persons() {
+    global $wpdb;
+
+    $items = [];
+
+    $table_persons =
+        $wpdb->prefix . 'novel_proofreading_persons';
+    $table_books =
+        $wpdb->prefix . 'novel_proofreading_books';
+
+    $result = $wpdb->get_results(
+        "
+        SELECT
+            p.*,
+            b.title AS book_title
+
+        FROM
+            {$table_persons} p
+        LEFT JOIN
+            {$table_books} b ON b.id = p.book_id
+
+        ORDER BY p.id
+        "
+    );
+
+    foreach ($result as $row) {
+
+        $items[] = [
+            'id' => intval($row->id),
+
+            'book_id' => intval($row->book_id),
+
+            'book_title' => isset($row->book_title) ? $row->book_title : '',
+
+            'name' => $row->name,
+
+            'alias' => $row->alias,
+
+            'description' => $row->description,
+
+            'is_inaccurate' => $row->is_inaccurate
+        ];
+    }
+
+    return $items;
+}
+
+function novel_proofreading_sanitize_person_data() {
+    $name = sanitize_text_field(
+        wp_unslash($_POST['name'] ?? '')
+    );
+    $alias = sanitize_text_field(
+        wp_unslash($_POST['alias'] ?? '')
+    );
+
+    if ($name === '' && $alias === '') {
+        return new WP_Error(
+            'missing_person_name',
+            __( 'Name or alias is required.', 'novel-proofreading' )
+        );
+    }
+
+    $book_id = intval($_POST['book_id'] ?? 0);
+
+    if ($book_id <= 0) {
+        return new WP_Error(
+            'missing_person_book',
+            __( 'Book is required.', 'novel-proofreading' )
+        );
+    }
+
+    return [
+        'book_id' => $book_id,
+
+        'name' => $name,
+
+        'alias' => $alias,
+
+        'description' => sanitize_textarea_field(
+            wp_unslash($_POST['description'] ?? '')
+        ),
+
+        'is_inaccurate' => isset($_POST['is_inaccurate']) ? 'Y' : 'N'
+    ];
+}
+
+function novel_proofreading_add_person() {
+    global $wpdb;
+
+    $data = novel_proofreading_sanitize_person_data();
+
+    if (is_wp_error($data)) {
+        return $data->get_error_message();
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_persons';
+
+    $now = current_time(
+        'mysql',
+        true
+    );
+
+    $result = $wpdb->insert(
+        $table,
+        array_merge(
+            $data,
+            [
+                'created_at' => $now,
+
+                'created_by' => get_current_user_id(),
+
+                'updated_at' => $now,
+
+                'updated_by' => get_current_user_id()
+            ]
+        ),
+        [
+            '%d',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%d',
+            '%s',
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'INSERT ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Person could not be added.', 'novel-proofreading' );
+    }
+
+    return __( 'Person added.', 'novel-proofreading' );
+}
+
+function novel_proofreading_update_person($id) {
+    global $wpdb;
+
+    if ($id <= 0) {
+        return __( 'Person could not be updated.', 'novel-proofreading' );
+    }
+
+    $data = novel_proofreading_sanitize_person_data();
+
+    if (is_wp_error($data)) {
+        return $data->get_error_message();
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_persons';
+
+    $result = $wpdb->update(
+        $table,
+        array_merge(
+            $data,
+            [
+                'updated_at' => current_time(
+                    'mysql',
+                    true
+                ),
+
+                'updated_by' => get_current_user_id()
+            ]
+        ),
+        [
+            'id' => $id
+        ],
+        [
+            '%d',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%d'
+        ],
+        [
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'UPDATE ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Person could not be updated.', 'novel-proofreading' );
+    }
+
+    return __( 'Person updated.', 'novel-proofreading' );
+}
+
+function novel_proofreading_remove_person($id) {
+    global $wpdb;
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_persons';
+
+    $wpdb->query(
+        $wpdb->prepare(
+            "
+            DELETE FROM {$table}
+
+            WHERE
+                id = %d
+            ",
+            $id
+        )
+    );
+
+    return __( 'Person deleted.', 'novel-proofreading' );
+}
 function novel_proofreading_admin_page() {
 
     $admin_notice = "";
@@ -555,11 +774,27 @@ function novel_proofreading_admin_page() {
         if ($action === 'add_book_to_series') {
             $admin_notice = novel_proofreading_add_book_to_series();
         }
+
+        if ($action === 'add_person') {
+            $admin_notice = novel_proofreading_add_person();
+        }
+
+        if ($action === 'remove_person') {
+            $admin_notice = novel_proofreading_remove_person(
+                intval($_POST['person_id'] ?? 0)
+            );
+        }
+
+        if ($action === 'update_person') {
+            $admin_notice = novel_proofreading_update_person(
+                intval($_POST['person_id'] ?? 0)
+            );
+        }
     }
 
     $items = novel_proofreading_get_books();
     $series_items = novel_proofreading_get_series();
-
+    $person_items = novel_proofreading_get_persons();
     ?>
 
     <div class="wrap">
@@ -832,6 +1067,135 @@ function novel_proofreading_admin_page() {
                     + <?php _e( 'Add Book to Series', 'novel-proofreading' ); ?>
                 </button>
             </form>
+
+        </div>
+
+        <h2>3.&nbsp;<?php _e( 'Person', 'novel-proofreading' ); ?></h2>
+        <button class="button" onclick="show_hide('.persons-wrap')"><?php _e( 'Show / Hide Persons', 'novel-proofreading' ); ?></button>
+        <div class="persons-wrap hidden">
+            <h3>3.1&nbsp;<?php _e( 'List of Persons', 'novel-proofreading' ); ?></h3>
+            <table class="widefat striped">
+                <thead>
+                    <tr>
+                        <th><?php _e( 'Book', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Name', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Alias', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Description', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Inaccurate', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Edit', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Delete', 'novel-proofreading' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody id="novel-proofreading-persons-repeater">
+                    <?php foreach ( $person_items as $item ) : ?>
+                        <?php $person_form_id = 'novel-proofreading-edit-person-' . intval($item['id']); ?>
+                        <tr>
+                            <td>
+                                <select form="<?php echo esc_attr($person_form_id); ?>" name="book_id" required>
+                                    <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $items as $book_item ) : ?>
+                                        <option value="<?php echo esc_attr($book_item['id']); ?>" <?php selected($item['book_id'], $book_item['id']); ?>>
+                                            <?php echo esc_html($book_item['title'] . ' - ' . $book_item['author'] . ' (' . $book_item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td><input form="<?php echo esc_attr($person_form_id); ?>" type="text" name="name" value="<?php echo esc_attr($item['name']); ?>" /></td>
+                            <td><input form="<?php echo esc_attr($person_form_id); ?>" type="text" name="alias" value="<?php echo esc_attr($item['alias']); ?>" /></td>
+                            <td><textarea form="<?php echo esc_attr($person_form_id); ?>" name="description" rows="2"><?php echo esc_textarea($item['description']); ?></textarea></td>
+                            <td><input form="<?php echo esc_attr($person_form_id); ?>" type="checkbox" name="is_inaccurate" value="Y" <?php checked($item['is_inaccurate'], 'Y'); ?> /></td>
+                            <td>
+                                <form id="<?php echo esc_attr($person_form_id); ?>" method="post">
+                                    <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                                    <input type="hidden" name="novel_proofreading_action" value="update_person" />
+                                    <input type="hidden" name="person_id" value="<?php echo esc_attr($item['id']); ?>" />
+                                    <button type="submit" class="button button-primary"><?php _e( 'Save', 'novel-proofreading' ); ?></button>
+                                </form>
+                            </td>
+                            <td>
+                                <form method="post">
+                                    <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                                    <input type="hidden" name="novel_proofreading_action" value="remove_person" />
+                                    <input type="hidden" name="person_id" value="<?php echo esc_attr($item['id']); ?>" />
+                                    <button type="submit" class="button remove-item">-</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <h3>3.2&nbsp;<?php _e( 'Add Person', 'novel-proofreading' ); ?></h3>
+            <form method="post">
+                <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                <input type="hidden" name="novel_proofreading_action" value="add_person" />
+
+                <table class="form-table" role="presentation">
+                    <tbody>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-person-book-id"><?php _e( 'Book', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-person-book-id" name="book_id" required>
+                                    <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $items as $item ) : ?>
+                                        <option value="<?php echo esc_attr($item['id']); ?>">
+                                            <?php echo esc_html($item['title'] . ' - ' . $item['author'] . ' (' . $item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-person-name"><?php _e( 'Name', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" class="regular-text" id="novel-proofreading-person-name" name="name" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-person-alias"><?php _e( 'Alias', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" class="regular-text" id="novel-proofreading-person-alias" name="alias" />
+                                <p class="description"><?php _e( 'Name or alias is required.', 'novel-proofreading' ); ?></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-person-description"><?php _e( 'Description', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <textarea class="large-text" id="novel-proofreading-person-description" name="description" rows="3"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <?php _e( 'Inaccurate', 'novel-proofreading' ); ?>
+                            </th>
+                            <td>
+                                <label for="novel-proofreading-person-is-inaccurate">
+                                    <input type="checkbox" id="novel-proofreading-person-is-inaccurate" name="is_inaccurate" value="Y" />
+                                    <?php _e( 'Yes', 'novel-proofreading' ); ?>
+                                </label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button type="submit" class="button button-primary" <?php disabled(empty($items)); ?>>
+                    + <?php _e( 'Add Person', 'novel-proofreading' ); ?>
+                </button>
+            </form>
+
+        </div>
+
+        <h2>4.&nbsp;<?php _e( 'Locations', 'novel-proofreading' ); ?></h2>
+        <button class="button" onclick="show_hide('.locations-wrap')"><?php _e( 'Show / Hide Locations', 'novel-proofreading' ); ?></button>
+        <div class="locations-wrap hidden">
 
         </div>
     </div>

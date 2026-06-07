@@ -227,3 +227,9 @@ VALUES of AREA_TYPE : (SPACE, GALAXY, ANOTHER_GALAXY, ANOTHER_PLANET, EARTH, COU
 - created_by
 - updated_at
 - updated_by
+
+# Adatmodell II. (v0.5)
+
+## novel_proofreading_storylines
+
+## novel_proofreading_events
