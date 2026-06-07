@@ -717,6 +717,273 @@ function novel_proofreading_remove_person($id) {
 
     return __( 'Person deleted.', 'novel-proofreading' );
 }
+
+function novel_proofreading_get_type_options($category) {
+    global $wpdb;
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_types';
+
+    return $wpdb->get_results(
+        $wpdb->prepare(
+            "
+            SELECT
+                name
+
+            FROM
+                {$table}
+
+            WHERE
+                category = %s
+
+            ORDER BY name
+            ",
+            $category
+        ),
+        ARRAY_A
+    );
+}
+
+function novel_proofreading_get_locations() {
+    global $wpdb;
+
+    $items = [];
+
+    $table_locations =
+        $wpdb->prefix . 'novel_proofreading_locations';
+    $table_books =
+        $wpdb->prefix . 'novel_proofreading_books';
+
+    $result = $wpdb->get_results(
+        "
+        SELECT
+            l.*,
+            b.title AS book_title
+
+        FROM
+            {$table_locations} l
+        LEFT JOIN
+            {$table_books} b ON b.id = l.book_id
+
+        ORDER BY l.id
+        "
+    );
+
+    foreach ($result as $row) {
+
+        $items[] = [
+            'id' => intval($row->id),
+
+            'book_id' => intval($row->book_id),
+
+            'book_title' => isset($row->book_title) ? $row->book_title : '',
+
+            'name' => $row->name,
+
+            'alias' => $row->alias,
+
+            'area' => $row->area,
+
+            'region' => $row->region,
+
+            'description' => $row->description,
+
+            'is_in_alternative_universe' => $row->is_in_alternative_universe,
+
+            'is_inaccurate' => $row->is_inaccurate
+        ];
+    }
+
+    return $items;
+}
+
+function novel_proofreading_sanitize_location_data() {
+    $name = sanitize_text_field(
+        wp_unslash($_POST['name'] ?? '')
+    );
+    $alias = sanitize_text_field(
+        wp_unslash($_POST['alias'] ?? '')
+    );
+
+    if ($name === '' && $alias === '') {
+        return new WP_Error(
+            'missing_location_name',
+            __( 'Name or alias is required.', 'novel-proofreading' )
+        );
+    }
+
+    $book_id = intval($_POST['book_id'] ?? 0);
+
+    if ($book_id <= 0) {
+        return new WP_Error(
+            'missing_location_book',
+            __( 'Book is required.', 'novel-proofreading' )
+        );
+    }
+
+    return [
+        'book_id' => $book_id,
+
+        'name' => $name,
+
+        'alias' => $alias,
+
+        'area' => sanitize_text_field(
+            wp_unslash($_POST['area'] ?? '')
+        ),
+
+        'region' => sanitize_text_field(
+            wp_unslash($_POST['region'] ?? '')
+        ),
+
+        'description' => sanitize_textarea_field(
+            wp_unslash($_POST['description'] ?? '')
+        ),
+
+        'is_in_alternative_universe' => isset($_POST['is_in_alternative_universe']) ? 'Y' : 'N',
+
+        'is_inaccurate' => isset($_POST['is_inaccurate']) ? 'Y' : 'N'
+    ];
+}
+
+function novel_proofreading_add_location() {
+    global $wpdb;
+
+    $data = novel_proofreading_sanitize_location_data();
+
+    if (is_wp_error($data)) {
+        return $data->get_error_message();
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_locations';
+
+    $now = current_time(
+        'mysql',
+        true
+    );
+
+    $result = $wpdb->insert(
+        $table,
+        array_merge(
+            $data,
+            [
+                'created_at' => $now,
+
+                'created_by' => get_current_user_id(),
+
+                'updated_at' => $now,
+
+                'updated_by' => get_current_user_id()
+            ]
+        ),
+        [
+            '%d',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%d',
+            '%s',
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'INSERT ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Location could not be added.', 'novel-proofreading' );
+    }
+
+    return __( 'Location added.', 'novel-proofreading' );
+}
+
+function novel_proofreading_update_location($id) {
+    global $wpdb;
+
+    if ($id <= 0) {
+        return __( 'Location could not be updated.', 'novel-proofreading' );
+    }
+
+    $data = novel_proofreading_sanitize_location_data();
+
+    if (is_wp_error($data)) {
+        return $data->get_error_message();
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_locations';
+
+    $result = $wpdb->update(
+        $table,
+        array_merge(
+            $data,
+            [
+                'updated_at' => current_time(
+                    'mysql',
+                    true
+                ),
+
+                'updated_by' => get_current_user_id()
+            ]
+        ),
+        [
+            'id' => $id
+        ],
+        [
+            '%d',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%d'
+        ],
+        [
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'UPDATE ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Location could not be updated.', 'novel-proofreading' );
+    }
+
+    return __( 'Location updated.', 'novel-proofreading' );
+}
+
+function novel_proofreading_remove_location($id) {
+    global $wpdb;
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_locations';
+
+    $wpdb->query(
+        $wpdb->prepare(
+            "
+            DELETE FROM {$table}
+
+            WHERE
+                id = %d
+            ",
+            $id
+        )
+    );
+
+    return __( 'Location deleted.', 'novel-proofreading' );
+}
 function novel_proofreading_admin_page() {
 
     $admin_notice = "";
@@ -790,11 +1057,30 @@ function novel_proofreading_admin_page() {
                 intval($_POST['person_id'] ?? 0)
             );
         }
+
+        if ($action === 'add_location') {
+            $admin_notice = novel_proofreading_add_location();
+        }
+
+        if ($action === 'remove_location') {
+            $admin_notice = novel_proofreading_remove_location(
+                intval($_POST['location_id'] ?? 0)
+            );
+        }
+
+        if ($action === 'update_location') {
+            $admin_notice = novel_proofreading_update_location(
+                intval($_POST['location_id'] ?? 0)
+            );
+        }
     }
 
     $items = novel_proofreading_get_books();
     $series_items = novel_proofreading_get_series();
     $person_items = novel_proofreading_get_persons();
+
+    $location_items = novel_proofreading_get_locations();
+    $area_type_items = novel_proofreading_get_type_options('AREA_TYPE');
     ?>
 
     <div class="wrap">
@@ -1196,7 +1482,172 @@ function novel_proofreading_admin_page() {
         <h2>4.&nbsp;<?php _e( 'Locations', 'novel-proofreading' ); ?></h2>
         <button class="button" onclick="show_hide('.locations-wrap')"><?php _e( 'Show / Hide Locations', 'novel-proofreading' ); ?></button>
         <div class="locations-wrap hidden">
+            <h3>4.1&nbsp;<?php _e( 'List of Locations', 'novel-proofreading' ); ?></h3>
+            <table class="widefat striped">
+                <thead>
+                    <tr>
+                        <th><?php _e( 'Book', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Name', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Alias', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Area', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Region', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Description', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Alternative Universe', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Inaccurate', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Edit', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Delete', 'novel-proofreading' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody id="novel-proofreading-locations-repeater">
+                    <?php foreach ( $location_items as $item ) : ?>
+                        <?php $location_form_id = 'novel-proofreading-edit-location-' . intval($item['id']); ?>
+                        <tr>
+                            <td>
+                                <select form="<?php echo esc_attr($location_form_id); ?>" name="book_id" required>
+                                    <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $items as $book_item ) : ?>
+                                        <option value="<?php echo esc_attr($book_item['id']); ?>" <?php selected($item['book_id'], $book_item['id']); ?>>
+                                            <?php echo esc_html($book_item['title'] . ' - ' . $book_item['author'] . ' (' . $book_item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td><input form="<?php echo esc_attr($location_form_id); ?>" type="text" name="name" value="<?php echo esc_attr($item['name']); ?>" /></td>
+                            <td><input form="<?php echo esc_attr($location_form_id); ?>" type="text" name="alias" value="<?php echo esc_attr($item['alias']); ?>" /></td>
+                            <td>
+                                <select form="<?php echo esc_attr($location_form_id); ?>" name="area">
+                                    <option value=""><?php _e( 'Select area', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $area_type_items as $area_type_item ) : ?>
+                                        <option value="<?php echo esc_attr($area_type_item['name']); ?>" <?php selected($item['area'], $area_type_item['name']); ?>>
+                                            <?php echo esc_html($area_type_item['name']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td><input form="<?php echo esc_attr($location_form_id); ?>" type="text" name="region" value="<?php echo esc_attr($item['region']); ?>" /></td>
+                            <td><textarea form="<?php echo esc_attr($location_form_id); ?>" name="description" rows="2"><?php echo esc_textarea($item['description']); ?></textarea></td>
+                            <td><input form="<?php echo esc_attr($location_form_id); ?>" type="checkbox" name="is_in_alternative_universe" value="Y" <?php checked($item['is_in_alternative_universe'], 'Y'); ?> /></td>
+                            <td><input form="<?php echo esc_attr($location_form_id); ?>" type="checkbox" name="is_inaccurate" value="Y" <?php checked($item['is_inaccurate'], 'Y'); ?> /></td>
+                            <td>
+                                <form id="<?php echo esc_attr($location_form_id); ?>" method="post">
+                                    <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                                    <input type="hidden" name="novel_proofreading_action" value="update_location" />
+                                    <input type="hidden" name="location_id" value="<?php echo esc_attr($item['id']); ?>" />
+                                    <button type="submit" class="button button-primary"><?php _e( 'Save', 'novel-proofreading' ); ?></button>
+                                </form>
+                            </td>
+                            <td>
+                                <form method="post">
+                                    <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                                    <input type="hidden" name="novel_proofreading_action" value="remove_location" />
+                                    <input type="hidden" name="location_id" value="<?php echo esc_attr($item['id']); ?>" />
+                                    <button type="submit" class="button remove-item">-</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
 
+            <h3>4.2&nbsp;<?php _e( 'Add Location', 'novel-proofreading' ); ?></h3>
+            <form method="post">
+                <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                <input type="hidden" name="novel_proofreading_action" value="add_location" />
+
+                <table class="form-table" role="presentation">
+                    <tbody>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-location-book-id"><?php _e( 'Book', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-location-book-id" name="book_id" required>
+                                    <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $items as $item ) : ?>
+                                        <option value="<?php echo esc_attr($item['id']); ?>">
+                                            <?php echo esc_html($item['title'] . ' - ' . $item['author'] . ' (' . $item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-location-name"><?php _e( 'Name', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" class="regular-text" id="novel-proofreading-location-name" name="name" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-location-alias"><?php _e( 'Alias', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" class="regular-text" id="novel-proofreading-location-alias" name="alias" />
+                                <p class="description"><?php _e( 'Name or alias is required.', 'novel-proofreading' ); ?></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-location-area"><?php _e( 'Area', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-location-area" name="area">
+                                    <option value=""><?php _e( 'Select area', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $area_type_items as $area_type_item ) : ?>
+                                        <option value="<?php echo esc_attr($area_type_item['name']); ?>">
+                                            <?php echo esc_html($area_type_item['name']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-location-region"><?php _e( 'Region', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" class="regular-text" id="novel-proofreading-location-region" name="region" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-location-description"><?php _e( 'Description', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <textarea class="large-text" id="novel-proofreading-location-description" name="description" rows="3"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <?php _e( 'Alternative Universe', 'novel-proofreading' ); ?>
+                            </th>
+                            <td>
+                                <label for="novel-proofreading-location-is-in-alternative-universe">
+                                    <input type="checkbox" id="novel-proofreading-location-is-in-alternative-universe" name="is_in_alternative_universe" value="Y" />
+                                    <?php _e( 'Yes', 'novel-proofreading' ); ?>
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <?php _e( 'Inaccurate', 'novel-proofreading' ); ?>
+                            </th>
+                            <td>
+                                <label for="novel-proofreading-location-is-inaccurate">
+                                    <input type="checkbox" id="novel-proofreading-location-is-inaccurate" name="is_inaccurate" value="Y" />
+                                    <?php _e( 'Yes', 'novel-proofreading' ); ?>
+                                </label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button type="submit" class="button button-primary" <?php disabled(empty($items)); ?>>
+                    + <?php _e( 'Add Location', 'novel-proofreading' ); ?>
+                </button>
+            </form>
         </div>
     </div>
 
