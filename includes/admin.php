@@ -1454,6 +1454,285 @@ function novel_proofreading_remove_profession($id) {
 
     return __( 'Profession deleted.', 'novel-proofreading' );
 }
+
+function novel_proofreading_get_events() {
+    global $wpdb;
+
+    $items = [];
+
+    $table_events =
+        $wpdb->prefix . 'novel_proofreading_events';
+    $table_books =
+        $wpdb->prefix . 'novel_proofreading_books';
+    $table_storylines =
+        $wpdb->prefix . 'novel_proofreading_storylines';
+
+    $result = $wpdb->get_results(
+        "
+        SELECT
+            e.*,
+            b.title AS book_title,
+            st.storyline_name AS storyline_name
+
+        FROM
+            {$table_events} e
+        LEFT JOIN
+            {$table_books} b ON b.id = e.book_id
+        LEFT JOIN
+            {$table_storylines} st ON st.id = e.storyline_id
+
+        ORDER BY e.id
+        "
+    );
+
+    foreach ($result as $row) {
+
+        $items[] = [
+            'id' => intval($row->id),
+
+            'book_id' => intval($row->book_id),
+
+            'book_title' => isset($row->book_title) ? $row->book_title : '',
+
+            'storyline_id' => intval($row->storyline_id),
+
+            'storyline_name' => isset($row->storyline_name) ? $row->storyline_name : '',
+
+            'event_name' => $row->event_name,
+
+            'description' => $row->description
+        ];
+    }
+
+    return $items;
+}
+
+function novel_proofreading_sanitize_event_data() {
+    $book_id = intval($_POST['book_id'] ?? 0);
+
+    if ($book_id <= 0) {
+        return new WP_Error(
+            'missing_event_book',
+            __( 'Book is required.', 'novel-proofreading' )
+        );
+    }
+
+    $storyline_id = intval($_POST['storyline_id'] ?? 0);
+
+    if ($storyline_id < 0) {
+        return new WP_Error(
+            'missing_event_storyline',
+            __( 'Storyline is invalid.', 'novel-proofreading' )
+        );
+    }
+
+    $event_name = sanitize_text_field(
+        wp_unslash($_POST['event_name'] ?? '')
+    );
+
+    if ($event_name === '') {
+        return new WP_Error(
+            'missing_event_name',
+            __( 'Event name is required.', 'novel-proofreading' )
+        );
+    }
+
+    return [
+        'book_id' => $book_id,
+
+        'storyline_id' => $storyline_id,
+
+        'event_name' => $event_name,
+
+        'description' => sanitize_textarea_field(
+            wp_unslash($_POST['description'] ?? '')
+        )
+    ];
+}
+
+function novel_proofreading_add_event() {
+    global $wpdb;
+
+    $data = novel_proofreading_sanitize_event_data();
+
+    if (is_wp_error($data)) {
+        return $data->get_error_message();
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_events';
+
+    $now = current_time(
+        'mysql',
+        true
+    );
+
+    $result = $wpdb->insert(
+        $table,
+        array_merge(
+            $data,
+            [
+                'created_at' => $now,
+
+                'created_by' => get_current_user_id(),
+
+                'updated_at' => $now,
+
+                'updated_by' => get_current_user_id()
+            ]
+        ),
+        [
+            '%d',
+            '%d',
+            '%s',
+            '%s',
+            '%s',
+            '%d',
+            '%s',
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'INSERT ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Event could not be added.', 'novel-proofreading' );
+    }
+
+    return __( 'Event added.', 'novel-proofreading' );
+}
+
+function novel_proofreading_update_event($id) {
+    global $wpdb;
+
+    if ($id <= 0) {
+        return __( 'Event could not be updated.', 'novel-proofreading' );
+    }
+
+    $data = novel_proofreading_sanitize_event_data();
+
+    if (is_wp_error($data)) {
+        return $data->get_error_message();
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_events';
+
+    $result = $wpdb->update(
+        $table,
+        array_merge(
+            $data,
+            [
+                'updated_at' => current_time(
+                    'mysql',
+                    true
+                ),
+
+                'updated_by' => get_current_user_id()
+            ]
+        ),
+        [
+            'id' => $id
+        ],
+        [
+            '%d',
+            '%d',
+            '%s',
+            '%s',
+            '%s',
+            '%d'
+        ],
+        [
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'UPDATE ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Event could not be updated.', 'novel-proofreading' );
+    }
+
+    return __( 'Event updated.', 'novel-proofreading' );
+}
+
+function novel_proofreading_remove_event($id) {
+    global $wpdb;
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_events';
+
+    $wpdb->query(
+        $wpdb->prepare(
+            "
+            DELETE FROM {$table}
+
+            WHERE
+                id = %d
+            ",
+            $id
+        )
+    );
+
+    return __( 'Event deleted.', 'novel-proofreading' );
+}
+
+function novel_proofreading_get_storylines() {
+    global $wpdb;
+
+    $items = [];
+
+    $table_storylines =
+        $wpdb->prefix . 'novel_proofreading_storylines';
+    $table_books =
+        $wpdb->prefix . 'novel_proofreading_books';
+    $table_events =
+        $wpdb->prefix . 'novel_proofreading_events';
+
+    $result = $wpdb->get_results(
+        "
+        SELECT
+            st.*,
+            b.title AS book_title,
+            e.event_name AS event_name
+
+        FROM
+            {$table_storylines} st
+        LEFT JOIN
+            {$table_books} b ON b.id = st.book_id
+        LEFT JOIN
+            {$table_events} e ON e.id = st.main_event
+
+        ORDER BY e.id
+        "
+    );
+
+    foreach ($result as $row) {
+
+        $items[] = [
+            'id' => intval($row->id),
+
+            'book_id' => intval($row->book_id),
+
+            'book_title' => isset($row->book_title) ? $row->book_title : '',
+
+            'main_event' => intval($row->main_event),
+
+            'storyline_name' => isset($row->storyline_name) ? $row->storyline_name : '',
+
+            'event_name' => $row->event_name,
+
+            'description' => $row->description
+        ];
+    }
+
+    return $items;
+}
+
 function novel_proofreading_admin_page() {
 
     $admin_notice = "";
@@ -1575,17 +1854,36 @@ function novel_proofreading_admin_page() {
                 intval($_POST['profession_id'] ?? 0)
             );
         }
+
+        if ($action === 'add_event') {
+            $admin_notice = novel_proofreading_add_event();
+        }
+
+        if ($action === 'remove_event') {
+            $admin_notice = novel_proofreading_remove_event(
+                intval($_POST['event_id'] ?? 0)
+            );
+        }
+
+        if ($action === 'update_event') {
+            $admin_notice = novel_proofreading_update_event(
+                intval($_POST['event_id'] ?? 0)
+            );
+        }
     }
 
     $items = novel_proofreading_get_books();
     $series_items = novel_proofreading_get_series();
     $person_items = novel_proofreading_get_persons();
+    $storyline_items = novel_proofreading_get_storylines();
 
     $location_items = novel_proofreading_get_locations();
     $area_type_items = novel_proofreading_get_type_options('AREA_TYPE');
     $datetime_items = novel_proofreading_get_datetimes();
     $datetime_type_items = novel_proofreading_get_type_options('DATETIME_TYPE');
     $profession_items = novel_proofreading_get_professions();
+
+    $event_items = novel_proofreading_get_events();
     ?>
 
     <div class="wrap">
@@ -2435,6 +2733,130 @@ function novel_proofreading_admin_page() {
 
                 <button type="submit" class="button button-primary" <?php disabled(empty($items) || empty($person_items)); ?>>
                     + <?php _e( 'Add Profession', 'novel-proofreading' ); ?>
+                </button>
+            </form>
+        </div>
+
+        <h2>7.&nbsp;<?php _e( 'Events', 'novel-proofreading' ); ?></h2>
+        <button class="button" onclick="show_hide('.events-wrap')"><?php _e( 'Show / Hide Events', 'novel-proofreading' ); ?></button>
+        <div class="events-wrap hidden">
+            <h3>7.1&nbsp;<?php _e( 'List of Events', 'novel-proofreading' ); ?></h3>
+            <table class="widefat striped">
+                <thead>
+                    <tr>
+                        <th><?php _e( 'Book', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Storyline', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Event name', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Description', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Edit', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Delete', 'novel-proofreading' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody id="novel-proofreading-events-repeater">
+                    <?php foreach ( $event_items as $item ) : ?>
+                        <?php $event_form_id = 'novel-proofreading-edit-event-' . intval($item['id']); ?>
+                        <tr>
+                            <td>
+                                <select form="<?php echo esc_attr($event_form_id); ?>" name="book_id" required>
+                                    <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $items as $book_item ) : ?>
+                                        <option value="<?php echo esc_attr($book_item['id']); ?>" <?php selected($item['book_id'], $book_item['id']); ?>>
+                                            <?php echo esc_html($book_item['title'] . ' - ' . $book_item['author'] . ' (' . $book_item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td>
+                                <select form="<?php echo esc_attr($event_form_id); ?>" name="storyline_id">
+                                    <option value=""><?php _e( 'Select storyline', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $storyline_items as $storyline_item ) : ?>
+                                        <option value="<?php echo esc_attr($storyline_item['id']); ?>" <?php selected($item['storyline_id'], $storyline_item['id']); ?>>
+                                            <?php echo esc_html(trim($storyline_item['storyline_name'] . ' ') . $storyline_item['book_title']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td><input form="<?php echo esc_attr($event_form_id); ?>" type="text" name="event_name" value="<?php echo esc_attr($item['event_name']); ?>" required /></td>
+                            <td><textarea form="<?php echo esc_attr($event_form_id); ?>" name="description" rows="2"><?php echo esc_textarea($item['description']); ?></textarea></td>
+                            <td>
+                                <form id="<?php echo esc_attr($event_form_id); ?>" method="post">
+                                    <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                                    <input type="hidden" name="novel_proofreading_action" value="update_event" />
+                                    <input type="hidden" name="event_id" value="<?php echo esc_attr($item['id']); ?>" />
+                                    <button type="submit" class="button button-primary"><?php _e( 'Save', 'novel-proofreading' ); ?></button>
+                                </form>
+                            </td>
+                            <td>
+                                <form method="post">
+                                    <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                                    <input type="hidden" name="novel_proofreading_action" value="remove_event" />
+                                    <input type="hidden" name="event_id" value="<?php echo esc_attr($item['id']); ?>" />
+                                    <button type="submit" class="button remove-item">-</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <h3>7.2&nbsp;<?php _e( 'Add Event', 'novel-proofreading' ); ?></h3>
+            <form method="post">
+                <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                <input type="hidden" name="novel_proofreading_action" value="add_event" />
+
+                <table class="form-table" role="presentation">
+                    <tbody>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-event-book-id"><?php _e( 'Book', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-event-book-id" name="book_id" required>
+                                    <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $items as $item ) : ?>
+                                        <option value="<?php echo esc_attr($item['id']); ?>">
+                                            <?php echo esc_html($item['title'] . ' - ' . $item['author'] . ' (' . $item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-event-storyline-id"><?php _e( 'Storyline', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-event-storyline-id" name="storyline_id">
+                                    <option value=""><?php _e( 'Select storyline', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $storyline_items as $item ) : ?>
+                                        <option value="<?php echo esc_attr($item['id']); ?>">
+                                            <?php echo esc_html(trim($item['storyline_name'] . ' ') . $item['book_title']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-event-name"><?php _e( 'Event', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" id="novel-proofreading-event-name" name="event_name" required />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-event-description"><?php _e( 'Description', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <textarea id="novel-proofreading-event-description" name="description" rows="3"></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button type="submit" class="button button-primary" <?php disabled(empty($items)); ?>>
+                    + <?php _e( 'Add Event', 'novel-proofreading' ); ?>
                 </button>
             </form>
         </div>
