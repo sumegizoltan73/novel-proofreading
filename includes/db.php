@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define('NOVEL_PROOFREADING_DB_VERSION', '0.4');
+define('NOVEL_PROOFREADING_DB_VERSION', '0.5');
 
 function novel_proofreading_install() {
 
@@ -351,15 +351,24 @@ function novel_proofreading_create_tables() {
 
     ) $charset_collate;
 
-    CREATE TABLE $presence_mapping_table_name (
+    DROP TABLE $presence_mapping_table_name ;
+    ";
+
+    dbDelta($sql);
+
+    $storylines_table_name =
+        $wpdb->prefix . 'novel_proofreading_storylines';
+    $events_table_name =
+        $wpdb->prefix . 'novel_proofreading_events';
+    $sql = "
+    CREATE TABLE $storylines_table_name (
 
         id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 
         book_id BIGINT UNSIGNED NOT NULL,
-        common_mapping_id BIGINT UNSIGNED NOT NULL,
+        storyline_name VARCHAR(255) NOT NULL,
+        main_event BIGINT UNSIGNED NOT NULL DEFAULT 0,
         description TEXT NULL,
-        is_suspected CHAR(1) NOT NULL DEFAULT 'N',
-        is_inaccurate CHAR(1) NOT NULL DEFAULT 'N',
 
         created_at DATETIME NOT NULL,
         created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -368,9 +377,42 @@ function novel_proofreading_create_tables() {
 
         PRIMARY KEY  (id),
 
-        KEY idx_book_common_mapping (
+        KEY idx_storyline_name (
             book_id,
-            common_mapping_id
+            storyline_name
+        ),
+
+        KEY idx_storyline_event (
+            book_id,
+            main_event
+        )
+
+    ) $charset_collate;
+
+    CREATE TABLE $events_table_name (
+
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+        book_id BIGINT UNSIGNED NOT NULL,
+        storyline_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        event_name VARCHAR(255) NOT NULL,
+        description TEXT NULL,
+
+        created_at DATETIME NOT NULL,
+        created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        updated_at DATETIME NULL,
+        updated_by BIGINT UNSIGNED NULL,
+
+        PRIMARY KEY  (id),
+
+        KEY idx_event_name (
+            book_id,
+            event_name
+        ),
+
+        KEY idx_event_storyline (
+            book_id,
+            storyline_id
         )
 
     ) $charset_collate;

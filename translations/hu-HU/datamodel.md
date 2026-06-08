@@ -216,20 +216,26 @@ VALUES of AREA_TYPE : (SPACE, GALAXY, ANOTHER_GALAXY, ANOTHER_PLANET, EARTH, COU
 - updated_at
 - updated_by
 
-## novel_proofreading_presence_mapping
+# Adatmodell II. (v0.5)
+
+## novel_proofreading_storylines
 - id
 - book_id
-- common_mapping_id
+- storyline_name
+- main_event
 - description
-- is_suspected (Y, N) DEFAULT 'N'
-- is_inaccurate (Y, N) DEFAULT 'N'
 - created_at
 - created_by
 - updated_at
 - updated_by
 
-# Adatmodell II. (v0.5)
-
-## novel_proofreading_storylines
-
 ## novel_proofreading_events
+- id
+- book_id
+- storyline_id
+- event_name
+- description
+- created_at
+- created_by
+- updated_at
+- updated_by
