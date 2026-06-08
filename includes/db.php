@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define('NOVEL_PROOFREADING_DB_VERSION', '0.5');
+define('NOVEL_PROOFREADING_DB_VERSION', '0.6');
 
 function novel_proofreading_install() {
 
@@ -350,8 +350,6 @@ function novel_proofreading_create_tables() {
         )
 
     ) $charset_collate;
-
-    DROP TABLE $presence_mapping_table_name ;
     ";
 
     dbDelta($sql);
@@ -477,6 +475,8 @@ function novel_proofreading_create_tables() {
         )
         "
     );
+
+    $wpdb->query("DROP TABLE $presence_mapping_table_name ;");
     
 	update_option(
         'novel_proofreading_db_version',
