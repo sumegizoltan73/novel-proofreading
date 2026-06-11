@@ -3,7 +3,7 @@
  * Plugin Name:       Novel Proofreading and Linker Plugin
  * Plugin URI:        https://github.com/sumegizoltan73/novel-proofreading
  * Description:       Novel proofreading and linking - WordPress plugin.
- * Version:           0.1.6
+ * Version:           0.2.0
  * Requires at least: 5.2
  * Requires PHP:      7.2
  * Author:            Zoltan Peter Sumegi & ChatGPT
