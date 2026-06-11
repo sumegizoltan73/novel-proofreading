@@ -5,3 +5,59 @@
 .books-wrap.hidden {
   display: none;
 }
+
+.hidden {
+  display: none;
+}
+
+.novel-proofreading-chain-filter {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 16px;
+}
+
+.novel-proofreading-chain {
+  border-top: 1px solid #dcdcde;
+  margin-top: 18px;
+  padding-top: 12px;
+}
+
+.novel-proofreading-chain h3 {
+  margin-bottom: 8px;
+}
+
+.novel-proofreading-chain-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 12px;
+}
+
+.novel-proofreading-badge {
+  background: #f0f0f1;
+  border-radius: 4px;
+  display: inline-block;
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 3px 7px;
+}
+
+.novel-proofreading-badge.is-ok {
+  background: #d1e7dd;
+  color: #0a3622;
+}
+
+.novel-proofreading-badge.is-warning {
+  background: #fff3cd;
+  color: #664d03;
+}
+
+.novel-proofreading-badge.is-info {
+  background: #cfe2ff;
+  color: #052c65;
+}
+
+.novel-proofreading-chain-table input[type="number"] {
+  width: 80px;
+}

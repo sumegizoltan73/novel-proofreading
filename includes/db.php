@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define('NOVEL_PROOFREADING_DB_VERSION', '0.6');
+define('NOVEL_PROOFREADING_DB_VERSION', '0.7');
 
 function novel_proofreading_install() {
 
@@ -393,6 +393,8 @@ function novel_proofreading_create_tables() {
 
         book_id BIGINT UNSIGNED NOT NULL,
         storyline_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        sequence_no INT NOT NULL DEFAULT 0,
+        chain_role VARCHAR(32) NOT NULL DEFAULT 'STEP',
         event_name VARCHAR(255) NOT NULL,
         description TEXT NULL,
 
@@ -410,7 +412,8 @@ function novel_proofreading_create_tables() {
 
         KEY idx_event_storyline (
             book_id,
-            storyline_id
+            storyline_id,
+            sequence_no
         )
 
     ) $charset_collate;

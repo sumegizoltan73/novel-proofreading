@@ -111,7 +111,7 @@
     - kapcsoló tábla, mapping tábla tulajdonságai
 ... többszörös értékek, jellemzően külön tábla, vagy mapping tábla többszörös rekordjai
 
-# Adatmodell (v0.2, IMPLEMENTED)
+# Adatmodell I. (v0.2, IMPLEMENTED)
 
 ## novel_proofreading_books (IMPLEMENTED)
 - id
@@ -216,7 +216,7 @@ VALUES of AREA_TYPE : (SPACE, GALAXY, ANOTHER_GALAXY, ANOTHER_PLANET, EARTH, COU
 - updated_at
 - updated_by
 
-# Adatmodell II. (v0.5)
+# Adatmodell II. (v0.5, IMPLEMENTED)
 
 ## novel_proofreading_storylines
 - id

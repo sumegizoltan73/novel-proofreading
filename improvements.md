@@ -1,2 +1,2 @@
 # Improvements
-- Novella történet láncoló programrész szükséges.
+- Novella történet láncoló programrész szükséges. (Implementált)
