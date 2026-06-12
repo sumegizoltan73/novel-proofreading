@@ -14,11 +14,15 @@ jQuery(function ($) {
         }
 
         if (!$controls.length) {
-            $controls = $scope.find(".novel-proofreading-storyline-select, .novel-proofreading-event-select");
+            $controls = $scope.find(
+                ".novel-proofreading-storyline-select, .novel-proofreading-event-select, .novel-proofreading-person-select, .novel-proofreading-location-select, .novel-proofreading-time-select"
+            );
         }
 
         $controls
-            .filter(".novel-proofreading-storyline-select, .novel-proofreading-event-select")
+            .filter(
+                ".novel-proofreading-storyline-select, .novel-proofreading-event-select, .novel-proofreading-person-select, .novel-proofreading-location-select, .novel-proofreading-time-select"
+            )
             .each(function () {
                 var $select = $(this);
 
@@ -40,11 +44,60 @@ jQuery(function ($) {
             });
     }
 
+    function updateReferenceEntityFields($typeSelect) {
+        var selectedType = $typeSelect.val();
+        var formId = $typeSelect.attr("form");
+        var $scope = $typeSelect.closest("tr");
+
+        if (!$scope.length) {
+            $scope = $typeSelect.closest("form");
+        }
+
+        var $fields = $scope.find(".novel-proofreading-reference-entity");
+
+        if (!$fields.length && formId) {
+            $fields = $('[form="' + formId + '"]')
+                .closest("tr")
+                .find(".novel-proofreading-reference-entity");
+        }
+
+        $fields.addClass("hidden");
+
+        if (!selectedType) {
+            return;
+        }
+
+        if (
+            selectedType === "STORYLINE" ||
+            selectedType === "EVENT" ||
+            selectedType === "PERSON" ||
+            selectedType === "LOCATION" ||
+            selectedType === "TIME"
+        ) {
+            $fields
+                .filter('[data-reference-entity="' + selectedType + '"]')
+                .removeClass("hidden");
+            return;
+        }
+
+        $fields
+            .filter('[data-reference-entity="MULTI"]')
+            .removeClass("hidden");
+    }
+
     $(".novel-proofreading-book-select").each(function () {
         filterRelatedOptions($(this));
     });
 
+    $(".novel-proofreading-reference-type-select").each(function () {
+        updateReferenceEntityFields($(this));
+    });
+
     $(document).on("change", ".novel-proofreading-book-select", function () {
         filterRelatedOptions($(this));
+    });
+
+    $(document).on("change", ".novel-proofreading-reference-type-select", function () {
+        updateReferenceEntityFields($(this));
     });
 });

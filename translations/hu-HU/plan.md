@@ -97,3 +97,40 @@ A cél: látható legyen, hogy egy történetszál milyen eseményekből áll, m
 - Az elemzés első körben alap ellenőrzéseket ad, nem teljes dashboardot.
 - A kéziratbeli oldal/fejezet referencia forrása a meglévő `novel_proofreading_common_mapping`, nem új event oszlop.
 - A meglévő egyoldalas admin felület megtartható, külön React/Vue vagy új admin app nem szükséges.
+
+## Második módosítás - hivatkozási részletek (oldalszám, fejezet) (Implementált)
+
+Szerintem jó irány az önálló 10. szakasz, de nem nevezném túl általánosan `Common mapping`-nek. UI-ban inkább:
+
+**Kézirat-referenciák** vagy **Előfordulások**
+
+Ez pontosabban leírja, mire való: azt rögzíti, hogy egy szereplő, helyszín, időpont, esemény, történetszál stb. hol fordul elő a kéziratban.
+
+A meglévő adatmodell erre alkalmas: a `novel_proofreading_common_mapping` már tartalmazza a `type`, `page`, `chapter`, `storyline_id`, `event_id`, `person_id`, `location_id`, `time_id` mezőket a [datamodel.md](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/translations/hu-HU/datamodel.md:141) és [db.php](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/includes/db.php:174) alapján.
+
+Én ezt a UI-t javasolnám:
+
+1. `Book` választó
+2. `Mire vonatkozik?` select  
+   Forrás: `novel_proofreading_types`, `category = COMMON_TYPE`
+3. Dinamikus második mező:
+   - `STORYLINE` esetén storyline select
+   - `EVENT` esetén event select
+   - `PERSON` esetén person select
+   - `LOCATION` esetén location select
+   - `TIME` esetén datetime select
+   - `MISTAKE`, `SUGGESTION`, `AGREEMENT` esetén inkább leírás + opcionális kapcsolt entitások
+4. `Chapter` szövegmező
+5. `Page` szövegmező
+6. `Description` rövid megjegyzés
+7. Mentés
+
+A legfontosabb szabály: normál kézirat-előfordulásnál pontosan egy cél-entitás legyen kitöltve. Tehát ha `type = PERSON`, akkor `person_id` kötelező, a többi célmező üres. Ha `type = EVENT`, akkor `event_id` kötelező, stb. Ez tisztán tartja a táblát.
+
+A `MISTAKE`, `SUGGESTION`, `AGREEMENT` kivételt képezhet. Ezek inkább "ügy" jellegű rekordok, ahol hasznos lehet több kapcsolat is: például egy visszásság érinthet egy személyt, egy eseményt és egy helyszínt is. Ezeknél a UI külön blokkot mutathatna: `Kapcsolódó személy`, `Kapcsolódó esemény`, `Kapcsolódó helyszín`, mind opcionálisan.
+
+A meglévő szakaszokba nem tenném be ezeket a mezőket első körben. Az szétkenné ugyanazt a funkciót sok helyre. Inkább legyen egy egységes "előfordulás napló", és később az adott entitások saját szakaszainál csak olvasható összefoglalót lehet mutatni: például egy személynél "Előfordulások: 2. fejezet / 14. oldal, 5. fejezet / 83. oldal".
+
+Plusz javaslat: a lista nézet legyen szűrhető `Book`, `Type`, `Chapter`, `Entity` szerint. Ez gyorsan nagyon sok rekordot fog tartalmazni, ezért a felvitel mellett a visszakeresés legalább olyan fontos lesz.
+
+Adatmodell-módosítást most nem erőltetnék. Ha később a fejezeteket normalizálni akarod, akkor lehet külön `novel_proofreading_chapters` tábla, de első körben a meglévő `chapter VARCHAR(255)` és `page VARCHAR(64)` elég pragmatikus.

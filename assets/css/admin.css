@@ -61,3 +61,14 @@
 .novel-proofreading-chain-table input[type="number"] {
   width: 80px;
 }
+
+.novel-proofreading-reference-table select,
+.novel-proofreading-reference-table input[type="text"],
+.novel-proofreading-reference-table textarea {
+  max-width: 220px;
+  width: 100%;
+}
+
+.novel-proofreading-reference-entity + .novel-proofreading-reference-entity {
+  margin-top: 6px;
+}
