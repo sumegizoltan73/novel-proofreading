@@ -134,3 +134,6 @@ A meglévő szakaszokba nem tenném be ezeket a mezőket első körben. Az szét
 Plusz javaslat: a lista nézet legyen szűrhető `Book`, `Type`, `Chapter`, `Entity` szerint. Ez gyorsan nagyon sok rekordot fog tartalmazni, ezért a felvitel mellett a visszakeresés legalább olyan fontos lesz.
 
 Adatmodell-módosítást most nem erőltetnék. Ha később a fejezeteket normalizálni akarod, akkor lehet külön `novel_proofreading_chapters` tábla, de első körben a meglévő `chapter VARCHAR(255)` és `page VARCHAR(64)` elég pragmatikus.
+
+## Harmadik módosítás - Az események néha csak elbeszélések (Implementált)
+Nem minden történet rész eseményre alapozott, van ami csak egyszerű elbeszélés, vagy párbeszédes elbeszélés. Így szeretném kiegészíteni az event rögzítését egy Narrative jelölőnégyzettel, ami default NULL vagy 'N', és ha bejelölt, akkor a hozzá tartozó is_narrative adatbázis mező legyen 'Y' értékű. Ehhez a szükséges adatbázis mező hozzáadást is kérem a novel_proofreading_events táblához.
