@@ -19,6 +19,11 @@ add_action(
     'novel_proofreading_ajax_get_person_aliases'
 );
 
+add_action(
+    'wp_ajax_novel_proofreading_get_person_professions',
+    'novel_proofreading_ajax_get_person_professions'
+);
+
 function novel_proofreading_admin_menu() {
     add_menu_page(
         'Novel Proofreading',
@@ -158,6 +163,113 @@ function novel_proofreading_ajax_get_person_aliases() {
     wp_send_json_success(
         [
             'items' => novel_proofreading_get_person_aliases($person_id)
+        ]
+    );
+}
+
+function novel_proofreading_get_person_professions($person_id, $scope) {
+    global $wpdb;
+
+    $table_professions =
+        $wpdb->prefix . 'novel_proofreading_professions';
+    $table_persons =
+        $wpdb->prefix . 'novel_proofreading_persons';
+    $table_alias_mapping =
+        $wpdb->prefix . 'novel_proofreading_person_alias_mapping';
+    $table_professions =
+        $wpdb->prefix . 'novel_proofreading_professions';
+
+    if ($scope === 'aliases') {
+        return $wpdb->get_results(
+            $wpdb->prepare(
+                "
+                SELECT
+                    pr.profession_name,
+                    pr.description,
+                    p.name AS person_name,
+                    p.alias AS person_alias
+
+                FROM
+                    {$table_alias_mapping} pam
+                INNER JOIN
+                    {$table_professions} pr ON pr.person_id = pam.alias_person_id
+                INNER JOIN
+                    {$table_persons} p ON p.id = pam.alias_person_id
+
+                WHERE
+                    pam.person_id = %d
+
+                ORDER BY
+                    p.name,
+                    p.alias,
+                    pr.profession_name,
+                    pr.id
+                ",
+                $person_id
+            ),
+            ARRAY_A
+        );
+    }
+
+    return $wpdb->get_results(
+        $wpdb->prepare(
+            "
+            SELECT
+                pr.profession_name,
+                pr.description,
+                p.name AS person_name,
+                p.alias AS person_alias
+
+            FROM
+                {$table_professions} pr
+            INNER JOIN
+                {$table_persons} p ON p.id = pr.person_id
+
+            WHERE
+                pr.person_id = %d
+
+            ORDER BY
+                pr.profession_name,
+                pr.id
+            ",
+            $person_id
+        ),
+        ARRAY_A
+    );
+}
+
+function novel_proofreading_ajax_get_person_professions() {
+    if (! current_user_can('manage_options')) {
+        wp_send_json_error(
+            [
+                'message' => __( 'You are not allowed to view this data.', 'novel-proofreading' )
+            ],
+            403
+        );
+    }
+
+    check_ajax_referer(
+        'novel_proofreading_person_professions',
+        'nonce'
+    );
+
+    $person_id = intval($_POST['person_id'] ?? 0);
+    $scope = sanitize_text_field(
+        wp_unslash($_POST['scope'] ?? 'person')
+    );
+
+    if ($person_id <= 0) {
+        wp_send_json_error(
+            [
+                'message' => __( 'Person is required.', 'novel-proofreading' )
+            ],
+            400
+        );
+    }
+
+    wp_send_json_success(
+        [
+            'items' => novel_proofreading_get_person_professions($person_id, $scope)
         ]
     );
 }
@@ -651,6 +763,8 @@ function novel_proofreading_get_persons() {
         $wpdb->prefix . 'novel_proofreading_books';
     $table_alias_mapping =
         $wpdb->prefix . 'novel_proofreading_person_alias_mapping';
+    $table_professions =
+        $wpdb->prefix . 'novel_proofreading_professions';
 
     $result = $wpdb->get_results(
         "
@@ -664,7 +778,25 @@ function novel_proofreading_get_persons() {
                     {$table_alias_mapping} pam
                 WHERE
                     pam.person_id = p.id
-            ) AS alias_mapping_count
+            ) AS alias_mapping_count,
+            (
+                SELECT
+                    COUNT(*)
+                FROM
+                    {$table_professions} pr
+                WHERE
+                    pr.person_id = p.id
+            ) AS profession_count,
+            (
+                SELECT
+                    COUNT(*)
+                FROM
+                    {$table_alias_mapping} pam
+                INNER JOIN
+                    {$table_professions} pr ON pr.person_id = pam.alias_person_id
+                WHERE
+                    pam.person_id = p.id
+            ) AS alias_profession_count
 
         FROM
             {$table_persons} p
@@ -693,7 +825,11 @@ function novel_proofreading_get_persons() {
 
             'is_inaccurate' => $row->is_inaccurate,
 
-            'has_alias_mapping' => intval($row->alias_mapping_count) > 0
+            'has_alias_mapping' => intval($row->alias_mapping_count) > 0,
+
+            'has_profession' => intval($row->profession_count) > 0,
+
+            'has_alias_profession' => intval($row->alias_profession_count) > 0
         ];
     }
 
@@ -3828,7 +3964,14 @@ function novel_proofreading_admin_page() {
                                     <?php endforeach; ?>
                                 </select>
                             </td>
-                            <td><input form="<?php echo esc_attr($person_form_id); ?>" type="text" name="name" value="<?php echo esc_attr($item['name']); ?>" /></td>
+                            <td>
+                                <input form="<?php echo esc_attr($person_form_id); ?>" type="text" name="name" value="<?php echo esc_attr($item['name']); ?>" />
+                                <?php if ($item['has_profession']) : ?>
+                                    <button type="button" class="novel-proofreading-badge is-info novel-proofreading-person-profession-badge" data-person-id="<?php echo esc_attr($item['id']); ?>" data-profession-scope="person">
+                                        (job)
+                                    </button>
+                                <?php endif; ?>
+                            </td>
                             <td>
                                 <?php if ($item['has_alias_mapping']) : ?>
                                     <button type="button" class="novel-proofreading-badge is-info novel-proofreading-person-alias-badge" data-person-id="<?php echo esc_attr($item['id']); ?>">
@@ -3836,7 +3979,14 @@ function novel_proofreading_admin_page() {
                                     </button>
                                 <?php endif; ?>
                             </td>
-                            <td><input form="<?php echo esc_attr($person_form_id); ?>" type="text" name="alias" value="<?php echo esc_attr($item['alias']); ?>" /></td>
+                            <td>
+                                <input form="<?php echo esc_attr($person_form_id); ?>" type="text" name="alias" value="<?php echo esc_attr($item['alias']); ?>" />
+                                <?php if ($item['has_alias_profession']) : ?>
+                                    <button type="button" class="novel-proofreading-badge is-info novel-proofreading-person-profession-badge" data-person-id="<?php echo esc_attr($item['id']); ?>" data-profession-scope="aliases">
+                                        (job)
+                                    </button>
+                                <?php endif; ?>
+                            </td>
                             <td><textarea form="<?php echo esc_attr($person_form_id); ?>" name="description" rows="2"><?php echo esc_textarea($item['description']); ?></textarea></td>
                             <td><input form="<?php echo esc_attr($person_form_id); ?>" type="checkbox" name="is_inaccurate" value="Y" <?php checked($item['is_inaccurate'], 'Y'); ?> /></td>
                             <td>
@@ -5286,6 +5436,9 @@ function novel_proofreading_admin_assets($hook) {
             ),
             'personAliasesNonce' => wp_create_nonce(
                 'novel_proofreading_person_aliases'
+            ),
+            'personProfessionsNonce' => wp_create_nonce(
+                'novel_proofreading_person_professions'
             ),
             'restUrl' => rest_url(
                 'novel-proofreading/v1/'

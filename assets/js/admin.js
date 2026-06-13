@@ -215,6 +215,59 @@ jQuery(function ($) {
             });
     }
 
+    function renderPersonProfessionItems(items) {
+        if (!items.length) {
+            return "<p>No professions found.</p>";
+        }
+
+        return items
+            .map(function (item) {
+                var personLabel = [item.person_name, item.person_alias]
+                    .filter(function (value) {
+                        return value;
+                    })
+                    .join(" ");
+
+                return (
+                    '<div class="novel-proofreading-suggestion-popup-item">' +
+                    '<span class="novel-proofreading-badge is-info">' +
+                    escapeHtml(item.profession_name || "Profession") +
+                    "</span>" +
+                    (personLabel ? "<p><strong>" + escapeHtml(personLabel) + "</strong></p>" : "") +
+                    (item.description ? "<p>" + escapeHtml(item.description) + "</p>" : "") +
+                    "</div>"
+                );
+            })
+            .join("");
+    }
+
+    function showPersonProfessions(personId, scope) {
+        $.post(novelProofreading.ajaxUrl, {
+            action: "novel_proofreading_get_person_professions",
+            nonce: novelProofreading.personProfessionsNonce,
+            person_id: personId,
+            scope: scope
+        })
+            .done(function (response) {
+                if (!response || !response.success) {
+                    return;
+                }
+
+                Swal.fire({
+                    title: "Person professions",
+                    html: renderPersonProfessionItems(response.data.items || []),
+                    width: 700
+                });
+            })
+            .fail(function () {
+                Swal.fire({
+                    icon: "error",
+                    title: "Request failed",
+                    text: "Could not load person professions."
+                });
+            });
+    }
+
     $(".novel-proofreading-book-select").each(function () {
         filterRelatedOptions($(this));
     });
@@ -237,5 +290,12 @@ jQuery(function ($) {
 
     $(document).on("click", ".novel-proofreading-person-alias-badge", function () {
         showPersonAliases($(this).data("person-id"));
+    });
+
+    $(document).on("click", ".novel-proofreading-person-profession-badge", function () {
+        showPersonProfessions(
+            $(this).data("person-id"),
+            $(this).data("profession-scope")
+        );
     });
 });
