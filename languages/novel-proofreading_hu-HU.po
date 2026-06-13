@@ -1,14 +1,13 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Novel Proofreading and Linker Plugin\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-13 15:51+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2026-06-13 00:00+0200\n"
 "Last-Translator: Zoltan Sumegi <sumegizoltan73@gmail.com>\n"
 "Language-Team: \n"
-"Language: \n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Language: hu_HU\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -16,287 +15,275 @@ msgstr ""
 
 #: admin.php:1692
 msgid "Datetime could not be added."
-msgstr "Datetime could not be added."
+msgstr "Az időpontot nem sikerült hozzáadni."
 
 #: admin.php:1695
 msgid "Datetime added."
-msgstr "Datetime added."
+msgstr "Időpont hozzáadva."
 
 #: admin.php:1702
 msgid "Datetime could not be updated."
-msgstr "Datetime could not be updated."
+msgstr "Az időpontot nem sikerült frissíteni."
 
 #: admin.php:1753
 msgid "Datetime updated."
-msgstr "Datetime updated."
+msgstr "Időpont frissítve."
 
-#: admin.php:1840
+#: admin.php:1840 admin.php:2126
 msgid "Book is required."
-msgstr "Book is required."
+msgstr "A könyv megadása kötelező."
 
 #: admin.php:1849
 msgid "Person is required."
-msgstr "Person is required."
+msgstr "A személy megadása kötelező."
 
 #: admin.php:1860
 msgid "Profession name is required."
-msgstr "Profession name is required."
+msgstr "A foglalkozás nevének megadása kötelező."
 
 #: admin.php:1938
 msgid "Profession could not be added."
-msgstr "Profession could not be added."
+msgstr "A foglalkozást nem sikerült hozzáadni."
 
 #: admin.php:1985
 msgid "Profession could not be updated."
-msgstr "Profession could not be updated."
+msgstr "A foglalkozást nem sikerült frissíteni."
 
 #: admin.php:1988
 msgid "Profession updated."
-msgstr "Profession updated."
+msgstr "Foglalkozás frissítve."
 
 #: admin.php:2009
 msgid "Profession deleted."
-msgstr "Profession deleted."
+msgstr "Foglalkozás törölve."
 
 #: admin.php:2014
 msgid "Opening"
-msgstr "Opening"
+msgstr "Nyitás"
 
 #: admin.php:2015
 msgid "Step"
-msgstr "Step"
+msgstr "Lépés"
 
 #: admin.php:2016
 msgid "Return"
-msgstr "Return"
+msgstr "Visszatérés"
 
 #: admin.php:2017
 msgid "Closing"
-msgstr "Closing"
-
-#: admin.php:2126
-msgid "Book is required."
-msgstr "Book is required."
+msgstr "Lezárás"
 
 #: admin.php:2135
 msgid "Storyline is invalid."
-msgstr "Storyline is invalid."
+msgstr "A cselekményszál érvénytelen."
 
-#: admin.php:2145
+#: admin.php:2145 admin.php:2732
 msgid "Storyline must belong to the selected book."
-msgstr "Storyline must belong to the selected book."
+msgstr "A cselekményszálnak a kiválasztott könyvhöz kell tartoznia."
 
 #: admin.php:2154
 msgid "Sequence number cannot be negative."
-msgstr "Sequence number cannot be negative."
+msgstr "A sorszám nem lehet negatív."
 
 #: admin.php:2165
 msgid "Event name is required."
-msgstr "Event name is required."
+msgstr "Az esemény nevének megadása kötelező."
 
 #: admin.php:2244
 msgid "Event could not be added."
-msgstr "Event could not be added."
+msgstr "Az eseményt nem sikerült hozzáadni."
 
 #: admin.php:2252
 msgid "Event added."
-msgstr "Event added."
+msgstr "Esemény hozzáadva."
 
-#: admin.php:2259
+#: admin.php:2259 admin.php:2717
 msgid "Event could not be updated."
-msgstr "Event could not be updated."
+msgstr "Az eseményt nem sikerült frissíteni."
 
 #: admin.php:2316
 msgid "Event updated."
-msgstr "Event updated."
+msgstr "Esemény frissítve."
 
 #: admin.php:2376
 msgid "Event deleted."
-msgstr "Event deleted."
+msgstr "Esemény törölve."
 
 #: admin.php:2448
 msgid "Storyline name is required."
-msgstr "Storyline name is required."
+msgstr "A cselekményszál nevének megadása kötelező."
 
 #: admin.php:2460
 msgid "Main event must belong to the selected book."
-msgstr "Main event must belong to the selected book."
+msgstr "A fő eseménynek a kiválasztott könyvhöz kell tartoznia."
 
 #: admin.php:2556
 msgid "Storyline could not be added."
-msgstr "Storyline could not be added."
+msgstr "A cselekményszálat nem sikerült hozzáadni."
 
 #: admin.php:2564
 msgid "Storyline added"
-msgstr "Storyline added"
+msgstr "Cselekményszál hozzáadva"
 
 #: admin.php:2571
 msgid "Storyline could not be updated."
-msgstr "Storyline could not be updated."
+msgstr "A cselekményszálat nem sikerült frissíteni."
 
 #: admin.php:2625
 msgid "Storyline updated."
-msgstr "Storyline updated."
+msgstr "Cselekményszál frissítve."
 
 #: admin.php:2685
 msgid "Storyline deleted."
-msgstr "Storyline deleted."
+msgstr "Cselekményszál törölve."
 
 #: admin.php:2692
 msgid "Event chain data could not be updated."
-msgstr "Event chain data could not be updated."
-
-#: admin.php:2717
-msgid "Event could not be updated."
-msgstr "Event could not be updated."
-
-#: admin.php:2732
-msgid "Storyline must belong to the selected book."
-msgstr "Storyline must belong to the selected book."
+msgstr "Az eseménylánc adatait nem sikerült frissíteni."
 
 #: admin.php:2786
 msgid "Event chain data updated."
-msgstr "Event chain data updated."
+msgstr "Eseménylánc adatai frissítve."
 
 #: admin.php:2795
 msgid "Chapter: %s"
-msgstr "Chapter: %s"
+msgstr "Fejezet: %s"
 
 #: admin.php:2803
 msgid "Page: %s"
-msgstr "Page: %s"
+msgstr "Oldal: %s"
 
 #: admin.php:3219
 msgid "Reference type is required."
-msgstr "Reference type is required."
+msgstr "A hivatkozástípus megadása kötelező."
 
 #: admin.php:3257
 msgid "Referenced item is required."
-msgstr "Referenced item is required."
+msgstr "A hivatkozott elem megadása kötelező."
 
 #: admin.php:3277
 msgid "Referenced item must belong to the selected book."
-msgstr "Referenced item must belong to the selected book."
+msgstr "A hivatkozott elemnek a kiválasztott könyvhöz kell tartoznia."
 
 #: admin.php:3353
 msgid "Manuscript reference could not be added."
-msgstr "Manuscript reference could not be added."
+msgstr "A kézirathivatkozást nem sikerült hozzáadni."
 
 #: admin.php:3356
 msgid "Manuscript reference added."
-msgstr "Manuscript reference added."
+msgstr "Kézirathivatkozás hozzáadva."
 
 #: admin.php:3363
 msgid "Manuscript reference could not be updated."
-msgstr "Manuscript reference could not be updated."
+msgstr "A kézirathivatkozást nem sikerült frissíteni."
 
 #: admin.php:3417
 msgid "Manuscript reference updated."
-msgstr "Manuscript reference updated."
+msgstr "Kézirathivatkozás frissítve."
 
 #: admin.php:3438
 msgid "Manuscript reference deleted."
-msgstr "Manuscript reference deleted."
+msgstr "Kézirathivatkozás törölve."
 
 #: admin.php:3674
 msgid "Books"
-msgstr "Books"
+msgstr "Könyvek"
 
 #: admin.php:3677
 msgid "List of Books"
-msgstr "List of Books"
+msgstr "Könyvek listája"
 
 #: admin.php:3681
 msgid "Series"
-msgstr "Series"
+msgstr "Sorozatok"
 
 #: admin.php:3682
 msgid "Title"
-msgstr "Title"
+msgstr "Cím"
 
 #: admin.php:3683
 msgid "Subtitle"
-msgstr "Subtitle"
+msgstr "Alcím"
 
 #: admin.php:3684
 msgid "Author"
-msgstr "Author"
+msgstr "Szerző"
 
 #: admin.php:3685
 msgid "Year"
-msgstr "Year"
+msgstr "Év"
 
 #: admin.php:3686
 msgid "Status"
-msgstr "Status"
+msgstr "Állapot"
 
 #: admin.php:3687
 msgid "Edit"
-msgstr "Edit"
+msgstr "Szerkesztés"
 
 #: admin.php:3688
 msgid "Delete"
-msgstr "Delete"
+msgstr "Törlés"
 
 #: admin.php:3706
 msgid "Save"
-msgstr "Save"
+msgstr "Mentés"
 
 #: admin.php:3722
 msgid "Add Book"
-msgstr "Add Book"
+msgstr "Könyv hozzáadása"
 
 #: admin.php:3773
 msgid "List of Series"
-msgstr "List of Series"
+msgstr "Sorozatok listája"
 
 #: admin.php:3777
 msgid "Series title"
-msgstr "Series title"
+msgstr "Sorozat címe"
 
 #: admin.php:3778
 msgid "Series subtitle"
-msgstr "Series subtitle"
+msgstr "Sorozat alcíme"
 
 #: admin.php:3816
 msgid "Books in this Series"
-msgstr "Books in this Series"
+msgstr "A sorozat könyvei"
 
 #: admin.php:3842
 msgid "Add Series"
-msgstr "Add Series"
+msgstr "Sorozat hozzáadása"
 
 #: admin.php:3851
 msgid "Series Title"
-msgstr "Series Title"
+msgstr "Sorozat címe"
 
 #: admin.php:3859
 msgid "Series Subtitle"
-msgstr "Series Subtitle"
+msgstr "Sorozat alcíme"
 
 #: admin.php:3889
 msgid "Add Book to Series"
-msgstr "Add Book to Series"
+msgstr "Könyv hozzáadása sorozathoz"
 
 #: admin.php:3898
 msgid "Book"
-msgstr "Book"
+msgstr "Könyv"
 
 #: admin.php:3917
 msgid "Select series"
-msgstr "Select series"
+msgstr "Sorozat kiválasztása"
 
 #: admin.php:3936
 msgid "Person"
-msgstr "Person"
+msgstr "Személy"
 
 #: admin.php:3939
 msgid "List of Persons"
-msgstr "List of Persons"
+msgstr "Személyek listája"
 
 #: admin.php:3944
 msgid "Name"
-msgstr "Name"
+msgstr "Név"
 
 #: admin.php:3945
 msgid "(i)"
@@ -304,280 +291,272 @@ msgstr "(i)"
 
 #: admin.php:3946
 msgid "Alias"
-msgstr "Alias"
+msgstr "Álnév"
 
-#: admin.php:3947
+#: admin.php:3947 admin.php:4054
 msgid "Description"
-msgstr "Description"
+msgstr "Leírás"
 
 #: admin.php:3948
 msgid "Inaccurate"
-msgstr "Inaccurate"
+msgstr "Pontatlan"
 
 #: admin.php:3959
 msgid "Select book"
-msgstr "Select book"
+msgstr "Könyv kiválasztása"
 
-#: admin.php:4013
+#: admin.php:4013 admin.php:4075
 msgid "Add Person"
-msgstr "Add Person"
+msgstr "Személy hozzáadása"
 
 #: admin.php:4049
 msgid "Name or alias is required."
-msgstr "Name or alias is required."
-
-#: admin.php:4054
-msgid "Description"
-msgstr "Description"
+msgstr "Név vagy álnév megadása kötelező."
 
 #: admin.php:4067
 msgid "Yes"
-msgstr "Yes"
-
-#: admin.php:4075
-msgid "Add Person"
-msgstr "Add Person"
+msgstr "Igen"
 
 #: admin.php:4079
 msgid "Person name and alias mapping"
-msgstr "Person name and alias mapping"
+msgstr "Személynév és álnév összerendelése"
 
 #: admin.php:4106
 msgid "Select person"
-msgstr "Select person"
+msgstr "Személy kiválasztása"
 
 #: admin.php:4116
 msgid "Select alias"
-msgstr "Select alias"
+msgstr "Álnév kiválasztása"
 
 #: admin.php:4200
 msgid "Add Person Alias Mapping"
-msgstr "Add Person Alias Mapping"
+msgstr "Személy-álnév összerendelés hozzáadása"
 
 #: admin.php:4206
 msgid "Locations"
-msgstr "Locations"
+msgstr "Helyszínek"
 
 #: admin.php:4209
 msgid "List of Locations"
-msgstr "List of Locations"
+msgstr "Helyszínek listája"
 
 #: admin.php:4216
 msgid "Area"
-msgstr "Area"
+msgstr "Terület"
 
 #: admin.php:4217
 msgid "Region"
-msgstr "Region"
+msgstr "Régió"
 
 #: admin.php:4219
 msgid "Alternative Universe"
-msgstr "Alternative Universe"
+msgstr "Alternatív univerzum"
 
 #: admin.php:4243
 msgid "Select area"
-msgstr "Select area"
+msgstr "Terület kiválasztása"
 
 #: admin.php:4276
 msgid "Add Location"
-msgstr "Add Location"
+msgstr "Helyszín hozzáadása"
 
 #: admin.php:4377
 msgid "Datetimes"
-msgstr "Datetimes"
+msgstr "Időpontok"
 
 #: admin.php:4386
 msgid "Time Description"
-msgstr "Time Description"
+msgstr "Idő leírása"
 
 #: admin.php:4388
 msgid "Time Type"
-msgstr "Time Type"
+msgstr "Időtípus"
 
 #: admin.php:4413
 msgid "Select time type"
-msgstr "Select time type"
+msgstr "Időtípus kiválasztása"
 
 #: admin.php:4443
 msgid "Add Datetime"
-msgstr "Add Datetime"
+msgstr "Időpont hozzáadása"
 
 #: admin.php:4524
 msgid "Professions"
-msgstr "Professions"
+msgstr "Foglalkozások"
 
 #: admin.php:4527
 msgid "List of Professions"
-msgstr "List of Professions"
+msgstr "Foglalkozások listája"
 
 #: admin.php:4588
 msgid "Add Profession"
-msgstr "Add Profession"
+msgstr "Foglalkozás hozzáadása"
 
 #: admin.php:4661
 msgid "Storylines"
-msgstr "Storylines"
+msgstr "Cselekményszálak"
 
 #: admin.php:4664
 msgid "List of Storylines"
-msgstr "List of Storylines"
+msgstr "Cselekményszálak listája"
 
 #: admin.php:4669
 msgid "Storyline"
-msgstr "Storyline"
+msgstr "Cselekményszál"
 
 #: admin.php:4670
 msgid "Main event"
-msgstr "Main event"
+msgstr "Fő esemény"
 
 #: admin.php:4693
 msgid "Select event"
-msgstr "Select event"
+msgstr "Esemény kiválasztása"
 
 #: admin.php:4723
 msgid "Add Storyline"
-msgstr "Add Storyline"
+msgstr "Cselekményszál hozzáadása"
 
 #: admin.php:4785
 msgid "Events"
-msgstr "Events"
+msgstr "Események"
 
 #: admin.php:4788
 msgid "List of Events"
-msgstr "List of Events"
+msgstr "Események listája"
 
 #: admin.php:4794
 msgid "Sequence"
-msgstr "Sequence"
+msgstr "Sorrend"
 
 #: admin.php:4795
 msgid "Chain role"
-msgstr "Chain role"
+msgstr "Láncbeli szerep"
 
 #: admin.php:4596
 msgid "Narrative"
-msgstr "Narrative"
+msgstr "Narratíva"
 
 #: admin.php:4797
 msgid "Event name"
-msgstr "Event name"
+msgstr "Esemény neve"
 
 #: admin.php:4861
 msgid "Add Event"
-msgstr "Add Event"
+msgstr "Esemény hozzáadása"
 
 #: admin.php:4956
 msgid "Storyline Chains"
-msgstr "Storyline Chains"
+msgstr "Cselekményszál-láncok"
 
 #: admin.php:4963
 msgid "All books"
-msgstr "All books"
+msgstr "Minden könyv"
 
 #: admin.php:4970
 msgid "Filter"
-msgstr "Filter"
+msgstr "Szűrés"
 
 #: admin.php:4974
 msgid "No storyline chains found."
-msgstr "No storyline chains found."
+msgstr "Nem találhatók cselekményszál-láncok."
 
 #: admin.php:4986
 msgid "Events: %d"
-msgstr "Events: %d"
+msgstr "Események: %d"
 
 #: admin.php:4987
 msgid "Has opening"
-msgstr "Has opening"
+msgstr "Van nyitása"
 
 #: admin.php:4987
 msgid "Missing opening"
-msgstr "Missing opening"
+msgstr "Hiányzó nyitás"
 
 #: admin.php:4988
 msgid "Closed"
-msgstr "Closed"
+msgstr "Lezárt"
 
 #: admin.php:4988
 msgid "Missing closing"
-msgstr "Missing closing"
+msgstr "Hiányzó lezárás"
 
 #: admin.php:4991
 msgid "Has suggestion"
-msgstr "Has suggestion"
+msgstr "Van javaslata"
 
 #: admin.php:4995
 msgid "Has return"
-msgstr "Has return"
+msgstr "Van visszatérése"
 
 #: admin.php:4998
 msgid "First: %s"
-msgstr "First: %s"
+msgstr "Első: %s"
 
 #: admin.php:5001
 msgid "Last: %s"
-msgstr "Last: %s"
+msgstr "Utolsó: %s"
 
 #: admin.php:5004
 msgid "Storyline refs: %s"
-msgstr "Storyline refs: %s"
+msgstr "Cselekményszál-hivatkozások: %s"
 
 #: admin.php:5009
 msgid "This storyline has no linked events."
-msgstr "This storyline has no linked events."
+msgstr "Ehhez a cselekményszálhoz nincsenek kapcsolt események."
 
 #: admin.php:5015
 msgid "Role"
-msgstr "Role"
+msgstr "Szerep"
 
 #: admin.php:5018
 msgid "References"
-msgstr "References"
+msgstr "Hivatkozások"
 
 #: admin.php:5042
 msgid "Select storyline"
-msgstr "Select storyline"
+msgstr "Cselekményszál kiválasztása"
 
 #: admin.php:5068
 msgid "Manuscript references"
-msgstr "Manuscript references"
+msgstr "Kézirathivatkozások"
 
 #: admin.php:5069
 msgid "Show / Hide Manuscript References"
-msgstr "Show / Hide Manuscript References"
+msgstr "Kézirathivatkozások megjelenítése / elrejtése"
 
 #: admin.php:5082
 msgid "Type"
-msgstr "Type"
+msgstr "Típus"
 
 #: admin.php:5094
 msgid "List of Manuscript References"
-msgstr "List of Manuscript References"
+msgstr "Kézirathivatkozások listája"
 
 #: admin.php:5100
 msgid "Referenced item"
-msgstr "Referenced item"
+msgstr "Hivatkozott elem"
 
 #: admin.php:5101
 msgid "Chapter"
-msgstr "Chapter"
+msgstr "Fejezet"
 
 #: admin.php:5102
 msgid "Page"
-msgstr "Page"
+msgstr "Oldal"
 
 #: admin.php:5124
 msgid "Select type"
-msgstr "Select type"
+msgstr "Típus kiválasztása"
 
 #: admin.php:5165
 msgid "Select location"
-msgstr "Select location"
+msgstr "Helyszín kiválasztása"
 
 #: admin.php:5175
 msgid "Select time"
-msgstr "Select time"
+msgstr "Idő kiválasztása"
 
 #: admin.php:5211
 msgid "Add Manuscript Reference"
-msgstr "Add Manuscript Reference"
+msgstr "Kézirathivatkozás hozzáadása"

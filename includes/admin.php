@@ -5065,7 +5065,7 @@ function novel_proofreading_admin_page() {
             <?php endforeach; ?>
         </div>
 
-        <h2>10.&nbsp;<?php _e( 'Kézirat-referenciák', 'novel-proofreading' ); ?></h2>
+        <h2>10.&nbsp;<?php _e( 'Manuscript references', 'novel-proofreading' ); ?></h2>
         <button class="button" onclick="show_hide('.manuscript-references-wrap')"><?php _e( 'Show / Hide Manuscript References', 'novel-proofreading' ); ?></button>
         <div class="manuscript-references-wrap hidden">
             <form method="get" class="novel-proofreading-chain-filter">

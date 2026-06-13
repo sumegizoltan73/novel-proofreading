@@ -1,14 +1,13 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Novel Proofreading and Linker Plugin\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-06-13 15:51+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2026-06-13 00:00+0200\n"
 "Last-Translator: Zoltan Sumegi <sumegizoltan73@gmail.com>\n"
 "Language-Team: \n"
-"Language: \n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Language: de-DE\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -16,215 +15,203 @@ msgstr ""
 
 #: admin.php:1692
 msgid "Datetime could not be added."
-msgstr "Datetime could not be added."
+msgstr "Datum/Uhrzeit konnte nicht hinzugefügt werden."
 
 #: admin.php:1695
 msgid "Datetime added."
-msgstr "Datetime added."
+msgstr "Datum/Uhrzeit hinzugefügt."
 
 #: admin.php:1702
 msgid "Datetime could not be updated."
-msgstr "Datetime could not be updated."
+msgstr "Datum/Uhrzeit konnte nicht aktualisiert werden."
 
 #: admin.php:1753
 msgid "Datetime updated."
-msgstr "Datetime updated."
+msgstr "Datum/Uhrzeit aktualisiert."
 
-#: admin.php:1840
+#: admin.php:1840 admin.php:2126
 msgid "Book is required."
-msgstr "Book is required."
+msgstr "Buch ist erforderlich."
 
 #: admin.php:1849
 msgid "Person is required."
-msgstr "Person is required."
+msgstr "Person ist erforderlich."
 
 #: admin.php:1860
 msgid "Profession name is required."
-msgstr "Profession name is required."
+msgstr "Berufsbezeichnung ist erforderlich."
 
 #: admin.php:1938
 msgid "Profession could not be added."
-msgstr "Profession could not be added."
+msgstr "Beruf konnte nicht hinzugefügt werden."
 
 #: admin.php:1985
 msgid "Profession could not be updated."
-msgstr "Profession could not be updated."
+msgstr "Beruf konnte nicht aktualisiert werden."
 
 #: admin.php:1988
 msgid "Profession updated."
-msgstr "Profession updated."
+msgstr "Beruf aktualisiert."
 
 #: admin.php:2009
 msgid "Profession deleted."
-msgstr "Profession deleted."
+msgstr "Beruf gelöscht."
 
 #: admin.php:2014
 msgid "Opening"
-msgstr "Opening"
+msgstr "Eröffnung"
 
 #: admin.php:2015
 msgid "Step"
-msgstr "Step"
+msgstr "Schritt"
 
 #: admin.php:2016
 msgid "Return"
-msgstr "Return"
+msgstr "Rückkehr"
 
 #: admin.php:2017
 msgid "Closing"
-msgstr "Closing"
-
-#: admin.php:2126
-msgid "Book is required."
-msgstr "Book is required."
+msgstr "Abschluss"
 
 #: admin.php:2135
 msgid "Storyline is invalid."
-msgstr "Storyline is invalid."
+msgstr "Handlungsstrang ist ungültig."
 
-#: admin.php:2145
+#: admin.php:2145 admin.php:2732
 msgid "Storyline must belong to the selected book."
-msgstr "Storyline must belong to the selected book."
+msgstr "Der Handlungsstrang muss zum ausgewählten Buch gehören."
 
 #: admin.php:2154
 msgid "Sequence number cannot be negative."
-msgstr "Sequence number cannot be negative."
+msgstr "Sequenznummer darf nicht negativ sein."
 
 #: admin.php:2165
 msgid "Event name is required."
-msgstr "Event name is required."
+msgstr "Ereignisname ist erforderlich."
 
 #: admin.php:2244
 msgid "Event could not be added."
-msgstr "Event could not be added."
+msgstr "Ereignis konnte nicht hinzugefügt werden."
 
 #: admin.php:2252
 msgid "Event added."
-msgstr "Event added."
+msgstr "Ereignis hinzugefügt."
 
-#: admin.php:2259
+#: admin.php:2259 admin.php:2717
 msgid "Event could not be updated."
-msgstr "Event could not be updated."
+msgstr "Ereignis konnte nicht aktualisiert werden."
 
 #: admin.php:2316
 msgid "Event updated."
-msgstr "Event updated."
+msgstr "Ereignis aktualisiert."
 
 #: admin.php:2376
 msgid "Event deleted."
-msgstr "Event deleted."
+msgstr "Ereignis gelöscht."
 
 #: admin.php:2448
 msgid "Storyline name is required."
-msgstr "Storyline name is required."
+msgstr "Name des Handlungsstrangs ist erforderlich."
 
 #: admin.php:2460
 msgid "Main event must belong to the selected book."
-msgstr "Main event must belong to the selected book."
+msgstr "Das Hauptereignis muss zum ausgewählten Buch gehören."
 
 #: admin.php:2556
 msgid "Storyline could not be added."
-msgstr "Storyline could not be added."
+msgstr "Handlungsstrang konnte nicht hinzugefügt werden."
 
 #: admin.php:2564
 msgid "Storyline added"
-msgstr "Storyline added"
+msgstr "Handlungsstrang hinzugefügt"
 
 #: admin.php:2571
 msgid "Storyline could not be updated."
-msgstr "Storyline could not be updated."
+msgstr "Handlungsstrang konnte nicht aktualisiert werden."
 
 #: admin.php:2625
 msgid "Storyline updated."
-msgstr "Storyline updated."
+msgstr "Handlungsstrang aktualisiert."
 
 #: admin.php:2685
 msgid "Storyline deleted."
-msgstr "Storyline deleted."
+msgstr "Handlungsstrang gelöscht."
 
 #: admin.php:2692
 msgid "Event chain data could not be updated."
-msgstr "Event chain data could not be updated."
-
-#: admin.php:2717
-msgid "Event could not be updated."
-msgstr "Event could not be updated."
-
-#: admin.php:2732
-msgid "Storyline must belong to the selected book."
-msgstr "Storyline must belong to the selected book."
+msgstr "Ereigniskettendaten konnten nicht aktualisiert werden."
 
 #: admin.php:2786
 msgid "Event chain data updated."
-msgstr "Event chain data updated."
+msgstr "Ereigniskettendaten aktualisiert."
 
 #: admin.php:2795
 msgid "Chapter: %s"
-msgstr "Chapter: %s"
+msgstr "Kapitel: %s"
 
 #: admin.php:2803
 msgid "Page: %s"
-msgstr "Page: %s"
+msgstr "Seite: %s"
 
 #: admin.php:3219
 msgid "Reference type is required."
-msgstr "Reference type is required."
+msgstr "Referenztyp ist erforderlich."
 
 #: admin.php:3257
 msgid "Referenced item is required."
-msgstr "Referenced item is required."
+msgstr "Referenziertes Element ist erforderlich."
 
 #: admin.php:3277
 msgid "Referenced item must belong to the selected book."
-msgstr "Referenced item must belong to the selected book."
+msgstr "Das referenzierte Element muss zum ausgewählten Buch gehören."
 
 #: admin.php:3353
 msgid "Manuscript reference could not be added."
-msgstr "Manuscript reference could not be added."
+msgstr "Manuskriptreferenz konnte nicht hinzugefügt werden."
 
 #: admin.php:3356
 msgid "Manuscript reference added."
-msgstr "Manuscript reference added."
+msgstr "Manuskriptreferenz hinzugefügt."
 
 #: admin.php:3363
 msgid "Manuscript reference could not be updated."
-msgstr "Manuscript reference could not be updated."
+msgstr "Manuskriptreferenz konnte nicht aktualisiert werden."
 
 #: admin.php:3417
 msgid "Manuscript reference updated."
-msgstr "Manuscript reference updated."
+msgstr "Manuskriptreferenz aktualisiert."
 
 #: admin.php:3438
 msgid "Manuscript reference deleted."
-msgstr "Manuscript reference deleted."
+msgstr "Manuskriptreferenz gelöscht."
 
 #: admin.php:3674
 msgid "Books"
-msgstr "Books"
+msgstr "Bücher"
 
 #: admin.php:3677
 msgid "List of Books"
-msgstr "List of Books"
+msgstr "Liste der Bücher"
 
 #: admin.php:3681
 msgid "Series"
-msgstr "Series"
+msgstr "Reihen"
 
 #: admin.php:3682
 msgid "Title"
-msgstr "Title"
+msgstr "Titel"
 
 #: admin.php:3683
 msgid "Subtitle"
-msgstr "Subtitle"
+msgstr "Untertitel"
 
 #: admin.php:3684
 msgid "Author"
-msgstr "Author"
+msgstr "Autor"
 
 #: admin.php:3685
 msgid "Year"
-msgstr "Year"
+msgstr "Jahr"
 
 #: admin.php:3686
 msgid "Status"
@@ -232,59 +219,59 @@ msgstr "Status"
 
 #: admin.php:3687
 msgid "Edit"
-msgstr "Edit"
+msgstr "Bearbeiten"
 
 #: admin.php:3688
 msgid "Delete"
-msgstr "Delete"
+msgstr "Löschen"
 
 #: admin.php:3706
 msgid "Save"
-msgstr "Save"
+msgstr "Speichern"
 
 #: admin.php:3722
 msgid "Add Book"
-msgstr "Add Book"
+msgstr "Buch hinzufügen"
 
 #: admin.php:3773
 msgid "List of Series"
-msgstr "List of Series"
+msgstr "Liste der Reihen"
 
 #: admin.php:3777
 msgid "Series title"
-msgstr "Series title"
+msgstr "Reihentitel"
 
 #: admin.php:3778
 msgid "Series subtitle"
-msgstr "Series subtitle"
+msgstr "Reihenuntertitel"
 
 #: admin.php:3816
 msgid "Books in this Series"
-msgstr "Books in this Series"
+msgstr "Bücher in dieser Reihe"
 
 #: admin.php:3842
 msgid "Add Series"
-msgstr "Add Series"
+msgstr "Reihe hinzufügen"
 
 #: admin.php:3851
 msgid "Series Title"
-msgstr "Series Title"
+msgstr "Reihentitel"
 
 #: admin.php:3859
 msgid "Series Subtitle"
-msgstr "Series Subtitle"
+msgstr "Reihenuntertitel"
 
 #: admin.php:3889
 msgid "Add Book to Series"
-msgstr "Add Book to Series"
+msgstr "Buch zur Reihe hinzufügen"
 
 #: admin.php:3898
 msgid "Book"
-msgstr "Book"
+msgstr "Buch"
 
 #: admin.php:3917
 msgid "Select series"
-msgstr "Select series"
+msgstr "Reihe auswählen"
 
 #: admin.php:3936
 msgid "Person"
@@ -292,7 +279,7 @@ msgstr "Person"
 
 #: admin.php:3939
 msgid "List of Persons"
-msgstr "List of Persons"
+msgstr "Liste der Personen"
 
 #: admin.php:3944
 msgid "Name"
@@ -306,65 +293,57 @@ msgstr "(i)"
 msgid "Alias"
 msgstr "Alias"
 
-#: admin.php:3947
+#: admin.php:3947 admin.php:4054
 msgid "Description"
-msgstr "Description"
+msgstr "Beschreibung"
 
 #: admin.php:3948
 msgid "Inaccurate"
-msgstr "Inaccurate"
+msgstr "Ungenau"
 
 #: admin.php:3959
 msgid "Select book"
-msgstr "Select book"
+msgstr "Buch auswählen"
 
-#: admin.php:4013
+#: admin.php:4013 admin.php:4075
 msgid "Add Person"
-msgstr "Add Person"
+msgstr "Person hinzufügen"
 
 #: admin.php:4049
 msgid "Name or alias is required."
-msgstr "Name or alias is required."
-
-#: admin.php:4054
-msgid "Description"
-msgstr "Description"
+msgstr "Name oder Alias ist erforderlich."
 
 #: admin.php:4067
 msgid "Yes"
-msgstr "Yes"
-
-#: admin.php:4075
-msgid "Add Person"
-msgstr "Add Person"
+msgstr "Ja"
 
 #: admin.php:4079
 msgid "Person name and alias mapping"
-msgstr "Person name and alias mapping"
+msgstr "Zuordnung von Personenname und Alias"
 
 #: admin.php:4106
 msgid "Select person"
-msgstr "Select person"
+msgstr "Person auswählen"
 
 #: admin.php:4116
 msgid "Select alias"
-msgstr "Select alias"
+msgstr "Alias auswählen"
 
 #: admin.php:4200
 msgid "Add Person Alias Mapping"
-msgstr "Add Person Alias Mapping"
+msgstr "Person-Alias-Zuordnung hinzufügen"
 
 #: admin.php:4206
 msgid "Locations"
-msgstr "Locations"
+msgstr "Orte"
 
 #: admin.php:4209
 msgid "List of Locations"
-msgstr "List of Locations"
+msgstr "Liste der Orte"
 
 #: admin.php:4216
 msgid "Area"
-msgstr "Area"
+msgstr "Gebiet"
 
 #: admin.php:4217
 msgid "Region"
@@ -372,107 +351,107 @@ msgstr "Region"
 
 #: admin.php:4219
 msgid "Alternative Universe"
-msgstr "Alternative Universe"
+msgstr "Alternatives Universum"
 
 #: admin.php:4243
 msgid "Select area"
-msgstr "Select area"
+msgstr "Gebiet auswählen"
 
 #: admin.php:4276
 msgid "Add Location"
-msgstr "Add Location"
+msgstr "Ort hinzufügen"
 
 #: admin.php:4377
 msgid "Datetimes"
-msgstr "Datetimes"
+msgstr "Datums-/Zeitangaben"
 
 #: admin.php:4386
 msgid "Time Description"
-msgstr "Time Description"
+msgstr "Zeitbeschreibung"
 
 #: admin.php:4388
 msgid "Time Type"
-msgstr "Time Type"
+msgstr "Zeittyp"
 
 #: admin.php:4413
 msgid "Select time type"
-msgstr "Select time type"
+msgstr "Zeittyp auswählen"
 
 #: admin.php:4443
 msgid "Add Datetime"
-msgstr "Add Datetime"
+msgstr "Datum/Uhrzeit hinzufügen"
 
 #: admin.php:4524
 msgid "Professions"
-msgstr "Professions"
+msgstr "Berufe"
 
 #: admin.php:4527
 msgid "List of Professions"
-msgstr "List of Professions"
+msgstr "Liste der Berufe"
 
 #: admin.php:4588
 msgid "Add Profession"
-msgstr "Add Profession"
+msgstr "Beruf hinzufügen"
 
 #: admin.php:4661
 msgid "Storylines"
-msgstr "Storylines"
+msgstr "Handlungsstränge"
 
 #: admin.php:4664
 msgid "List of Storylines"
-msgstr "List of Storylines"
+msgstr "Liste der Handlungsstränge"
 
 #: admin.php:4669
 msgid "Storyline"
-msgstr "Storyline"
+msgstr "Handlungsstrang"
 
 #: admin.php:4670
 msgid "Main event"
-msgstr "Main event"
+msgstr "Hauptereignis"
 
 #: admin.php:4693
 msgid "Select event"
-msgstr "Select event"
+msgstr "Ereignis auswählen"
 
 #: admin.php:4723
 msgid "Add Storyline"
-msgstr "Add Storyline"
+msgstr "Handlungsstrang hinzufügen"
 
 #: admin.php:4785
 msgid "Events"
-msgstr "Events"
+msgstr "Ereignisse"
 
 #: admin.php:4788
 msgid "List of Events"
-msgstr "List of Events"
+msgstr "Liste der Ereignisse"
 
 #: admin.php:4794
 msgid "Sequence"
-msgstr "Sequence"
+msgstr "Sequenz"
 
 #: admin.php:4795
 msgid "Chain role"
-msgstr "Chain role"
+msgstr "Kettenrolle"
 
 #: admin.php:4596
 msgid "Narrative"
-msgstr "Narrative"
+msgstr "Erzählung"
 
 #: admin.php:4797
 msgid "Event name"
-msgstr "Event name"
+msgstr "Ereignisname"
 
 #: admin.php:4861
 msgid "Add Event"
-msgstr "Add Event"
+msgstr "Ereignis hinzufügen"
 
 #: admin.php:4956
 msgid "Storyline Chains"
-msgstr "Storyline Chains"
+msgstr "Handlungsstrangketten"
 
 #: admin.php:4963
 msgid "All books"
-msgstr "All books"
+msgstr "Alle Bücher"
 
 #: admin.php:4970
 msgid "Filter"
@@ -480,104 +459,104 @@ msgstr "Filter"
 
 #: admin.php:4974
 msgid "No storyline chains found."
-msgstr "No storyline chains found."
+msgstr "Keine Handlungsstrangketten gefunden."
 
 #: admin.php:4986
 msgid "Events: %d"
-msgstr "Events: %d"
+msgstr "Ereignisse: %d"
 
 #: admin.php:4987
 msgid "Has opening"
-msgstr "Has opening"
+msgstr "Hat Eröffnung"
 
 #: admin.php:4987
 msgid "Missing opening"
-msgstr "Missing opening"
+msgstr "Eröffnung fehlt"
 
 #: admin.php:4988
 msgid "Closed"
-msgstr "Closed"
+msgstr "Abgeschlossen"
 
 #: admin.php:4988
 msgid "Missing closing"
-msgstr "Missing closing"
+msgstr "Abschluss fehlt"
 
 #: admin.php:4991
 msgid "Has suggestion"
-msgstr "Has suggestion"
+msgstr "Hat Vorschlag"
 
 #: admin.php:4995
 msgid "Has return"
-msgstr "Has return"
+msgstr "Hat Rückkehr"
 
 #: admin.php:4998
 msgid "First: %s"
-msgstr "First: %s"
+msgstr "Erste: %s"
 
 #: admin.php:5001
 msgid "Last: %s"
-msgstr "Last: %s"
+msgstr "Letzte: %s"
 
 #: admin.php:5004
 msgid "Storyline refs: %s"
-msgstr "Storyline refs: %s"
+msgstr "Handlungsstrang-Referenzen: %s"
 
 #: admin.php:5009
 msgid "This storyline has no linked events."
-msgstr "This storyline has no linked events."
+msgstr "Dieser Handlungsstrang hat keine verknüpften Ereignisse."
 
 #: admin.php:5015
 msgid "Role"
-msgstr "Role"
+msgstr "Rolle"
 
 #: admin.php:5018
 msgid "References"
-msgstr "References"
+msgstr "Referenzen"
 
 #: admin.php:5042
 msgid "Select storyline"
-msgstr "Select storyline"
+msgstr "Handlungsstrang auswählen"
 
 #: admin.php:5068
 msgid "Manuscript references"
-msgstr "Manuscript references"
+msgstr "Manuskriptreferenzen"
 
 #: admin.php:5069
 msgid "Show / Hide Manuscript References"
-msgstr "Show / Hide Manuscript References"
+msgstr "Manuskriptreferenzen anzeigen/ausblenden"
 
 #: admin.php:5082
 msgid "Type"
-msgstr "Type"
+msgstr "Typ"
 
 #: admin.php:5094
 msgid "List of Manuscript References"
-msgstr "List of Manuscript References"
+msgstr "Liste der Manuskriptreferenzen"
 
 #: admin.php:5100
 msgid "Referenced item"
-msgstr "Referenced item"
+msgstr "Referenziertes Element"
 
 #: admin.php:5101
 msgid "Chapter"
-msgstr "Chapter"
+msgstr "Kapitel"
 
 #: admin.php:5102
 msgid "Page"
-msgstr "Page"
+msgstr "Seite"
 
 #: admin.php:5124
 msgid "Select type"
-msgstr "Select type"
+msgstr "Typ auswählen"
 
 #: admin.php:5165
 msgid "Select location"
-msgstr "Select location"
+msgstr "Ort auswählen"
 
 #: admin.php:5175
 msgid "Select time"
-msgstr "Select time"
+msgstr "Zeit auswählen"
 
 #: admin.php:5211
 msgid "Add Manuscript Reference"
-msgstr "Add Manuscript Reference"
+msgstr "Manuskriptreferenz hinzufügen"
