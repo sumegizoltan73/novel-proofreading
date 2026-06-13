@@ -74,10 +74,6 @@ msgstr "Return"
 msgid "Closing"
 msgstr "Closing"
 
-#: admin.php:2126
-msgid "Book is required."
-msgstr "Book is required."
-
 #: admin.php:2135
 msgid "Storyline is invalid."
 msgstr "Storyline is invalid."
@@ -145,14 +141,6 @@ msgstr "Storyline deleted."
 #: admin.php:2692
 msgid "Event chain data could not be updated."
 msgstr "Event chain data could not be updated."
-
-#: admin.php:2717
-msgid "Event could not be updated."
-msgstr "Event could not be updated."
-
-#: admin.php:2732
-msgid "Storyline must belong to the selected book."
-msgstr "Storyline must belong to the selected book."
 
 #: admin.php:2786
 msgid "Event chain data updated."
@@ -326,17 +314,9 @@ msgstr "Add Person"
 msgid "Name or alias is required."
 msgstr "Name or alias is required."
 
-#: admin.php:4054
-msgid "Description"
-msgstr "Description"
-
 #: admin.php:4067
 msgid "Yes"
 msgstr "Yes"
-
-#: admin.php:4075
-msgid "Add Person"
-msgstr "Add Person"
 
 #: admin.php:4079
 msgid "Person name and alias mapping"
