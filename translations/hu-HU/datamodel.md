@@ -233,6 +233,9 @@ VALUES of AREA_TYPE : (SPACE, GALAXY, ANOTHER_GALAXY, ANOTHER_PLANET, EARTH, COU
 - id
 - book_id
 - storyline_id
+- sequence_no
+- chain_role
+- is_narrative (Y, N) DEFAULT 'N'
 - event_name
 - description
 - created_at

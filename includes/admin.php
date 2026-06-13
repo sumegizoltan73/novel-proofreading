@@ -1552,6 +1552,8 @@ function novel_proofreading_get_events() {
 
             'chain_role' => isset($row->chain_role) ? $row->chain_role : 'STEP',
 
+            'is_narrative' => isset($row->is_narrative) ? $row->is_narrative : 'N',
+
             'event_name' => $row->event_name,
 
             'description' => $row->description
@@ -1621,6 +1623,11 @@ function novel_proofreading_sanitize_event_data() {
             $_POST['chain_role'] ?? 'STEP'
         ),
 
+        'is_narrative' => isset($_POST['is_narrative']) &&
+            sanitize_text_field(wp_unslash($_POST['is_narrative'])) === 'Y'
+                ? 'Y'
+                : 'N',
+
         'event_name' => $event_name,
 
         'description' => sanitize_textarea_field(
@@ -1664,6 +1671,7 @@ function novel_proofreading_add_event() {
             '%d',
             '%d',
             '%d',
+            '%s',
             '%s',
             '%s',
             '%s',
@@ -1726,6 +1734,7 @@ function novel_proofreading_update_event($id) {
             '%d',
             '%d',
             '%d',
+            '%s',
             '%s',
             '%s',
             '%s',
@@ -4062,6 +4071,7 @@ function novel_proofreading_admin_page() {
                         <th><?php _e( 'Storyline', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Sequence', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Chain role', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Narrative', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Event name', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Description', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Edit', 'novel-proofreading' ); ?></th>
@@ -4102,6 +4112,7 @@ function novel_proofreading_admin_page() {
                                     <?php endforeach; ?>
                                 </select>
                             </td>
+                            <td><input form="<?php echo esc_attr($event_form_id); ?>" type="checkbox" name="is_narrative" value="Y" <?php checked($item['is_narrative'], 'Y'); ?> /></td>
                             <td><input form="<?php echo esc_attr($event_form_id); ?>" type="text" name="event_name" value="<?php echo esc_attr($item['event_name']); ?>" required /></td>
                             <td><textarea form="<?php echo esc_attr($event_form_id); ?>" name="description" rows="2"><?php echo esc_textarea($item['description']); ?></textarea></td>
                             <td>
@@ -4190,6 +4201,17 @@ function novel_proofreading_admin_page() {
                             </th>
                             <td>
                                 <input type="text" id="novel-proofreading-event-name" name="event_name" required />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <?php _e( 'Narrative', 'novel-proofreading' ); ?>
+                            </th>
+                            <td>
+                                <label for="novel-proofreading-event-is-narrative">
+                                    <input type="checkbox" id="novel-proofreading-event-is-narrative" name="is_narrative" value="Y" />
+                                    <?php _e( 'Yes', 'novel-proofreading' ); ?>
+                                </label>
                             </td>
                         </tr>
                         <tr>
@@ -4426,7 +4448,7 @@ function novel_proofreading_admin_page() {
                                         <option value="0"><?php _e( 'Select time', 'novel-proofreading' ); ?></option>
                                         <?php foreach ( $datetime_items as $datetime_item ) : ?>
                                             <option value="<?php echo esc_attr($datetime_item['id']); ?>" data-book-id="<?php echo esc_attr($datetime_item['book_id']); ?>" <?php selected($reference_item['time_id'], $datetime_item['id']); ?>>
-                                                <?php echo esc_html($datetime_item['name'] . ' - ' . $datetime_item['book_title']); ?>
+                                                <?php echo esc_html($datetime_item['name'] . ' (' . $datetime_item['time_description'] . ') - ' . $datetime_item['book_title']); ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
@@ -4544,7 +4566,7 @@ function novel_proofreading_admin_page() {
                                         <option value="0"><?php _e( 'Select time', 'novel-proofreading' ); ?></option>
                                         <?php foreach ( $datetime_items as $item ) : ?>
                                             <option value="<?php echo esc_attr($item['id']); ?>" data-book-id="<?php echo esc_attr($item['book_id']); ?>">
-                                                <?php echo esc_html($item['name'] . ' - ' . $item['book_title']); ?>
+                                                <?php echo esc_html($item['name'] . ' (' . $item['time_description'] . ') - ' . $item['book_title']); ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>

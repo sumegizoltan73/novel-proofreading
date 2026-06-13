@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define('NOVEL_PROOFREADING_DB_VERSION', '0.7');
+define('NOVEL_PROOFREADING_DB_VERSION', '0.8');
 
 function novel_proofreading_install() {
 
@@ -395,6 +395,7 @@ function novel_proofreading_create_tables() {
         storyline_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
         sequence_no INT NOT NULL DEFAULT 0,
         chain_role VARCHAR(32) NOT NULL DEFAULT 'STEP',
+        is_narrative CHAR(1) NULL DEFAULT 'N',
         event_name VARCHAR(255) NOT NULL,
         description TEXT NULL,
 
