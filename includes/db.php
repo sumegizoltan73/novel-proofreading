@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define('NOVEL_PROOFREADING_DB_VERSION', '0.8');
+define('NOVEL_PROOFREADING_DB_VERSION', '0.9');
 
 function novel_proofreading_install() {
 
@@ -140,6 +140,9 @@ function novel_proofreading_create_tables() {
 
     $persons_table_name =
         $wpdb->prefix . 'novel_proofreading_persons';
+
+    $person_alias_mapping_table_name =
+        $wpdb->prefix . 'novel_proofreading_person_alias_mapping';
 
     $locations_table_name =
         $wpdb->prefix . 'novel_proofreading_locations';
@@ -315,6 +318,34 @@ function novel_proofreading_create_tables() {
         KEY idx_book_alias (
             book_id,
             alias
+        )
+
+    ) $charset_collate;
+
+    CREATE TABLE $person_alias_mapping_table_name (
+
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+        book_id BIGINT UNSIGNED NOT NULL,
+        person_id BIGINT UNSIGNED NOT NULL,
+        alias_person_id BIGINT UNSIGNED NOT NULL,
+
+        created_at DATETIME NOT NULL,
+        created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        updated_at DATETIME NULL,
+        updated_by BIGINT UNSIGNED NULL,
+
+        PRIMARY KEY  (id),
+
+        UNIQUE KEY idx_person_alias (
+            book_id,
+            person_id,
+            alias_person_id
+        ),
+
+        KEY idx_alias_person (
+            book_id,
+            alias_person_id
         )
 
     ) $charset_collate;

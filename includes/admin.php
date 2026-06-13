@@ -785,6 +785,270 @@ function novel_proofreading_remove_person($id) {
     return __( 'Person deleted.', 'novel-proofreading' );
 }
 
+function novel_proofreading_format_person_label($name, $alias) {
+    $label = trim($name . ' ' . $alias);
+
+    return $label !== '' ? $label : __( 'Unnamed person', 'novel-proofreading' );
+}
+
+function novel_proofreading_person_belongs_to_book($person_id, $book_id) {
+    global $wpdb;
+
+    if ($person_id <= 0) {
+        return false;
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_persons';
+
+    $found = $wpdb->get_var(
+        $wpdb->prepare(
+            "
+            SELECT
+                COUNT(*)
+
+            FROM
+                {$table}
+
+            WHERE
+                    id = %d
+                AND book_id = %d
+            ",
+            $person_id,
+            $book_id
+        )
+    );
+
+    return intval($found) > 0;
+}
+
+function novel_proofreading_get_person_alias_mappings() {
+    global $wpdb;
+
+    $items = [];
+
+    $table_mapping =
+        $wpdb->prefix . 'novel_proofreading_person_alias_mapping';
+    $table_books =
+        $wpdb->prefix . 'novel_proofreading_books';
+    $table_persons =
+        $wpdb->prefix . 'novel_proofreading_persons';
+
+    $result = $wpdb->get_results(
+        "
+        SELECT
+            pam.*,
+            b.title AS book_title,
+            p.name AS person_name,
+            p.alias AS person_alias,
+            ap.name AS alias_name,
+            ap.alias AS alias_alias
+
+        FROM
+            {$table_mapping} pam
+        LEFT JOIN
+            {$table_books} b ON b.id = pam.book_id
+        LEFT JOIN
+            {$table_persons} p ON p.id = pam.person_id
+        LEFT JOIN
+            {$table_persons} ap ON ap.id = pam.alias_person_id
+
+        ORDER BY
+            pam.book_id,
+            pam.id
+        "
+    );
+
+    foreach ($result as $row) {
+        $items[] = [
+            'id' => intval($row->id),
+            'book_id' => intval($row->book_id),
+            'book_title' => isset($row->book_title) ? $row->book_title : '',
+            'person_id' => intval($row->person_id),
+            'alias_person_id' => intval($row->alias_person_id),
+            'person_label' => novel_proofreading_format_person_label(
+                $row->person_name,
+                $row->person_alias
+            ),
+            'alias_label' => novel_proofreading_format_person_label(
+                $row->alias_name,
+                $row->alias_alias
+            )
+        ];
+    }
+
+    return $items;
+}
+
+function novel_proofreading_sanitize_person_alias_mapping_data() {
+    $book_id = intval($_POST['book_id'] ?? 0);
+
+    if ($book_id <= 0) {
+        return new WP_Error(
+            'missing_person_alias_mapping_book',
+            __( 'Book is required.', 'novel-proofreading' )
+        );
+    }
+
+    $person_id = intval($_POST['person_id'] ?? 0);
+    $alias_person_id = intval($_POST['alias_person_id'] ?? 0);
+
+    if ($person_id <= 0 || $alias_person_id <= 0) {
+        return new WP_Error(
+            'missing_person_alias_mapping_person',
+            __( 'Name and alias are required.', 'novel-proofreading' )
+        );
+    }
+
+    if ($person_id === $alias_person_id) {
+        return new WP_Error(
+            'invalid_person_alias_mapping_same_person',
+            __( 'Name and alias must be different persons.', 'novel-proofreading' )
+        );
+    }
+
+    if (
+        ! novel_proofreading_person_belongs_to_book($person_id, $book_id) ||
+        ! novel_proofreading_person_belongs_to_book($alias_person_id, $book_id)
+    ) {
+        return new WP_Error(
+            'invalid_person_alias_mapping_book',
+            __( 'Name and alias must belong to the selected book.', 'novel-proofreading' )
+        );
+    }
+
+    return [
+        'book_id' => $book_id,
+        'person_id' => $person_id,
+        'alias_person_id' => $alias_person_id
+    ];
+}
+
+function novel_proofreading_add_person_alias_mapping() {
+    global $wpdb;
+
+    $data = novel_proofreading_sanitize_person_alias_mapping_data();
+
+    if (is_wp_error($data)) {
+        return $data->get_error_message();
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_person_alias_mapping';
+
+    $now = current_time(
+        'mysql',
+        true
+    );
+
+    $result = $wpdb->insert(
+        $table,
+        array_merge(
+            $data,
+            [
+                'created_at' => $now,
+                'created_by' => get_current_user_id(),
+                'updated_at' => $now,
+                'updated_by' => get_current_user_id()
+            ]
+        ),
+        [
+            '%d',
+            '%d',
+            '%d',
+            '%s',
+            '%d',
+            '%s',
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'INSERT ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Person alias mapping could not be added.', 'novel-proofreading' );
+    }
+
+    return __( 'Person alias mapping added.', 'novel-proofreading' );
+}
+
+function novel_proofreading_update_person_alias_mapping($id) {
+    global $wpdb;
+
+    if ($id <= 0) {
+        return __( 'Person alias mapping could not be updated.', 'novel-proofreading' );
+    }
+
+    $data = novel_proofreading_sanitize_person_alias_mapping_data();
+
+    if (is_wp_error($data)) {
+        return $data->get_error_message();
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_person_alias_mapping';
+
+    $result = $wpdb->update(
+        $table,
+        array_merge(
+            $data,
+            [
+                'updated_at' => current_time(
+                    'mysql',
+                    true
+                ),
+                'updated_by' => get_current_user_id()
+            ]
+        ),
+        [
+            'id' => $id
+        ],
+        [
+            '%d',
+            '%d',
+            '%d',
+            '%s',
+            '%d'
+        ],
+        [
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'UPDATE ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Person alias mapping could not be updated.', 'novel-proofreading' );
+    }
+
+    return __( 'Person alias mapping updated.', 'novel-proofreading' );
+}
+
+function novel_proofreading_remove_person_alias_mapping($id) {
+    global $wpdb;
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_person_alias_mapping';
+
+    $wpdb->query(
+        $wpdb->prepare(
+            "
+            DELETE FROM {$table}
+
+            WHERE
+                id = %d
+            ",
+            $id
+        )
+    );
+
+    return __( 'Person alias mapping deleted.', 'novel-proofreading' );
+}
+
 function novel_proofreading_get_type_options($category) {
     global $wpdb;
 
@@ -3025,6 +3289,22 @@ function novel_proofreading_admin_page() {
             );
         }
 
+        if ($action === 'add_person_alias_mapping') {
+            $admin_notice = novel_proofreading_add_person_alias_mapping();
+        }
+
+        if ($action === 'remove_person_alias_mapping') {
+            $admin_notice = novel_proofreading_remove_person_alias_mapping(
+                intval($_POST['person_alias_mapping_id'] ?? 0)
+            );
+        }
+
+        if ($action === 'update_person_alias_mapping') {
+            $admin_notice = novel_proofreading_update_person_alias_mapping(
+                intval($_POST['person_alias_mapping_id'] ?? 0)
+            );
+        }
+
         if ($action === 'add_location') {
             $admin_notice = novel_proofreading_add_location();
         }
@@ -3131,6 +3411,7 @@ function novel_proofreading_admin_page() {
     $items = novel_proofreading_get_books();
     $series_items = novel_proofreading_get_series();
     $person_items = novel_proofreading_get_persons();
+    $person_alias_mapping_items = novel_proofreading_get_person_alias_mappings();
     $storyline_items = novel_proofreading_get_storylines();
 
     $location_items = novel_proofreading_get_locations();
@@ -3547,6 +3828,131 @@ function novel_proofreading_admin_page() {
 
                 <button type="submit" class="button button-primary" <?php disabled(empty($items)); ?>>
                     + <?php _e( 'Add Person', 'novel-proofreading' ); ?>
+                </button>
+            </form>
+
+            <h3>3.3&nbsp;<?php _e( 'Person name and alias mapping', 'novel-proofreading' ); ?></h3>
+            <table class="widefat striped">
+                <thead>
+                    <tr>
+                        <th><?php _e( 'Book', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Name', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Alias', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Edit', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Delete', 'novel-proofreading' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ( $person_alias_mapping_items as $mapping_item ) : ?>
+                        <?php $person_alias_mapping_form_id = 'novel-proofreading-edit-person-alias-mapping-' . intval($mapping_item['id']); ?>
+                        <tr>
+                            <td>
+                                <select form="<?php echo esc_attr($person_alias_mapping_form_id); ?>" name="book_id" class="novel-proofreading-book-select" required>
+                                    <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $items as $book_item ) : ?>
+                                        <option value="<?php echo esc_attr($book_item['id']); ?>" <?php selected($mapping_item['book_id'], $book_item['id']); ?>>
+                                            <?php echo esc_html($book_item['title'] . ' - ' . $book_item['author'] . ' (' . $book_item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td>
+                                <select form="<?php echo esc_attr($person_alias_mapping_form_id); ?>" name="person_id" class="novel-proofreading-person-select" required>
+                                    <option value=""><?php _e( 'Select person', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $person_items as $person_item ) : ?>
+                                        <option value="<?php echo esc_attr($person_item['id']); ?>" data-book-id="<?php echo esc_attr($person_item['book_id']); ?>" <?php selected($mapping_item['person_id'], $person_item['id']); ?>>
+                                            <?php echo esc_html(novel_proofreading_format_person_label($person_item['name'], $person_item['alias']) . ' - ' . $person_item['book_title']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td>
+                                <select form="<?php echo esc_attr($person_alias_mapping_form_id); ?>" name="alias_person_id" class="novel-proofreading-person-select" required>
+                                    <option value=""><?php _e( 'Select alias', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $person_items as $person_item ) : ?>
+                                        <option value="<?php echo esc_attr($person_item['id']); ?>" data-book-id="<?php echo esc_attr($person_item['book_id']); ?>" <?php selected($mapping_item['alias_person_id'], $person_item['id']); ?>>
+                                            <?php echo esc_html(novel_proofreading_format_person_label($person_item['name'], $person_item['alias']) . ' - ' . $person_item['book_title']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td>
+                                <form id="<?php echo esc_attr($person_alias_mapping_form_id); ?>" method="post">
+                                    <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                                    <input type="hidden" name="novel_proofreading_action" value="update_person_alias_mapping" />
+                                    <input type="hidden" name="person_alias_mapping_id" value="<?php echo esc_attr($mapping_item['id']); ?>" />
+                                    <button type="submit" class="button button-primary"><?php _e( 'Save', 'novel-proofreading' ); ?></button>
+                                </form>
+                            </td>
+                            <td>
+                                <form method="post">
+                                    <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                                    <input type="hidden" name="novel_proofreading_action" value="remove_person_alias_mapping" />
+                                    <input type="hidden" name="person_alias_mapping_id" value="<?php echo esc_attr($mapping_item['id']); ?>" />
+                                    <button type="button" class="button remove-item" onclick="confirm_delete(this)">-</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <form method="post">
+                <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                <input type="hidden" name="novel_proofreading_action" value="add_person_alias_mapping" />
+
+                <table class="form-table" role="presentation">
+                    <tbody>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-person-alias-mapping-book-id"><?php _e( 'Book', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-person-alias-mapping-book-id" name="book_id" class="novel-proofreading-book-select" required>
+                                    <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $items as $item ) : ?>
+                                        <option value="<?php echo esc_attr($item['id']); ?>">
+                                            <?php echo esc_html($item['title'] . ' - ' . $item['author'] . ' (' . $item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-person-alias-mapping-person-id"><?php _e( 'Name', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-person-alias-mapping-person-id" name="person_id" class="novel-proofreading-person-select" required>
+                                    <option value=""><?php _e( 'Select person', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $person_items as $item ) : ?>
+                                        <option value="<?php echo esc_attr($item['id']); ?>" data-book-id="<?php echo esc_attr($item['book_id']); ?>">
+                                            <?php echo esc_html(novel_proofreading_format_person_label($item['name'], $item['alias']) . ' - ' . $item['book_title']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-person-alias-mapping-alias-person-id"><?php _e( 'Alias', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-person-alias-mapping-alias-person-id" name="alias_person_id" class="novel-proofreading-person-select" required>
+                                    <option value=""><?php _e( 'Select alias', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $person_items as $item ) : ?>
+                                        <option value="<?php echo esc_attr($item['id']); ?>" data-book-id="<?php echo esc_attr($item['book_id']); ?>">
+                                            <?php echo esc_html(novel_proofreading_format_person_label($item['name'], $item['alias']) . ' - ' . $item['book_title']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button type="submit" class="button button-primary" <?php disabled(empty($items) || empty($person_items)); ?>>
+                    + <?php _e( 'Add Person Alias Mapping', 'novel-proofreading' ); ?>
                 </button>
             </form>
 

@@ -151,3 +151,29 @@ Az admin JS most explicit függ a sweetalert2 scriptre.
 
 ## Ötödik módosítás - megerősítés törlés gombra kattintáskor (Implementált)
 Megerősítés szükséges a törlés gombra kattintáskor, ezért minden "button remove-item" class name tulajdonságú button type paramétere módosítandó "submit"-ről "button"-ra, és onclick="..." tulajdonság állítandó be a kliens oldali sweetalert2 pluginnal megjelenített megerősítő popup-hoz, ahol ha a mégsem gombra kattint, akkor nem törölhető a tétel. A popup ablekban a "Biztosan törölni szeretné?" üzenet jelenítendő meg.
+
+## Hatodik módosítás - Személy nevek és Alias-ok mapping-ja (Implementált)
+A 3.2 Add Person szakasz alatt létre kell hozni egy 3.3 Person name and alias mapping szakaszt. Itt a Nevekhez lehet hozzárendelni egyszerű select vezérlők segítségével az Alias-okat, és ehhez egy mapping tábla létrehozása is szükséges.
+
+Codex / ChatGPT:
+Megvalósítottam a 3.3 Person name and alias mapping szakaszt.
+A változtatások:
+[includes/db.php](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/includes/db.php): DB verzió 0.9, új tábla: novel_proofreading_person_alias_mapping.
+[includes/admin.php](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/includes/admin.php): új mapping CRUD logika, validáció, action routing, és a 3.2 alatti 3.3 admin UI.
+[datamodel.md](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/translations/hu-HU/datamodel.md): új mapping tábla dokumentálva.
+A 3.3 szakaszban lehet:
+meglévő person-alias kapcsolatok listázása,
+kapcsolat szerkesztése könyv / név / alias selectekkel,
+kapcsolat törlése a korábbi SweetAlert megerősítéssel,
+új kapcsolat felvitele.
+Validáció:
+könyv kötelező,
+név és alias kötelező,
+a két személy nem lehet ugyanaz,
+mindkét személynek a kiválasztott könyvhöz kell tartoznia,
+DB szinten egyedi: book_id + person_id + alias_person_id.
+Ellenőrzések:
+php -l includes/db.php sikeres
+php -l includes/admin.php sikeres
+node --check assets/js/admin.js sikeres
+célzott git diff --check sikeres.

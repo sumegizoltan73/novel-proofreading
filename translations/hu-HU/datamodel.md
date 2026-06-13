@@ -201,6 +201,16 @@ VALUES of AREA_TYPE : (SPACE, GALAXY, ANOTHER_GALAXY, ANOTHER_PLANET, EARTH, COU
 - updated_at
 - updated_by
 
+## novel_proofreading_person_alias_mapping
+- id
+- book_id
+- person_id
+- alias_person_id
+- created_at
+- created_by
+- updated_at
+- updated_by
+
 ## novel_proofreading_locations
 - id
 - book_id
