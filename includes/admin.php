@@ -3207,7 +3207,7 @@ function novel_proofreading_admin_page() {
                                     <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
                                     <input type="hidden" name="novel_proofreading_action" value="remove_book" />
                                     <input type="hidden" name="book_id" value="<?php echo esc_attr($item['id']); ?>" />
-                                    <button type="submit" class="button remove-item">-</button>
+                                    <button type="button" class="button remove-item" onclick="confirm_delete(this)">-</button>
                                 </form>
                             </td>
                         </tr>
@@ -3301,7 +3301,7 @@ function novel_proofreading_admin_page() {
                                     <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
                                     <input type="hidden" name="novel_proofreading_action" value="remove_series" />
                                     <input type="hidden" name="series_id" value="<?php echo esc_attr($item['id']); ?>" />
-                                    <button type="submit" class="button remove-item">-</button>
+                                    <button type="button" class="button remove-item" onclick="confirm_delete(this)">-</button>
                                 </form>
                             </td>
                         </tr>
@@ -3322,7 +3322,7 @@ function novel_proofreading_admin_page() {
                                                         <input type="hidden" name="novel_proofreading_action" value="remove_book_from_series" />
                                                         <input type="hidden" name="sub_series_id" value="<?php echo esc_attr($item['id']); ?>" />
                                                         <input type="hidden" name="sub_book_id" value="<?php echo esc_attr($subitem['id']); ?>" />
-                                                        <button type="submit" class="button remove-item">-</button>
+                                                        <button type="button" class="button remove-item" onclick="confirm_delete(this)">-</button>
                                                     </form>
                                                 </td>
                                             </tr>
@@ -3476,7 +3476,7 @@ function novel_proofreading_admin_page() {
                                     <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
                                     <input type="hidden" name="novel_proofreading_action" value="remove_person" />
                                     <input type="hidden" name="person_id" value="<?php echo esc_attr($item['id']); ?>" />
-                                    <button type="submit" class="button remove-item">-</button>
+                                    <button type="button" class="button remove-item" onclick="confirm_delete(this)">-</button>
                                 </form>
                             </td>
                         </tr>
@@ -3614,7 +3614,7 @@ function novel_proofreading_admin_page() {
                                     <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
                                     <input type="hidden" name="novel_proofreading_action" value="remove_location" />
                                     <input type="hidden" name="location_id" value="<?php echo esc_attr($item['id']); ?>" />
-                                    <button type="submit" class="button remove-item">-</button>
+                                    <button type="button" class="button remove-item" onclick="confirm_delete(this)">-</button>
                                 </form>
                             </td>
                         </tr>
@@ -3781,7 +3781,7 @@ function novel_proofreading_admin_page() {
                                     <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
                                     <input type="hidden" name="novel_proofreading_action" value="remove_datetime" />
                                     <input type="hidden" name="datetime_id" value="<?php echo esc_attr($item['id']); ?>" />
-                                    <button type="submit" class="button remove-item">-</button>
+                                    <button type="button" class="button remove-item" onclick="confirm_delete(this)">-</button>
                                 </form>
                             </td>
                         </tr>
@@ -3926,7 +3926,7 @@ function novel_proofreading_admin_page() {
                                     <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
                                     <input type="hidden" name="novel_proofreading_action" value="remove_profession" />
                                     <input type="hidden" name="profession_id" value="<?php echo esc_attr($item['id']); ?>" />
-                                    <button type="submit" class="button remove-item">-</button>
+                                    <button type="button" class="button remove-item" onclick="confirm_delete(this)">-</button>
                                 </form>
                             </td>
                         </tr>
@@ -4061,7 +4061,7 @@ function novel_proofreading_admin_page() {
                                     <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
                                     <input type="hidden" name="novel_proofreading_action" value="remove_storyline" />
                                     <input type="hidden" name="storyline_id" value="<?php echo esc_attr($item['id']); ?>" />
-                                    <button type="submit" class="button remove-item">-</button>
+                                    <button type="button" class="button remove-item" onclick="confirm_delete(this)">-</button>
                                 </form>
                             </td>
                         </tr>
@@ -4199,7 +4199,7 @@ function novel_proofreading_admin_page() {
                                     <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
                                     <input type="hidden" name="novel_proofreading_action" value="remove_event" />
                                     <input type="hidden" name="event_id" value="<?php echo esc_attr($item['id']); ?>" />
-                                    <button type="submit" class="button remove-item">-</button>
+                                    <button type="button" class="button remove-item" onclick="confirm_delete(this)">-</button>
                                 </form>
                             </td>
                         </tr>
@@ -4549,7 +4549,7 @@ function novel_proofreading_admin_page() {
                                     <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
                                     <input type="hidden" name="novel_proofreading_action" value="remove_manuscript_reference" />
                                     <input type="hidden" name="manuscript_reference_id" value="<?php echo esc_attr($reference_item['id']); ?>" />
-                                    <button type="submit" class="button remove-item">-</button>
+                                    <button type="button" class="button remove-item" onclick="confirm_delete(this)">-</button>
                                 </form>
                             </td>
                         </tr>

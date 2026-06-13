@@ -148,3 +148,6 @@ Ha egy storyline-hoz van novel_proofreading_common_mapping rekord type IN ('AGRE
 Kattintásra AJAX hívás lekéri az adott storyline AGREEMENT / SUGGESTION rekordjait.
 SweetAlert2 popupban megjelenik minden rekord description mezője, külön AGREEMENT vagy SUGGESTION címkével.
 Az admin JS most explicit függ a sweetalert2 scriptre.
+
+## Ötödik módosítás - megerősítés törlés gombra kattintáskor (Implementált)
+Megerősítés szükséges a törlés gombra kattintáskor, ezért minden "button remove-item" class name tulajdonságú button type paramétere módosítandó "submit"-ről "button"-ra, és onclick="..." tulajdonság állítandó be a kliens oldali sweetalert2 pluginnal megjelenített megerősítő popup-hoz, ahol ha a mégsem gombra kattint, akkor nem törölhető a tétel. A popup ablekban a "Biztosan törölni szeretné?" üzenet jelenítendő meg.

@@ -2,6 +2,34 @@ function show_hide(selector) {
     jQuery(selector).toggleClass("hidden");
 }
 
+function confirm_delete(button) {
+    var form = jQuery(button).closest("form").get(0);
+
+    if (!form) {
+        return;
+    }
+
+    if (typeof Swal === "undefined") {
+        if (window.confirm("Biztosan törölni szeretné?")) {
+            form.submit();
+        }
+
+        return;
+    }
+
+    Swal.fire({
+        text: "Biztosan törölni szeretné?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Törlés",
+        cancelButtonText: "Mégsem"
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+}
+
 jQuery(function ($) {
     function filterRelatedOptions($bookSelect) {
         var bookId = $bookSelect.val();
