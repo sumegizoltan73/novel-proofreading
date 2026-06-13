@@ -560,3 +560,43 @@ msgstr "Zeit auswählen"
 #: admin.php:5211
 msgid "Add Manuscript Reference"
 msgstr "Manuskriptreferenz hinzufügen"
+
+#: admin.php:5302
+msgid "For mistake, suggestion and agreement references, use the description field in this first version."
+msgstr "Verwenden Sie in dieser ersten Version für Fehler-, Vorschlags- und Vereinbarungsreferenzen das Beschreibungsfeld."
+
+#: admin.php:3675
+msgid "Show / Hide Books"
+msgstr "Bücher anzeigen/ausblenden"
+
+#: admin.php:3771
+msgid "Show / Hide Series"
+msgstr "Reihen anzeigen/ausblenden"
+
+#: admin.php:3937
+msgid "Show / Hide Persons"
+msgstr "Personen anzeigen/ausblenden"
+
+#: admin.php:4207
+msgid "Show / Hide Locations"
+msgstr "Orte anzeigen/ausblenden"
+
+#: admin.php:4378
+msgid "Show / Hide Datetimes"
+msgstr "Datums-/Zeitangaben anzeigen/ausblenden"
+
+#: admin.php:4525
+msgid "Show / Hide Professions"
+msgstr "Berufe anzeigen/ausblenden"
+
+#: admin.php:4662
+msgid "Show / Hide Storylines"
+msgstr "Handlungsstränge anzeigen/ausblenden"
+
+#: admin.php:4786
+msgid "Show / Hide Events"
+msgstr "Ereignisse anzeigen/ausblenden"
+
+#: admin.php:4957
+msgid "Show / Hide Storyline Chains"
+msgstr "Handlungsstrangketten anzeigen/ausblenden"

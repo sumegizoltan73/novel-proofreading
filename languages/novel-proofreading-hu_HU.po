@@ -560,3 +560,43 @@ msgstr "Idő kiválasztása"
 #: admin.php:5211
 msgid "Add Manuscript Reference"
 msgstr "Kézirathivatkozás hozzáadása"
+
+#: admin.php:5302
+msgid "For mistake, suggestion and agreement references, use the description field in this first version."
+msgstr "Hiba-, javaslat- és egyezési hivatkozásokhoz ebben az első verzióban használd a leírás mezőt."
+
+#: admin.php:3675
+msgid "Show / Hide Books"
+msgstr "Könyvek megjelenítése / elrejtése"
+
+#: admin.php:3771
+msgid "Show / Hide Series"
+msgstr "Sorozatok megjelenítése / elrejtése"
+
+#: admin.php:3937
+msgid "Show / Hide Persons"
+msgstr "Személyek megjelenítése / elrejtése"
+
+#: admin.php:4207
+msgid "Show / Hide Locations"
+msgstr "Helyszínek megjelenítése / elrejtése"
+
+#: admin.php:4378
+msgid "Show / Hide Datetimes"
+msgstr "Időpontok megjelenítése / elrejtése"
+
+#: admin.php:4525
+msgid "Show / Hide Professions"
+msgstr "Foglalkozások megjelenítése / elrejtése"
+
+#: admin.php:4662
+msgid "Show / Hide Storylines"
+msgstr "Történetszálak megjelenítése / elrejtése"
+
+#: admin.php:4786
+msgid "Show / Hide Events"
+msgstr "Események megjelenítése / elrejtése"
+
+#: admin.php:4957
+msgid "Show / Hide Storyline Chains"
+msgstr "Történetszál-láncok megjelenítése / elrejtése"

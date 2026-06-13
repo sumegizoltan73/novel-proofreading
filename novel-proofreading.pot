@@ -581,3 +581,43 @@ msgstr "Select time"
 #: admin.php:5211
 msgid "Add Manuscript Reference"
 msgstr "Add Manuscript Reference"
+
+#: admin.php:5302
+msgid "For mistake, suggestion and agreement references, use the description field in this first version."
+msgstr "For mistake, suggestion and agreement references, use the description field in this first version."
+
+#: admin.php:3675
+msgid "Show / Hide Books"
+msgstr "Show / Hide Books"
+
+#: admin.php:3771
+msgid "Show / Hide Series"
+msgstr "Show / Hide Series"
+
+#: admin.php:3937
+msgid "Show / Hide Persons"
+msgstr "Show / Hide Persons"
+
+#: admin.php:4207
+msgid "Show / Hide Locations"
+msgstr "Show / Hide Locations"
+
+#: admin.php:4378
+msgid "Show / Hide Datetimes"
+msgstr "Show / Hide Datetimes"
+
+#: admin.php:4525
+msgid "Show / Hide Professions"
+msgstr "Show / Hide Professions"
+
+#: admin.php:4662
+msgid "Show / Hide Storylines"
+msgstr "Show / Hide Storylines"
+
+#: admin.php:4786
+msgid "Show / Hide Events"
+msgstr "Show / Hide Events"
+
+#: admin.php:4957
+msgid "Show / Hide Storyline Chains"
+msgstr "Show / Hide Storyline Chains"
