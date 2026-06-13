@@ -9,6 +9,11 @@ add_action(
     'novel_proofreading_admin_menu'
 );
 
+add_action(
+    'wp_ajax_novel_proofreading_get_storyline_suggestions',
+    'novel_proofreading_ajax_get_storyline_suggestions'
+);
+
 function novel_proofreading_admin_menu() {
     add_menu_page(
         'Novel Proofreading',
@@ -18,6 +23,68 @@ function novel_proofreading_admin_menu() {
         'novel_proofreading_admin_page',
         'dashicons-book-alt',
         30
+    );
+}
+
+function novel_proofreading_get_storyline_suggestions($storyline_id) {
+    global $wpdb;
+
+    $table_mapping =
+        $wpdb->prefix . 'novel_proofreading_common_mapping';
+
+    return $wpdb->get_results(
+        $wpdb->prepare(
+            "
+            SELECT
+                type,
+                description
+
+            FROM
+                {$table_mapping}
+
+            WHERE
+                    storyline_id = %d
+                AND type IN ('AGREEMENT', 'SUGGESTION')
+
+            ORDER BY
+                id
+            ",
+            $storyline_id
+        ),
+        ARRAY_A
+    );
+}
+
+function novel_proofreading_ajax_get_storyline_suggestions() {
+    if (! current_user_can('manage_options')) {
+        wp_send_json_error(
+            [
+                'message' => __( 'You are not allowed to view this data.', 'novel-proofreading' )
+            ],
+            403
+        );
+    }
+
+    check_ajax_referer(
+        'novel_proofreading_storyline_suggestions',
+        'nonce'
+    );
+
+    $storyline_id = intval($_POST['storyline_id'] ?? 0);
+
+    if ($storyline_id <= 0) {
+        wp_send_json_error(
+            [
+                'message' => __( 'Storyline is required.', 'novel-proofreading' )
+            ],
+            400
+        );
+    }
+
+    wp_send_json_success(
+        [
+            'items' => novel_proofreading_get_storyline_suggestions($storyline_id)
+        ]
     );
 }
 
@@ -2340,6 +2407,7 @@ function novel_proofreading_get_storyline_chains($book_id = 0) {
                     'has_opening' => false,
                     'has_return' => false,
                     'has_closing' => false,
+                    'has_suggestion' => false,
                     'first_reference' => '',
                     'last_reference' => ''
                 ]
@@ -2431,6 +2499,9 @@ function novel_proofreading_get_storyline_chains($book_id = 0) {
     }
 
     foreach ($chains as $storyline_id => $chain) {
+        $chains[$storyline_id]['stats']['has_suggestion'] =
+            ! empty(novel_proofreading_get_storyline_suggestions($storyline_id));
+
         $chains[$storyline_id]['events'] = array_values(
             $chain['events']
         );
@@ -4264,6 +4335,11 @@ function novel_proofreading_admin_page() {
                         <span class="novel-proofreading-badge"><?php echo esc_html(sprintf(__('Events: %d', 'novel-proofreading'), $stats['event_count'])); ?></span>
                         <span class="novel-proofreading-badge <?php echo $stats['has_opening'] ? 'is-ok' : 'is-warning'; ?>"><?php echo esc_html($stats['has_opening'] ? __('Has opening', 'novel-proofreading') : __('Missing opening', 'novel-proofreading')); ?></span>
                         <span class="novel-proofreading-badge <?php echo $stats['has_closing'] ? 'is-ok' : 'is-warning'; ?>"><?php echo esc_html($stats['has_closing'] ? __('Closed', 'novel-proofreading') : __('Missing closing', 'novel-proofreading')); ?></span>
+                        <?php if ($stats['has_suggestion']) : ?>
+                            <button type="button" class="novel-proofreading-badge is-info novel-proofreading-storyline-suggestion-badge" data-storyline-id="<?php echo esc_attr($chain['id']); ?>">
+                                <?php _e( 'Has suggestion', 'novel-proofreading' ); ?>
+                            </button>
+                        <?php endif; ?>
                         <?php if ($stats['has_return']) : ?>
                             <span class="novel-proofreading-badge is-info"><?php _e( 'Has return', 'novel-proofreading' ); ?></span>
                         <?php endif; ?>
@@ -4676,7 +4752,7 @@ function novel_proofreading_admin_assets($hook) {
     wp_enqueue_script(
         'novel-proofreading-admin',
         plugin_dir_url(__FILE__) . '../assets/js/admin.js?nocache=' . date("Ymd_His"),
-        array( 'wp-i18n', 'fullcalendar', 'jquery' ),
+        array( 'wp-i18n', 'fullcalendar', 'jquery', 'sweetalert2' ),
         filemtime(
             plugin_dir_path(__FILE__) .
             '../assets/js/admin.js'
@@ -4703,6 +4779,10 @@ function novel_proofreading_admin_assets($hook) {
         'novelProofreading',
         [
             'nonce' => wp_create_nonce('wp_rest'),
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'storylineSuggestionsNonce' => wp_create_nonce(
+                'novel_proofreading_storyline_suggestions'
+            ),
             'restUrl' => rest_url(
                 'novel-proofreading/v1/'
             )

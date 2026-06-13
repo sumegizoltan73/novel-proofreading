@@ -58,6 +58,29 @@
   color: #052c65;
 }
 
+button.novel-proofreading-badge {
+  border: 0;
+  cursor: pointer;
+}
+
+button.novel-proofreading-badge:hover {
+  text-decoration: underline;
+}
+
+.novel-proofreading-suggestion-popup-item {
+  border-top: 1px solid #dcdcde;
+  padding: 10px 0;
+  text-align: left;
+}
+
+.novel-proofreading-suggestion-popup-item:first-child {
+  border-top: 0;
+}
+
+.novel-proofreading-suggestion-popup-item p {
+  margin: 8px 0 0;
+}
+
 .novel-proofreading-chain-table input[type="number"] {
   width: 80px;
 }

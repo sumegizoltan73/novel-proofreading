@@ -137,3 +137,14 @@ Adatmodell-módosítást most nem erőltetnék. Ha később a fejezeteket normal
 
 ## Harmadik módosítás - Az események néha csak elbeszélések (Implementált)
 Nem minden történet rész eseményre alapozott, van ami csak egyszerű elbeszélés, vagy párbeszédes elbeszélés. Így szeretném kiegészíteni az event rögzítését egy Narrative jelölőnégyzettel, ami default NULL vagy 'N', és ha bejelölt, akkor a hozzá tartozó is_narrative adatbázis mező legyen 'Y' értékű. Ehhez a szükséges adatbázis mező hozzáadást is kérem a novel_proofreading_events táblához.
+
+## Negyedik módosítás - Javaslatok kijelzése egy "Has Suggestion" badge segítségével (Implementált)
+A 9. Storyline Chains résznél az információs sávban kellene a "has opening" és "missing closing" információk mellé egy harmadik "has suggestion" információs felirat megjelenítése is, ha a történetszálhoz tartozik AGREEMENT vagy SUGGESTION categóriájú mapping. Ez az információs cimke javascript alapú ajax hívással rákattintva meg is kell, hogy jelenítse sweetalert2 popup panelben a description mezőjét a javaslatnak, külön cimkével kijelezve, hogy AGREEMENT vagy SUGGESTION.
+
+Codex / ChatGPT:
+Megcsináltam a 9. Storyline Chains részhez.
+A változtatás:
+Ha egy storyline-hoz van novel_proofreading_common_mapping rekord type IN ('AGREEMENT', 'SUGGESTION') és storyline_id alapján, akkor megjelenik egy kattintható Has suggestion badge.
+Kattintásra AJAX hívás lekéri az adott storyline AGREEMENT / SUGGESTION rekordjait.
+SweetAlert2 popupban megjelenik minden rekord description mezője, külön AGREEMENT vagy SUGGESTION címkével.
+Az admin JS most explicit függ a sweetalert2 scriptre.

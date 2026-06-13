@@ -85,6 +85,57 @@ jQuery(function ($) {
             .removeClass("hidden");
     }
 
+    function escapeHtml(value) {
+        return $("<div>").text(value || "").html();
+    }
+
+    function renderSuggestionItems(items) {
+        if (!items.length) {
+            return "<p>No suggestions found.</p>";
+        }
+
+        return items
+            .map(function (item) {
+                return (
+                    '<div class="novel-proofreading-suggestion-popup-item">' +
+                    '<span class="novel-proofreading-badge is-info">' +
+                    escapeHtml(item.type) +
+                    "</span>" +
+                    "<p>" +
+                    escapeHtml(item.description || "") +
+                    "</p>" +
+                    "</div>"
+                );
+            })
+            .join("");
+    }
+
+    function showStorylineSuggestions(storylineId) {
+        $.post(novelProofreading.ajaxUrl, {
+            action: "novel_proofreading_get_storyline_suggestions",
+            nonce: novelProofreading.storylineSuggestionsNonce,
+            storyline_id: storylineId
+        })
+            .done(function (response) {
+                if (!response || !response.success) {
+                    return;
+                }
+
+                Swal.fire({
+                    title: "Storyline suggestions",
+                    html: renderSuggestionItems(response.data.items || []),
+                    width: 700
+                });
+            })
+            .fail(function () {
+                Swal.fire({
+                    icon: "error",
+                    title: "Request failed",
+                    text: "Could not load storyline suggestions."
+                });
+            });
+    }
+
     $(".novel-proofreading-book-select").each(function () {
         filterRelatedOptions($(this));
     });
@@ -99,5 +150,9 @@ jQuery(function ($) {
 
     $(document).on("change", ".novel-proofreading-reference-type-select", function () {
         updateReferenceEntityFields($(this));
+    });
+
+    $(document).on("click", ".novel-proofreading-storyline-suggestion-badge", function () {
+        showStorylineSuggestions($(this).data("storyline-id"));
     });
 });
