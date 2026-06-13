@@ -177,3 +177,6 @@ php -l includes/db.php sikeres
 php -l includes/admin.php sikeres
 node --check assets/js/admin.js sikeres
 célzott git diff --check sikeres.
+
+## Hetedik módosítás - (i) megjelenítése a név és alias oszlop között ha van alias mapping
+A 3.1 List of Persons szakasz táblázatában a Name és Alias oszlop között egy (i) fejlécű oszlop beszúrása szükséges, ahol a sorok között akkor jelenik meg az (i) kattintható szöveg, ha van a novel_proofreading_person_alias_mapping táblában hozzárendelt alias a névhez. A kattintható (i) szöveg egy badge formázású szöveg legyen, világos kék háttérszínnel, és sötét kék szövegszínnel. Ehhez is ajax lekérdezés kell, csak kattintáskor elkérve a tényleges alias-okat.

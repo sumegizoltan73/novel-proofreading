@@ -14,6 +14,11 @@ add_action(
     'novel_proofreading_ajax_get_storyline_suggestions'
 );
 
+add_action(
+    'wp_ajax_novel_proofreading_get_person_aliases',
+    'novel_proofreading_ajax_get_person_aliases'
+);
+
 function novel_proofreading_admin_menu() {
     add_menu_page(
         'Novel Proofreading',
@@ -84,6 +89,75 @@ function novel_proofreading_ajax_get_storyline_suggestions() {
     wp_send_json_success(
         [
             'items' => novel_proofreading_get_storyline_suggestions($storyline_id)
+        ]
+    );
+}
+
+function novel_proofreading_get_person_aliases($person_id) {
+    global $wpdb;
+
+    $table_mapping =
+        $wpdb->prefix . 'novel_proofreading_person_alias_mapping';
+    $table_persons =
+        $wpdb->prefix . 'novel_proofreading_persons';
+
+    return $wpdb->get_results(
+        $wpdb->prepare(
+            "
+            SELECT
+                ap.id,
+                ap.name,
+                ap.alias,
+                ap.description
+
+            FROM
+                {$table_mapping} pam
+            INNER JOIN
+                {$table_persons} ap ON ap.id = pam.alias_person_id
+
+            WHERE
+                pam.person_id = %d
+
+            ORDER BY
+                ap.name,
+                ap.alias,
+                ap.id
+            ",
+            $person_id
+        ),
+        ARRAY_A
+    );
+}
+
+function novel_proofreading_ajax_get_person_aliases() {
+    if (! current_user_can('manage_options')) {
+        wp_send_json_error(
+            [
+                'message' => __( 'You are not allowed to view this data.', 'novel-proofreading' )
+            ],
+            403
+        );
+    }
+
+    check_ajax_referer(
+        'novel_proofreading_person_aliases',
+        'nonce'
+    );
+
+    $person_id = intval($_POST['person_id'] ?? 0);
+
+    if ($person_id <= 0) {
+        wp_send_json_error(
+            [
+                'message' => __( 'Person is required.', 'novel-proofreading' )
+            ],
+            400
+        );
+    }
+
+    wp_send_json_success(
+        [
+            'items' => novel_proofreading_get_person_aliases($person_id)
         ]
     );
 }
@@ -575,19 +649,30 @@ function novel_proofreading_get_persons() {
         $wpdb->prefix . 'novel_proofreading_persons';
     $table_books =
         $wpdb->prefix . 'novel_proofreading_books';
+    $table_alias_mapping =
+        $wpdb->prefix . 'novel_proofreading_person_alias_mapping';
 
     $result = $wpdb->get_results(
         "
         SELECT
             p.*,
-            b.title AS book_title
+            b.title AS book_title,
+            (
+                SELECT
+                    COUNT(*)
+                FROM
+                    {$table_alias_mapping} pam
+                WHERE
+                    pam.person_id = p.id
+            ) AS alias_mapping_count
 
         FROM
             {$table_persons} p
         LEFT JOIN
             {$table_books} b ON b.id = p.book_id
 
-        ORDER BY p.id
+        ORDER BY
+            p.id
         "
     );
 
@@ -606,7 +691,9 @@ function novel_proofreading_get_persons() {
 
             'description' => $row->description,
 
-            'is_inaccurate' => $row->is_inaccurate
+            'is_inaccurate' => $row->is_inaccurate,
+
+            'has_alias_mapping' => intval($row->alias_mapping_count) > 0
         ];
     }
 
@@ -3719,6 +3806,7 @@ function novel_proofreading_admin_page() {
                     <tr>
                         <th><?php _e( 'Book', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Name', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( '(i)', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Alias', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Description', 'novel-proofreading' ); ?></th>
                         <th><?php _e( 'Inaccurate', 'novel-proofreading' ); ?></th>
@@ -3741,6 +3829,13 @@ function novel_proofreading_admin_page() {
                                 </select>
                             </td>
                             <td><input form="<?php echo esc_attr($person_form_id); ?>" type="text" name="name" value="<?php echo esc_attr($item['name']); ?>" /></td>
+                            <td>
+                                <?php if ($item['has_alias_mapping']) : ?>
+                                    <button type="button" class="novel-proofreading-badge is-info novel-proofreading-person-alias-badge" data-person-id="<?php echo esc_attr($item['id']); ?>">
+                                        (i)
+                                    </button>
+                                <?php endif; ?>
+                            </td>
                             <td><input form="<?php echo esc_attr($person_form_id); ?>" type="text" name="alias" value="<?php echo esc_attr($item['alias']); ?>" /></td>
                             <td><textarea form="<?php echo esc_attr($person_form_id); ?>" name="description" rows="2"><?php echo esc_textarea($item['description']); ?></textarea></td>
                             <td><input form="<?php echo esc_attr($person_form_id); ?>" type="checkbox" name="is_inaccurate" value="Y" <?php checked($item['is_inaccurate'], 'Y'); ?> /></td>
@@ -5188,6 +5283,9 @@ function novel_proofreading_admin_assets($hook) {
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'storylineSuggestionsNonce' => wp_create_nonce(
                 'novel_proofreading_storyline_suggestions'
+            ),
+            'personAliasesNonce' => wp_create_nonce(
+                'novel_proofreading_person_aliases'
             ),
             'restUrl' => rest_url(
                 'novel-proofreading/v1/'

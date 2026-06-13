@@ -164,6 +164,57 @@ jQuery(function ($) {
             });
     }
 
+    function renderPersonAliasItems(items) {
+        if (!items.length) {
+            return "<p>No aliases found.</p>";
+        }
+
+        return items
+            .map(function (item) {
+                var label = [item.name, item.alias]
+                    .filter(function (value) {
+                        return value;
+                    })
+                    .join(" ");
+
+                return (
+                    '<div class="novel-proofreading-suggestion-popup-item">' +
+                    '<span class="novel-proofreading-badge is-info">' +
+                    escapeHtml(label || "Alias") +
+                    "</span>" +
+                    (item.description ? "<p>" + escapeHtml(item.description) + "</p>" : "") +
+                    "</div>"
+                );
+            })
+            .join("");
+    }
+
+    function showPersonAliases(personId) {
+        $.post(novelProofreading.ajaxUrl, {
+            action: "novel_proofreading_get_person_aliases",
+            nonce: novelProofreading.personAliasesNonce,
+            person_id: personId
+        })
+            .done(function (response) {
+                if (!response || !response.success) {
+                    return;
+                }
+
+                Swal.fire({
+                    title: "Person aliases",
+                    html: renderPersonAliasItems(response.data.items || []),
+                    width: 700
+                });
+            })
+            .fail(function () {
+                Swal.fire({
+                    icon: "error",
+                    title: "Request failed",
+                    text: "Could not load person aliases."
+                });
+            });
+    }
+
     $(".novel-proofreading-book-select").each(function () {
         filterRelatedOptions($(this));
     });
@@ -182,5 +233,9 @@ jQuery(function ($) {
 
     $(document).on("click", ".novel-proofreading-storyline-suggestion-badge", function () {
         showStorylineSuggestions($(this).data("storyline-id"));
+    });
+
+    $(document).on("click", ".novel-proofreading-person-alias-badge", function () {
+        showPersonAliases($(this).data("person-id"));
     });
 });
