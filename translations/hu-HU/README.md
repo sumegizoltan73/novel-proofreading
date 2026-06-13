@@ -17,7 +17,7 @@ Saját magam általi kiadáson gondolkoztam a készülő könyveim esetén, de s
 A plugin három nyelvre lett fordítva, Magyar, Angol és Német nyelvekre. A Calendar vezérlő szintén több nyelvű.
 
 ## Kiadások
-Még nincsenek.
+A v1.0.0 verzió kiadásra ajánlott, letölthető a Releases rész alatt.
 
 ## Képernyőképek
 Induláskor még nincsenek. 

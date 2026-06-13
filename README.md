@@ -17,7 +17,7 @@ I (Zoltan Peter Sumegi) am the development team, with artificial intelligence al
 The plugin translated to three languages, Hungarian, German and English. The Calendar control is also multi language.
 
 ## Releases
-It has no releases yet.
+Version v1.0.0 is recommended for release and can be downloaded under the Releases section.
 
 ## Screenshots
 At the start it has no screenshoots. 
