@@ -649,3 +649,27 @@ msgstr "Relic"
 #: admin.php:5649 admin.php:5702
 msgid "Add Relic"
 msgstr "Add Relic"
+
+#: includes/admin.php:163
+msgid "You are not allowed to add labels."
+msgstr "You are not allowed to add labels."
+
+#: includes/admin.php:194
+msgid "Manuscript reference is required."
+msgstr "Manuscript reference is required."
+
+#: includes/admin.php:203
+msgid "Label is required."
+msgstr "Label is required."
+
+#: includes/admin.php:216
+msgid "Label reference type is missing."
+msgstr "Label reference type is missing."
+
+#: includes/admin.php:255
+msgid "Label could not be added."
+msgstr "Label could not be added."
+
+#: includes/admin.php:5717
+msgid "Labels:"
+msgstr "Labels:"

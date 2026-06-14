@@ -269,6 +269,106 @@ jQuery(function ($) {
             });
     }
 
+    function appendReferenceLabel(referenceId, item) {
+        var $list = $('.novel-proofreading-label-list[data-reference-id="' + referenceId + '"]');
+
+        if (!$list.length || !item || !item.label) {
+            return;
+        }
+
+        $list.append(
+            ' <span class="novel-proofreading-badge is-label" data-label-id="' +
+                escapeHtml(String(item.id || "")) +
+                '">' +
+                escapeHtml(item.label) +
+                "</span>"
+        );
+    }
+
+    function addReferenceLabel(referenceId) {
+        var fallbackPrompt = function () {
+            var label = window.prompt("Label");
+
+            if (label) {
+                saveReferenceLabel(referenceId, label);
+            }
+        };
+
+        if (typeof Swal === "undefined") {
+            fallbackPrompt();
+            return;
+        }
+
+        Swal.fire({
+            title: "Add label",
+            input: "text",
+            inputPlaceholder: "Label",
+            showCancelButton: true,
+            confirmButtonText: "Add",
+            cancelButtonText: "Cancel",
+            inputValidator: function (value) {
+                if (!value) {
+                    return "Label is required.";
+                }
+
+                return null;
+            }
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                saveReferenceLabel(referenceId, result.value);
+            }
+        });
+    }
+
+    function saveReferenceLabel(referenceId, label) {
+        $.post(novelProofreading.ajaxUrl, {
+            action: "novel_proofreading_add_label",
+            nonce: novelProofreading.labelsNonce,
+            reference_id: referenceId,
+            label: label
+        })
+            .done(function (response) {
+                if (!response || !response.success) {
+                    if (typeof Swal === "undefined") {
+                        window.alert(
+                            response && response.data && response.data.message
+                                ? response.data.message
+                                : "Could not add label."
+                        );
+                        return;
+                    }
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Request failed",
+                        text: response && response.data && response.data.message
+                            ? response.data.message
+                            : "Could not add label."
+                    });
+                    return;
+                }
+
+                appendReferenceLabel(referenceId, response.data.item);
+            })
+            .fail(function (xhr) {
+                var message =
+                    xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message
+                        ? xhr.responseJSON.data.message
+                        : "Could not add label.";
+
+                if (typeof Swal === "undefined") {
+                    window.alert(message);
+                    return;
+                }
+
+                Swal.fire({
+                    icon: "error",
+                    title: "Request failed",
+                    text: message
+                });
+            });
+    }
+
     $(".novel-proofreading-book-select").each(function () {
         filterRelatedOptions($(this));
     });
@@ -298,5 +398,9 @@ jQuery(function ($) {
             $(this).data("person-id"),
             $(this).data("profession-scope")
         );
+    });
+
+    $(document).on("click", ".novel-proofreading-add-label", function () {
+        addReferenceLabel($(this).data("reference-id"));
     });
 });

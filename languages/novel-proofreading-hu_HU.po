@@ -648,3 +648,27 @@ msgstr "Ereklye"
 #: admin.php:5649 admin.php:5702
 msgid "Add Relic"
 msgstr "Ereklye hozzáadása"
+
+#: includes/admin.php:163
+msgid "You are not allowed to add labels."
+msgstr "Nincs jogosultsága címkék hozzáadásához."
+
+#: includes/admin.php:194
+msgid "Manuscript reference is required."
+msgstr "Kézirathivatkozás megadása kötelező."
+
+#: includes/admin.php:203
+msgid "Label is required."
+msgstr "Címke megadása kötelező."
+
+#: includes/admin.php:216
+msgid "Label reference type is missing."
+msgstr "Hiányzik a címke hivatkozási típusa."
+
+#: includes/admin.php:255
+msgid "Label could not be added."
+msgstr "A címkét nem sikerült hozzáadni."
+
+#: includes/admin.php:5717
+msgid "Labels:"
+msgstr "Címkék:"

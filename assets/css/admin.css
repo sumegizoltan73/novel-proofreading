@@ -58,6 +58,11 @@
   color: #052c65;
 }
 
+.novel-proofreading-badge.is-label {
+  background: #6c757d;
+  color: #fff;
+}
+
 button.novel-proofreading-badge {
   border: 0;
   cursor: pointer;
@@ -94,4 +99,21 @@ button.novel-proofreading-badge:hover {
 
 .novel-proofreading-reference-entity + .novel-proofreading-reference-entity {
   margin-top: 6px;
+}
+
+.novel-proofreading-reference-label-row td {
+  background: #f6f7f7;
+}
+
+.novel-proofreading-labels-title {
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.novel-proofreading-label-list {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-right: 6px;
+  vertical-align: middle;
 }

@@ -24,6 +24,11 @@ add_action(
     'novel_proofreading_ajax_get_person_professions'
 );
 
+add_action(
+    'wp_ajax_novel_proofreading_add_label',
+    'novel_proofreading_ajax_add_label'
+);
+
 function novel_proofreading_admin_menu() {
     add_menu_page(
         'Novel Proofreading',
@@ -33,6 +38,231 @@ function novel_proofreading_admin_menu() {
         'novel_proofreading_admin_page',
         'dashicons-book-alt',
         30
+    );
+}
+
+function novel_proofreading_get_label_ref_type_id($type) {
+    global $wpdb;
+
+    $table_types =
+        $wpdb->prefix . 'novel_proofreading_types';
+
+    return intval(
+        $wpdb->get_var(
+            $wpdb->prepare(
+                "
+                SELECT
+                    id
+
+                FROM
+                    {$table_types}
+
+                WHERE
+                        name = %s
+                    AND category = 'LABEL_REF_TYPE'
+
+                LIMIT 1
+                ",
+                $type
+            )
+        )
+    );
+}
+
+function novel_proofreading_get_labels_by_reference_ids($reference_ids, $ref_type = 'CROSSREFERENCE') {
+    global $wpdb;
+
+    $reference_ids = array_values(
+        array_filter(
+            array_map(
+                'intval',
+                $reference_ids
+            )
+        )
+    );
+
+    if (empty($reference_ids)) {
+        return [];
+    }
+
+    $referenced_type_id = novel_proofreading_get_label_ref_type_id($ref_type);
+
+    if ($referenced_type_id <= 0) {
+        return [];
+    }
+
+    $table_labels =
+        $wpdb->prefix . 'novel_proofreading_labels';
+    $placeholders = implode(
+        ',',
+        array_fill(0, count($reference_ids), '%d')
+    );
+
+    $rows = $wpdb->get_results(
+        $wpdb->prepare(
+            "
+            SELECT
+                id,
+                referenced_id,
+                label
+
+            FROM
+                {$table_labels}
+
+            WHERE
+                    referenced_type_id = %d
+                AND referenced_id IN ($placeholders)
+
+            ORDER BY
+                id
+            ",
+            array_merge(
+                [$referenced_type_id],
+                $reference_ids
+            )
+        ),
+        ARRAY_A
+    );
+
+    $labels = [];
+
+    foreach ($rows as $row) {
+        $referenced_id = intval($row['referenced_id']);
+
+        if (! isset($labels[$referenced_id])) {
+            $labels[$referenced_id] = [];
+        }
+
+        $labels[$referenced_id][] = [
+            'id' => intval($row['id']),
+            'label' => $row['label']
+        ];
+    }
+
+    return $labels;
+}
+
+function novel_proofreading_manuscript_reference_exists($reference_id) {
+    global $wpdb;
+
+    $table_mapping =
+        $wpdb->prefix . 'novel_proofreading_common_mapping';
+
+    return intval(
+        $wpdb->get_var(
+            $wpdb->prepare(
+                "
+                SELECT
+                    COUNT(*)
+
+                FROM
+                    {$table_mapping}
+
+                WHERE
+                    id = %d
+                ",
+                $reference_id
+            )
+        )
+    ) > 0;
+}
+
+function novel_proofreading_ajax_add_label() {
+    global $wpdb;
+
+    if (! current_user_can('manage_options')) {
+        wp_send_json_error(
+            [
+                'message' => __( 'You are not allowed to add labels.', 'novel-proofreading' )
+            ],
+            403
+        );
+    }
+
+    check_ajax_referer(
+        'novel_proofreading_labels',
+        'nonce'
+    );
+
+    $reference_id = intval($_POST['reference_id'] ?? 0);
+    $label = sanitize_text_field(
+        wp_unslash($_POST['label'] ?? '')
+    );
+
+    if ($reference_id <= 0 || ! novel_proofreading_manuscript_reference_exists($reference_id)) {
+        wp_send_json_error(
+            [
+                'message' => __( 'Manuscript reference is required.', 'novel-proofreading' )
+            ],
+            400
+        );
+    }
+
+    if ($label === '') {
+        wp_send_json_error(
+            [
+                'message' => __( 'Label is required.', 'novel-proofreading' )
+            ],
+            400
+        );
+    }
+
+    $referenced_type_id = novel_proofreading_get_label_ref_type_id('CROSSREFERENCE');
+
+    if ($referenced_type_id <= 0) {
+        wp_send_json_error(
+            [
+                'message' => __( 'Label reference type is missing.', 'novel-proofreading' )
+            ],
+            500
+        );
+    }
+
+    $table_labels =
+        $wpdb->prefix . 'novel_proofreading_labels';
+    $now = current_time(
+        'mysql',
+        true
+    );
+
+    $result = $wpdb->insert(
+        $table_labels,
+        [
+            'referenced_id' => $reference_id,
+            'referenced_type_id' => $referenced_type_id,
+            'label' => $label,
+            'created_at' => $now,
+            'created_by' => get_current_user_id(),
+            'updated_at' => $now,
+            'updated_by' => get_current_user_id()
+        ],
+        [
+            '%d',
+            '%d',
+            '%s',
+            '%s',
+            '%d',
+            '%s',
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        wp_send_json_error(
+            [
+                'message' => __( 'Label could not be added.', 'novel-proofreading' )
+            ],
+            500
+        );
+    }
+
+    wp_send_json_success(
+        [
+            'item' => [
+                'id' => intval($wpdb->insert_id),
+                'label' => $label
+            ]
+        ]
     );
 }
 
@@ -3359,6 +3589,17 @@ function novel_proofreading_get_manuscript_references($book_id = 0, $type = '') 
         ];
     }
 
+    $labels_by_reference_id = novel_proofreading_get_labels_by_reference_ids(
+        wp_list_pluck(
+            $items,
+            'id'
+        )
+    );
+
+    foreach ($items as $index => $item) {
+        $items[$index]['labels'] = $labels_by_reference_id[$item['id']] ?? [];
+    }
+
     return $items;
 }
 
@@ -3654,6 +3895,26 @@ function novel_proofreading_remove_manuscript_reference($id) {
             $id
         )
     );
+
+    $labels_table =
+        $wpdb->prefix . 'novel_proofreading_labels';
+    $referenced_type_id = novel_proofreading_get_label_ref_type_id('CROSSREFERENCE');
+
+    if ($referenced_type_id > 0) {
+        $wpdb->query(
+            $wpdb->prepare(
+                "
+                DELETE FROM {$labels_table}
+
+                WHERE
+                        referenced_id = %d
+                    AND referenced_type_id = %d
+                ",
+                $id,
+                $referenced_type_id
+            )
+        );
+    }
 
     return __( 'Manuscript reference deleted.', 'novel-proofreading' );
 }
@@ -5451,6 +5712,19 @@ function novel_proofreading_admin_page() {
                                 </form>
                             </td>
                         </tr>
+                        <tr class="novel-proofreading-reference-label-row">
+                            <td colspan="8">
+                                <span class="novel-proofreading-labels-title"><?php _e( 'Labels:', 'novel-proofreading' ); ?></span>
+                                <span class="novel-proofreading-label-list" data-reference-id="<?php echo esc_attr($reference_item['id']); ?>">
+                                    <?php foreach ( $reference_item['labels'] as $label_item ) : ?>
+                                        <span class="novel-proofreading-badge is-label" data-label-id="<?php echo esc_attr($label_item['id']); ?>"><?php echo esc_html($label_item['label']); ?></span>
+                                    <?php endforeach; ?>
+                                </span>
+                                <button type="button" class="button button-small novel-proofreading-add-label" data-reference-id="<?php echo esc_attr($reference_item['id']); ?>">
+                                    +
+                                </button>
+                            </td>
+                        </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
@@ -5807,6 +6081,9 @@ function novel_proofreading_admin_assets($hook) {
             ),
             'personProfessionsNonce' => wp_create_nonce(
                 'novel_proofreading_person_professions'
+            ),
+            'labelsNonce' => wp_create_nonce(
+                'novel_proofreading_labels'
             ),
             'restUrl' => rest_url(
                 'novel-proofreading/v1/'

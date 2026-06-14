@@ -126,7 +126,7 @@
 ## novel_proofreading_types
 - id
 - name
-- category  (COMMON_TYPE, SOLVED_TYPE, DATETIME_TYPE, PRESENCE_TYPE, PERSON_SUBTYPE, AREA_TYPE)
+- category  (COMMON_TYPE, SOLVED_TYPE, DATETIME_TYPE, PRESENCE_TYPE, PERSON_SUBTYPE, AREA_TYPE, LABEL_REF_TYPE)
 - created_at
 - created_by
 
@@ -137,6 +137,7 @@ VALUES of DATETIME_TYPE : (BIRTHDATE, EVENTDATE, AGE, LIFEPATH, SERVICETIME)
 VALUES of PRESENCE_TYPE : (LOCATION, TIME, PERSON, EVENT, STORYLINE)
 VALUES of PERSON_SUBTYPE : (ACTOR, HIGHLIGHTED, 2ND_ACTOR, EVIL, HERO)
 VALUES of AREA_TYPE : (SPACE, GALAXY, ANOTHER_GALAXY, ANOTHER_PLANET, EARTH, COUNTRY, CITY)
+VALUES of LABEL_REF_TYPE : (STORYLINE, EVENT, PERSON, LOCATION, TIME, PROFESSION, STORYLINE_CHAIN, CROSSREFERENCE)
 
 ## novel_proofreading_common_mapping
 - id
@@ -248,6 +249,16 @@ VALUES of AREA_TYPE : (SPACE, GALAXY, ANOTHER_GALAXY, ANOTHER_PLANET, EARTH, COU
 - is_narrative (Y, N) DEFAULT 'N'
 - event_name
 - description
+- created_at
+- created_by
+- updated_at
+- updated_by
+
+## novel_proofreading_labels
+- id
+- referenced_id
+- referenced_type_id (from LABEL_REF_TYPE category)
+- label
 - created_at
 - created_by
 - updated_at

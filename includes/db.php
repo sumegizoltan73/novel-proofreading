@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define('NOVEL_PROOFREADING_DB_VERSION', '1.1');
+define('NOVEL_PROOFREADING_DB_VERSION', '1.2');
 
 function novel_proofreading_install() {
 
@@ -128,6 +128,8 @@ function novel_proofreading_create_tables() {
 
     $types_table_name =
         $wpdb->prefix . 'novel_proofreading_types';
+    $labels_table_name =
+        $wpdb->prefix . 'novel_proofreading_labels';
 
     $common_mapping_table_name =
         $wpdb->prefix . 'novel_proofreading_common_mapping';
@@ -238,6 +240,32 @@ function novel_proofreading_create_tables() {
         KEY idx_solved (
             to_be_solved,
             is_solved
+        )
+
+    ) $charset_collate;
+
+    CREATE TABLE $labels_table_name (
+
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+        referenced_id BIGINT UNSIGNED NOT NULL,
+        referenced_type_id BIGINT UNSIGNED NOT NULL,
+        label VARCHAR(255) NOT NULL,
+
+        created_at DATETIME NOT NULL,
+        created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        updated_at DATETIME NULL,
+        updated_by BIGINT UNSIGNED NULL,
+
+        PRIMARY KEY  (id),
+
+        KEY idx_reference (
+            referenced_type_id,
+            referenced_id
+        ),
+
+        KEY idx_label (
+            label(191)
         )
 
     ) $charset_collate;
@@ -538,6 +566,14 @@ function novel_proofreading_create_tables() {
             UNION ALL SELECT 'EARTH', 'AREA_TYPE'
             UNION ALL SELECT 'COUNTRY', 'AREA_TYPE'
             UNION ALL SELECT 'CITY', 'AREA_TYPE'
+            UNION ALL SELECT 'STORYLINE', 'LABEL_REF_TYPE'
+            UNION ALL SELECT 'EVENT', 'LABEL_REF_TYPE'
+            UNION ALL SELECT 'PERSON', 'LABEL_REF_TYPE'
+            UNION ALL SELECT 'LOCATION', 'LABEL_REF_TYPE'
+            UNION ALL SELECT 'TIME', 'LABEL_REF_TYPE'
+            UNION ALL SELECT 'PROFESSION', 'LABEL_REF_TYPE'
+            UNION ALL SELECT 'STORYLINE_CHAIN', 'LABEL_REF_TYPE'
+            UNION ALL SELECT 'CROSSREFERENCE', 'LABEL_REF_TYPE'
         ) seed
         WHERE NOT EXISTS (
             SELECT 1

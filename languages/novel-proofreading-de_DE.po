@@ -648,3 +648,27 @@ msgstr "Relikt"
 #: admin.php:5649 admin.php:5702
 msgid "Add Relic"
 msgstr "Relikt hinzufügen"
+
+#: includes/admin.php:163
+msgid "You are not allowed to add labels."
+msgstr "Sie sind nicht berechtigt, Labels hinzuzufügen."
+
+#: includes/admin.php:194
+msgid "Manuscript reference is required."
+msgstr "Manuskriptreferenz ist erforderlich."
+
+#: includes/admin.php:203
+msgid "Label is required."
+msgstr "Label ist erforderlich."
+
+#: includes/admin.php:216
+msgid "Label reference type is missing."
+msgstr "Der Label-Referenztyp fehlt."
+
+#: includes/admin.php:255
+msgid "Label could not be added."
+msgstr "Label konnte nicht hinzugefügt werden."
+
+#: includes/admin.php:5717
+msgid "Labels:"
+msgstr "Labels:"
