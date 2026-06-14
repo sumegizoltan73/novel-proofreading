@@ -600,3 +600,51 @@ msgstr "Ereignisse anzeigen/ausblenden"
 #: admin.php:4957
 msgid "Show / Hide Storyline Chains"
 msgstr "Handlungsstrangketten anzeigen/ausblenden"
+
+#: admin.php:1598
+msgid "Relic name is required."
+msgstr "Name des Relikts ist erforderlich."
+
+#: admin.php:1657
+msgid "Relic could not be added."
+msgstr "Relikt konnte nicht hinzugefügt werden."
+
+#: admin.php:1660
+msgid "Relic added."
+msgstr "Relikt hinzugefügt."
+
+#: admin.php:1667 admin.php:1712
+msgid "Relic could not be updated."
+msgstr "Relikt konnte nicht aktualisiert werden."
+
+#: admin.php:1715
+msgid "Relic updated."
+msgstr "Relikt aktualisiert."
+
+#: admin.php:1736
+msgid "Relic deleted."
+msgstr "Relikt gelöscht."
+
+#: admin.php:5422 admin.php:5550
+msgid "Select relic"
+msgstr "Relikt auswählen"
+
+#: admin.php:5596
+msgid "Relics"
+msgstr "Relikte"
+
+#: admin.php:5597
+msgid "Show / Hide Relics"
+msgstr "Relikte anzeigen/ausblenden"
+
+#: admin.php:5599
+msgid "List of Relics"
+msgstr "Liste der Relikte"
+
+#: admin.php:5604 admin.php:5673
+msgid "Relic"
+msgstr "Relikt"
+
+#: admin.php:5649 admin.php:5702
+msgid "Add Relic"
+msgstr "Relikt hinzufügen"

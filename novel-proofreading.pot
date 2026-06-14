@@ -621,3 +621,51 @@ msgstr "Show / Hide Events"
 #: admin.php:4957
 msgid "Show / Hide Storyline Chains"
 msgstr "Show / Hide Storyline Chains"
+
+#: admin.php:1598
+msgid "Relic name is required."
+msgstr "Relic name is required."
+
+#: admin.php:1657
+msgid "Relic could not be added."
+msgstr "Relic could not be added."
+
+#: admin.php:1660
+msgid "Relic added."
+msgstr "Relic added."
+
+#: admin.php:1667 admin.php:1712
+msgid "Relic could not be updated."
+msgstr "Relic could not be updated."
+
+#: admin.php:1715
+msgid "Relic updated."
+msgstr "Relic updated."
+
+#: admin.php:1736
+msgid "Relic deleted."
+msgstr "Relic deleted."
+
+#: admin.php:5422 admin.php:5550
+msgid "Select relic"
+msgstr "Select relic"
+
+#: admin.php:5596
+msgid "Relics"
+msgstr "Relics"
+
+#: admin.php:5597
+msgid "Show / Hide Relics"
+msgstr "Show / Hide Relics"
+
+#: admin.php:5599
+msgid "List of Relics"
+msgstr "List of Relics"
+
+#: admin.php:5604 admin.php:5673
+msgid "Relic"
+msgstr "Relic"
+
+#: admin.php:5649 admin.php:5702
+msgid "Add Relic"
+msgstr "Add Relic"

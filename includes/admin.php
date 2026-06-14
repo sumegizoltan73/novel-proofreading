@@ -1539,6 +1539,203 @@ function novel_proofreading_remove_location($id) {
     return __( 'Location deleted.', 'novel-proofreading' );
 }
 
+function novel_proofreading_get_relics() {
+    global $wpdb;
+
+    $items = [];
+
+    $table_relics =
+        $wpdb->prefix . 'novel_proofreading_relics';
+    $table_books =
+        $wpdb->prefix . 'novel_proofreading_books';
+
+    $result = $wpdb->get_results(
+        "
+        SELECT
+            r.*,
+            b.title AS book_title
+
+        FROM
+            {$table_relics} r
+        LEFT JOIN
+            {$table_books} b ON b.id = r.book_id
+
+        ORDER BY r.id
+        "
+    );
+
+    foreach ($result as $row) {
+        $items[] = [
+            'id' => intval($row->id),
+            'book_id' => intval($row->book_id),
+            'book_title' => isset($row->book_title) ? $row->book_title : '',
+            'relic_name' => $row->relic_name,
+            'description' => $row->description,
+            'is_inaccurate' => $row->is_inaccurate
+        ];
+    }
+
+    return $items;
+}
+
+function novel_proofreading_sanitize_relic_data() {
+    $book_id = intval($_POST['book_id'] ?? 0);
+
+    if ($book_id <= 0) {
+        return new WP_Error(
+            'missing_relic_book',
+            __( 'Book is required.', 'novel-proofreading' )
+        );
+    }
+
+    $relic_name = sanitize_text_field(
+        wp_unslash($_POST['relic_name'] ?? '')
+    );
+
+    if ($relic_name === '') {
+        return new WP_Error(
+            'missing_relic_name',
+            __( 'Relic name is required.', 'novel-proofreading' )
+        );
+    }
+
+    return [
+        'book_id' => $book_id,
+        'relic_name' => $relic_name,
+        'description' => sanitize_textarea_field(
+            wp_unslash($_POST['description'] ?? '')
+        ),
+        'is_inaccurate' => isset($_POST['is_inaccurate']) ? 'Y' : 'N'
+    ];
+}
+
+function novel_proofreading_add_relic() {
+    global $wpdb;
+
+    $data = novel_proofreading_sanitize_relic_data();
+
+    if (is_wp_error($data)) {
+        return $data->get_error_message();
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_relics';
+
+    $now = current_time(
+        'mysql',
+        true
+    );
+
+    $result = $wpdb->insert(
+        $table,
+        array_merge(
+            $data,
+            [
+                'created_at' => $now,
+                'created_by' => get_current_user_id(),
+                'updated_at' => $now,
+                'updated_by' => get_current_user_id()
+            ]
+        ),
+        [
+            '%d',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%d',
+            '%s',
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'INSERT ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Relic could not be added.', 'novel-proofreading' );
+    }
+
+    return __( 'Relic added.', 'novel-proofreading' );
+}
+
+function novel_proofreading_update_relic($id) {
+    global $wpdb;
+
+    if ($id <= 0) {
+        return __( 'Relic could not be updated.', 'novel-proofreading' );
+    }
+
+    $data = novel_proofreading_sanitize_relic_data();
+
+    if (is_wp_error($data)) {
+        return $data->get_error_message();
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_relics';
+
+    $result = $wpdb->update(
+        $table,
+        array_merge(
+            $data,
+            [
+                'updated_at' => current_time(
+                    'mysql',
+                    true
+                ),
+                'updated_by' => get_current_user_id()
+            ]
+        ),
+        [
+            'id' => $id
+        ],
+        [
+            '%d',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%d'
+        ],
+        [
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'UPDATE ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Relic could not be updated.', 'novel-proofreading' );
+    }
+
+    return __( 'Relic updated.', 'novel-proofreading' );
+}
+
+function novel_proofreading_remove_relic($id) {
+    global $wpdb;
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_relics';
+
+    $wpdb->query(
+        $wpdb->prepare(
+            "
+            DELETE FROM {$table}
+
+            WHERE
+                id = %d
+            ",
+            $id
+        )
+    );
+
+    return __( 'Relic deleted.', 'novel-proofreading' );
+}
+
 function novel_proofreading_get_datetimes() {
     global $wpdb;
 
@@ -3021,6 +3218,10 @@ function novel_proofreading_get_entity_label($type, $row) {
         return $row->time_name;
     }
 
+    if ($type === 'RELIC') {
+        return $row->relic_name;
+    }
+
     $parts = [];
 
     if (! empty($row->storyline_name)) {
@@ -3041,6 +3242,10 @@ function novel_proofreading_get_entity_label($type, $row) {
 
     if (! empty($row->time_name)) {
         $parts[] = $row->time_name;
+    }
+
+    if (! empty($row->relic_name)) {
+        $parts[] = $row->relic_name;
     }
 
     return implode(', ', array_filter($parts));
@@ -3065,6 +3270,8 @@ function novel_proofreading_get_manuscript_references($book_id = 0, $type = '') 
         $wpdb->prefix . 'novel_proofreading_locations';
     $table_datetimes =
         $wpdb->prefix . 'novel_proofreading_datetimes';
+    $table_relics =
+        $wpdb->prefix . 'novel_proofreading_relics';
 
     $where = [];
     $params = [];
@@ -3095,7 +3302,8 @@ function novel_proofreading_get_manuscript_references($book_id = 0, $type = '') 
             p.alias AS person_alias,
             l.name AS location_name,
             l.alias AS location_alias,
-            d.name AS time_name
+            d.name AS time_name,
+            r.relic_name
 
         FROM
             {$table_mapping} cm
@@ -3111,6 +3319,8 @@ function novel_proofreading_get_manuscript_references($book_id = 0, $type = '') 
             {$table_locations} l ON l.id = cm.location_id
         LEFT JOIN
             {$table_datetimes} d ON d.id = cm.time_id
+        LEFT JOIN
+            {$table_relics} r ON r.id = cm.relics_id
 
         {$where_sql}
 
@@ -3144,6 +3354,7 @@ function novel_proofreading_get_manuscript_references($book_id = 0, $type = '') 
             'person_id' => intval($row->person_id),
             'location_id' => intval($row->location_id),
             'time_id' => intval($row->time_id),
+            'relics_id' => intval($row->relics_id),
             'entity_label' => novel_proofreading_get_entity_label($row->type, $row)
         ];
     }
@@ -3163,7 +3374,8 @@ function novel_proofreading_reference_entity_belongs_to_book($table_suffix, $id,
         'events' => 'novel_proofreading_events',
         'persons' => 'novel_proofreading_persons',
         'locations' => 'novel_proofreading_locations',
-        'datetimes' => 'novel_proofreading_datetimes'
+        'datetimes' => 'novel_proofreading_datetimes',
+        'relics' => 'novel_proofreading_relics'
     ];
 
     if (! isset($allowed_tables[$table_suffix])) {
@@ -3225,13 +3437,15 @@ function novel_proofreading_sanitize_manuscript_reference_data() {
     $person_id = intval($_POST['person_id'] ?? 0);
     $location_id = intval($_POST['location_id'] ?? 0);
     $time_id = intval($_POST['time_id'] ?? 0);
+    $relics_id = intval($_POST['relics_id'] ?? 0);
 
     $type_entity_map = [
         'STORYLINE' => 'storyline_id',
         'EVENT' => 'event_id',
         'PERSON' => 'person_id',
         'LOCATION' => 'location_id',
-        'TIME' => 'time_id'
+        'TIME' => 'time_id',
+        'RELIC' => 'relics_id'
     ];
 
     if (isset($type_entity_map[$type])) {
@@ -3242,13 +3456,15 @@ function novel_proofreading_sanitize_manuscript_reference_data() {
         $person_id = $required_field === 'person_id' ? $person_id : 0;
         $location_id = $required_field === 'location_id' ? $location_id : 0;
         $time_id = $required_field === 'time_id' ? $time_id : 0;
+        $relics_id = $required_field === 'relics_id' ? $relics_id : 0;
 
         $required_values = [
             'storyline_id' => $storyline_id,
             'event_id' => $event_id,
             'person_id' => $person_id,
             'location_id' => $location_id,
-            'time_id' => $time_id
+            'time_id' => $time_id,
+            'relics_id' => $relics_id
         ];
 
         if (intval($required_values[$required_field]) <= 0) {
@@ -3264,7 +3480,8 @@ function novel_proofreading_sanitize_manuscript_reference_data() {
         'events' => $event_id,
         'persons' => $person_id,
         'locations' => $location_id,
-        'datetimes' => $time_id
+        'datetimes' => $time_id,
+        'relics' => $relics_id
     ];
 
     foreach ($entity_checks as $table_suffix => $entity_id) {
@@ -3295,7 +3512,8 @@ function novel_proofreading_sanitize_manuscript_reference_data() {
         'event_id' => $event_id > 0 ? $event_id : null,
         'person_id' => $person_id > 0 ? $person_id : null,
         'location_id' => $location_id > 0 ? $location_id : null,
-        'time_id' => $time_id > 0 ? $time_id : null
+        'time_id' => $time_id > 0 ? $time_id : null,
+        'relics_id' => $relics_id > 0 ? $relics_id : null
     ];
 }
 
@@ -3333,6 +3551,7 @@ function novel_proofreading_add_manuscript_reference() {
             '%s',
             '%s',
             '%s',
+            '%d',
             '%d',
             '%d',
             '%d',
@@ -3393,6 +3612,7 @@ function novel_proofreading_update_manuscript_reference($id) {
             '%s',
             '%s',
             '%s',
+            '%d',
             '%d',
             '%d',
             '%d',
@@ -3544,6 +3764,22 @@ function novel_proofreading_admin_page() {
             );
         }
 
+        if ($action === 'add_relic') {
+            $admin_notice = novel_proofreading_add_relic();
+        }
+
+        if ($action === 'remove_relic') {
+            $admin_notice = novel_proofreading_remove_relic(
+                intval($_POST['relic_id'] ?? 0)
+            );
+        }
+
+        if ($action === 'update_relic') {
+            $admin_notice = novel_proofreading_update_relic(
+                intval($_POST['relic_id'] ?? 0)
+            );
+        }
+
         if ($action === 'add_datetime') {
             $admin_notice = novel_proofreading_add_datetime();
         }
@@ -3638,6 +3874,7 @@ function novel_proofreading_admin_page() {
     $storyline_items = novel_proofreading_get_storylines();
 
     $location_items = novel_proofreading_get_locations();
+    $relic_items = novel_proofreading_get_relics();
     $area_type_items = novel_proofreading_get_type_options('AREA_TYPE');
     $datetime_items = novel_proofreading_get_datetimes();
     $datetime_type_items = novel_proofreading_get_type_options('DATETIME_TYPE');
@@ -5180,6 +5417,16 @@ function novel_proofreading_admin_page() {
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
+                                <div class="novel-proofreading-reference-entity" data-reference-entity="RELIC">
+                                    <select form="<?php echo esc_attr($reference_form_id); ?>" name="relics_id" class="novel-proofreading-relic-select">
+                                        <option value="0"><?php _e( 'Select relic', 'novel-proofreading' ); ?></option>
+                                        <?php foreach ( $relic_items as $relic_item ) : ?>
+                                            <option value="<?php echo esc_attr($relic_item['id']); ?>" data-book-id="<?php echo esc_attr($relic_item['book_id']); ?>" <?php selected($reference_item['relics_id'], $relic_item['id']); ?>>
+                                                <?php echo esc_html($relic_item['relic_name'] . ' - ' . $relic_item['book_title']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
                                 <div class="novel-proofreading-reference-entity" data-reference-entity="MULTI">
                                     <span class="description"><?php echo esc_html($reference_item['entity_label']); ?></span>
                                 </div>
@@ -5298,6 +5545,16 @@ function novel_proofreading_admin_page() {
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
+                                <div class="novel-proofreading-reference-entity" data-reference-entity="RELIC">
+                                    <select name="relics_id" class="novel-proofreading-relic-select">
+                                        <option value="0"><?php _e( 'Select relic', 'novel-proofreading' ); ?></option>
+                                        <?php foreach ( $relic_items as $item ) : ?>
+                                            <option value="<?php echo esc_attr($item['id']); ?>" data-book-id="<?php echo esc_attr($item['book_id']); ?>">
+                                                <?php echo esc_html($item['relic_name'] . ' - ' . $item['book_title']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
                                 <div class="novel-proofreading-reference-entity" data-reference-entity="MULTI">
                                     <p class="description"><?php _e( 'For mistake, suggestion and agreement references, use the description field in this first version.', 'novel-proofreading' ); ?></p>
                                 </div>
@@ -5332,6 +5589,117 @@ function novel_proofreading_admin_page() {
 
                 <button type="submit" class="button button-primary" <?php disabled(empty($items)); ?>>
                     + <?php _e( 'Add Manuscript Reference', 'novel-proofreading' ); ?>
+                </button>
+            </form>
+        </div>
+
+        <h2>11.&nbsp;<?php _e( 'Relics', 'novel-proofreading' ); ?></h2>
+        <button class="button" onclick="show_hide('.relics-wrap')"><?php _e( 'Show / Hide Relics', 'novel-proofreading' ); ?></button>
+        <div class="relics-wrap hidden">
+            <h3>11.1&nbsp;<?php _e( 'List of Relics', 'novel-proofreading' ); ?></h3>
+            <table class="widefat striped">
+                <thead>
+                    <tr>
+                        <th><?php _e( 'Book', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Relic', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Description', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Inaccurate', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Edit', 'novel-proofreading' ); ?></th>
+                        <th><?php _e( 'Delete', 'novel-proofreading' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody id="novel-proofreading-relics-repeater">
+                    <?php foreach ( $relic_items as $item ) : ?>
+                        <?php $relic_form_id = 'novel-proofreading-edit-relic-' . intval($item['id']); ?>
+                        <tr>
+                            <td>
+                                <select form="<?php echo esc_attr($relic_form_id); ?>" name="book_id" required>
+                                    <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $items as $book_item ) : ?>
+                                        <option value="<?php echo esc_attr($book_item['id']); ?>" <?php selected($item['book_id'], $book_item['id']); ?>>
+                                            <?php echo esc_html($book_item['title'] . ' - ' . $book_item['author'] . ' (' . $book_item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td><input form="<?php echo esc_attr($relic_form_id); ?>" type="text" name="relic_name" value="<?php echo esc_attr($item['relic_name']); ?>" required /></td>
+                            <td><textarea form="<?php echo esc_attr($relic_form_id); ?>" name="description" rows="2"><?php echo esc_textarea($item['description']); ?></textarea></td>
+                            <td><input form="<?php echo esc_attr($relic_form_id); ?>" type="checkbox" name="is_inaccurate" value="Y" <?php checked($item['is_inaccurate'], 'Y'); ?> /></td>
+                            <td>
+                                <form id="<?php echo esc_attr($relic_form_id); ?>" method="post">
+                                    <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                                    <input type="hidden" name="novel_proofreading_action" value="update_relic" />
+                                    <input type="hidden" name="relic_id" value="<?php echo esc_attr($item['id']); ?>" />
+                                    <button type="submit" class="button button-primary"><?php _e( 'Save', 'novel-proofreading' ); ?></button>
+                                </form>
+                            </td>
+                            <td>
+                                <form method="post">
+                                    <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                                    <input type="hidden" name="novel_proofreading_action" value="remove_relic" />
+                                    <input type="hidden" name="relic_id" value="<?php echo esc_attr($item['id']); ?>" />
+                                    <button type="button" class="button remove-item" onclick="confirm_delete(this)">-</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <h3>11.2&nbsp;<?php _e( 'Add Relic', 'novel-proofreading' ); ?></h3>
+            <form method="post">
+                <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                <input type="hidden" name="novel_proofreading_action" value="add_relic" />
+
+                <table class="form-table" role="presentation">
+                    <tbody>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-relic-book-id"><?php _e( 'Book', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-relic-book-id" name="book_id" required>
+                                    <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $items as $item ) : ?>
+                                        <option value="<?php echo esc_attr($item['id']); ?>">
+                                            <?php echo esc_html($item['title'] . ' - ' . $item['author'] . ' (' . $item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-relic-name"><?php _e( 'Relic', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" class="regular-text" id="novel-proofreading-relic-name" name="relic_name" required />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-relic-description"><?php _e( 'Description', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <textarea class="large-text" id="novel-proofreading-relic-description" name="description" rows="3"></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <?php _e( 'Inaccurate', 'novel-proofreading' ); ?>
+                            </th>
+                            <td>
+                                <label for="novel-proofreading-relic-is-inaccurate">
+                                    <input type="checkbox" id="novel-proofreading-relic-is-inaccurate" name="is_inaccurate" value="Y" />
+                                    <?php _e( 'Yes', 'novel-proofreading' ); ?>
+                                </label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button type="submit" class="button button-primary" <?php disabled(empty($items)); ?>>
+                    + <?php _e( 'Add Relic', 'novel-proofreading' ); ?>
                 </button>
             </form>
         </div>

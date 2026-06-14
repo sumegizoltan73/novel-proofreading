@@ -600,3 +600,51 @@ msgstr "Események megjelenítése / elrejtése"
 #: admin.php:4957
 msgid "Show / Hide Storyline Chains"
 msgstr "Történetszál-láncok megjelenítése / elrejtése"
+
+#: admin.php:1598
+msgid "Relic name is required."
+msgstr "Az ereklye név kötelező."
+
+#: admin.php:1657
+msgid "Relic could not be added."
+msgstr "Az ereklyét nem sikerült hozzáadni."
+
+#: admin.php:1660
+msgid "Relic added."
+msgstr "Ereklye hozzáadva."
+
+#: admin.php:1667 admin.php:1712
+msgid "Relic could not be updated."
+msgstr "Az ereklyét nem sikerült frissíteni."
+
+#: admin.php:1715
+msgid "Relic updated."
+msgstr "Ereklye frissítve."
+
+#: admin.php:1736
+msgid "Relic deleted."
+msgstr "Ereklye törölve."
+
+#: admin.php:5422 admin.php:5550
+msgid "Select relic"
+msgstr "Válasszon ereklyét"
+
+#: admin.php:5596
+msgid "Relics"
+msgstr "Ereklyék"
+
+#: admin.php:5597
+msgid "Show / Hide Relics"
+msgstr "Ereklyék megjelenítése / elrejtése"
+
+#: admin.php:5599
+msgid "List of Relics"
+msgstr "Ereklyék listája"
+
+#: admin.php:5604 admin.php:5673
+msgid "Relic"
+msgstr "Ereklye"
+
+#: admin.php:5649 admin.php:5702
+msgid "Add Relic"
+msgstr "Ereklye hozzáadása"

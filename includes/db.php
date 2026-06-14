@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define('NOVEL_PROOFREADING_DB_VERSION', '0.9');
+define('NOVEL_PROOFREADING_DB_VERSION', '1.1');
 
 function novel_proofreading_install() {
 
@@ -146,6 +146,8 @@ function novel_proofreading_create_tables() {
 
     $locations_table_name =
         $wpdb->prefix . 'novel_proofreading_locations';
+    $relics_table_name =
+        $wpdb->prefix . 'novel_proofreading_relics';
 
     $presence_mapping_table_name =
         $wpdb->prefix . 'novel_proofreading_presence_mapping';
@@ -189,6 +191,7 @@ function novel_proofreading_create_tables() {
         person_id BIGINT UNSIGNED NULL,
         location_id BIGINT UNSIGNED NULL,
         time_id BIGINT UNSIGNED NULL,
+        relics_id BIGINT UNSIGNED NULL,
 
         created_at DATETIME NOT NULL,
         created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -226,6 +229,10 @@ function novel_proofreading_create_tables() {
 
         KEY idx_time (
             time_id
+        ),
+
+        KEY idx_relics (
+            relics_id
         ),
 
         KEY idx_solved (
@@ -381,9 +388,38 @@ function novel_proofreading_create_tables() {
         )
 
     ) $charset_collate;
+
+    CREATE TABLE $relics_table_name (
+
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+        book_id BIGINT UNSIGNED NOT NULL,
+        relic_name VARCHAR(255) NOT NULL,
+        description TEXT NULL,
+        is_inaccurate CHAR(1) NOT NULL DEFAULT 'N',
+
+        created_at DATETIME NOT NULL,
+        created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        updated_at DATETIME NULL,
+        updated_by BIGINT UNSIGNED NULL,
+
+        PRIMARY KEY  (id),
+
+        KEY idx_book_relic_name (
+            book_id,
+            relic_name
+        )
+
+    ) $charset_collate;
     ";
 
     dbDelta($sql);
+
+    maybe_add_column(
+        $common_mapping_table_name,
+        'relics_id',
+        "ALTER TABLE $common_mapping_table_name ADD relics_id BIGINT UNSIGNED NULL AFTER time_id"
+    );
 
     $storylines_table_name =
         $wpdb->prefix . 'novel_proofreading_storylines';
@@ -473,6 +509,7 @@ function novel_proofreading_create_tables() {
             UNION ALL SELECT 'PERSON', 'COMMON_TYPE'
             UNION ALL SELECT 'LOCATION', 'COMMON_TYPE'
             UNION ALL SELECT 'TIME', 'COMMON_TYPE'
+            UNION ALL SELECT 'RELIC', 'COMMON_TYPE'
             UNION ALL SELECT 'MISTAKE', 'COMMON_TYPE'
             UNION ALL SELECT 'SUGGESTION', 'COMMON_TYPE'
             UNION ALL SELECT 'AGREEMENT', 'COMMON_TYPE'

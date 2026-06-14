@@ -181,5 +181,8 @@ célzott git diff --check sikeres.
 ## Hetedik módosítás - (i) megjelenítése a név és alias oszlop között ha van alias mapping (Implementált)
 A 3.1 List of Persons szakasz táblázatában a Name és Alias oszlop között egy (i) fejlécű oszlop beszúrása szükséges, ahol a sorok között akkor jelenik meg az (i) kattintható szöveg, ha van a novel_proofreading_person_alias_mapping táblában hozzárendelt alias a névhez. A kattintható (i) szöveg egy badge formázású szöveg legyen, világos kék háttérszínnel, és sötét kék szövegszínnel. Ehhez is ajax lekérdezés kell, csak kattintáskor elkérve a tényleges alias-okat.
 
-## nyolcadik módosítás - (job) megejelnítése az info oszlopban a személyek listánál (Implementált)
+## Nyolcadik módosítás - (job) megejelnítése az info oszlopban a személyek listánál (Implementált)
 A 3.1 List of Persons szakasz táblázatában a Name és Alias oszlopban egy (job) feliratú badge is jelenjen meg, ha van a személyhez, vagy a mapping-al hozzárendelt alias-hoz profession rekord (novel_proofreading_professions tábla). A (job) feliratra kattintva hasonló információt jelenítsünk meg, mint az alias (i) badge-je esetén, csak a foglalkozásokat felsorolva a hozzá tartozó leírással együtt.
+
+## Kilencedik módosítás - Ereklyék (Implementált)
+A 11. Relics (azaz ereklyék) szakasz is szükséges új beviteli mezők szakaszaként, illetve a Relics listaként. Ehhez adatbázis tábla is szükséges (novel_proofreading_relics), és bővíteni szükséges a novel_proofreading_common_mapping táblát is relics_id oszloppal, és ilyen lenyílóval kombinált beviteli mezővel is el kell látni a 10.2 Kézirathivatkozás hozzáadása szakaszt. Kell egy új rekord a novel_proofreading_types táblába beszúrással, ez COMMON_TYPE category-val a RELIC érték. A szöveges adatok angolul mehetnek, fordítást készítek hozzá majd.

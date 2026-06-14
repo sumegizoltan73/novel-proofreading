@@ -43,13 +43,13 @@ jQuery(function ($) {
 
         if (!$controls.length) {
             $controls = $scope.find(
-                ".novel-proofreading-storyline-select, .novel-proofreading-event-select, .novel-proofreading-person-select, .novel-proofreading-location-select, .novel-proofreading-time-select"
+                ".novel-proofreading-storyline-select, .novel-proofreading-event-select, .novel-proofreading-person-select, .novel-proofreading-location-select, .novel-proofreading-time-select, .novel-proofreading-relic-select"
             );
         }
 
         $controls
             .filter(
-                ".novel-proofreading-storyline-select, .novel-proofreading-event-select, .novel-proofreading-person-select, .novel-proofreading-location-select, .novel-proofreading-time-select"
+                ".novel-proofreading-storyline-select, .novel-proofreading-event-select, .novel-proofreading-person-select, .novel-proofreading-location-select, .novel-proofreading-time-select, .novel-proofreading-relic-select"
             )
             .each(function () {
                 var $select = $(this);
@@ -100,7 +100,8 @@ jQuery(function ($) {
             selectedType === "EVENT" ||
             selectedType === "PERSON" ||
             selectedType === "LOCATION" ||
-            selectedType === "TIME"
+            selectedType === "TIME" ||
+            selectedType === "RELIC"
         ) {
             $fields
                 .filter('[data-reference-entity="' + selectedType + '"]')
