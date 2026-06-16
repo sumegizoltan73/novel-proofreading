@@ -205,8 +205,18 @@ A gombokon van data-bs-toggle="tab" és data-bs-target, de nem húztam be Bootst
 [assets/css/admin.css (line 13)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/assets/css/admin.css:13): bekerült a tab sor és tab panelek admin stílusa.
 Kivettem a régi show_hide() függvényt és a Show / Hide ... gombokat.
 
-## Tizenharmadik módosítás - Címke csoportokkal szűrés
+## Tizenharmadik módosítás - Címke csoportokkal szűrés (Implementált)
 Szükség van egy címkecsoportokkal való szűrési lehetőségre, amikor az összetartozó címkék alapján történik úgy szűrés, hogy minden címkéhez tartozó sor megjelenjen a szűrés után, ami az adott csoportban összetartozó címke.
 Az összetarrtozás alapja a fejezet vagy az oldalszám például a kézirathivatkozásoknál, külön switch alapú programozással meghatározva a címkéhez tartozó kategória (referenced_type_id) alapján.
 Így a címkék kijelzése egy-egy cimke csoporttal történik, egy címke több csoportban is szerepelhet, és a csoport egészére lehetséges kattintással történik a szűrés, vagy a szűrés kikapcsolása. Kattintás után így a csopoirt közös halványszürke hátterével lehet jelezni, hogy bekapcsolat a szűrés.
 Ezt a funkciót egyenlőre csak a Kézirathivatkozások listájánál kell bevezetni.
+
+Codex / ChatGPT:
+Elkészült a címkecsoportos szűrés a Kézirathivatkozások listájánál.
+Módosítottam:
+[includes/admin.php (line 145)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/includes/admin.php:145): bekerült a címkecsoport-képzés switch alapú helperrel. A CROSSREFERENCE címketípusnál most fejezet és oldalszám alapján képez csoportokat.
+[includes/admin.php (line 5768)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/includes/admin.php:5768): a kézirathivatkozás sorok és címkesorok megkapják a szűréshez szükséges data-label-ids adatot.
+[includes/admin.php (line 5876)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/includes/admin.php:5876): a címkék csoportosítva jelennek meg, egy csoport gombként kattintható.
+[assets/js/admin.js (line 341)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/assets/js/admin.js:341): kattintásra a csoport szűr, újra kattintásra kikapcsolja a szűrést.
+[assets/css/admin.css (line 157)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/assets/css/admin.css:157): az aktív címkecsoport halványszürke hátteret kap.
+A szűrés úgy működik, hogy egy csoport címkéire kattintva minden olyan kézirathivatkozás sor megjelenik, amelynek van bármelyik címkéje a kiválasztott csoportból. A fő sor és a hozzá tartozó címkesor együtt rejtőzik/jelenik meg.
