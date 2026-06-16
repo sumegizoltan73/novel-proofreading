@@ -4173,7 +4173,8 @@ function novel_proofreading_admin_page() {
         <button class="button" onclick="show_hide('.books-wrap')"><?php _e( 'Show / Hide Books', 'novel-proofreading' ); ?></button>
         <div class="books-wrap hidden">
             <h3>1.1&nbsp;<?php _e( 'List of Books', 'novel-proofreading' ); ?></h3>
-            <table class="widefat striped">
+            <div class="novel-proofreading-scroll-table">
+                <table class="widefat striped">
                 <thead>
                     <tr>
                         <th><?php _e( 'Series', 'novel-proofreading' ); ?></th>
@@ -4216,6 +4217,7 @@ function novel_proofreading_admin_page() {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
 
             <h3>1.2&nbsp;<?php _e( 'Add Book', 'novel-proofreading' ); ?></h3>
             <form method="post">
@@ -4269,7 +4271,8 @@ function novel_proofreading_admin_page() {
         <button class="button" onclick="show_hide('.series-wrap')"><?php _e( 'Show / Hide Series', 'novel-proofreading' ); ?></button>
         <div class="series-wrap hidden">
             <h3>2.1&nbsp;<?php _e( 'List of Series', 'novel-proofreading' ); ?></h3>
-            <table class="widefat striped">
+            <div class="novel-proofreading-scroll-table">
+                <table class="widefat striped">
                 <thead>
                     <tr>
                         <th><?php _e( 'Series title', 'novel-proofreading' ); ?></th>
@@ -4336,6 +4339,7 @@ function novel_proofreading_admin_page() {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
 
             <h3>2.2&nbsp;<?php _e( 'Add Series', 'novel-proofreading' ); ?></h3>
             <form method="post">
@@ -4435,7 +4439,8 @@ function novel_proofreading_admin_page() {
         <button class="button" onclick="show_hide('.persons-wrap')"><?php _e( 'Show / Hide Persons', 'novel-proofreading' ); ?></button>
         <div class="persons-wrap hidden">
             <h3>3.1&nbsp;<?php _e( 'List of Persons', 'novel-proofreading' ); ?></h3>
-            <table class="widefat striped">
+            <div class="novel-proofreading-scroll-table">
+                <table class="widefat striped">
                 <thead>
                     <tr>
                         <th><?php _e( 'Book', 'novel-proofreading' ); ?></th>
@@ -4507,6 +4512,7 @@ function novel_proofreading_admin_page() {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
 
             <h3>3.2&nbsp;<?php _e( 'Add Person', 'novel-proofreading' ); ?></h3>
             <form method="post">
@@ -4575,7 +4581,8 @@ function novel_proofreading_admin_page() {
             </form>
 
             <h3>3.3&nbsp;<?php _e( 'Person name and alias mapping', 'novel-proofreading' ); ?></h3>
-            <table class="widefat striped">
+            <div class="novel-proofreading-scroll-table">
+                <table class="widefat striped">
                 <thead>
                     <tr>
                         <th><?php _e( 'Book', 'novel-proofreading' ); ?></th>
@@ -4639,6 +4646,7 @@ function novel_proofreading_admin_page() {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
 
             <form method="post">
                 <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
@@ -4705,7 +4713,8 @@ function novel_proofreading_admin_page() {
         <button class="button" onclick="show_hide('.locations-wrap')"><?php _e( 'Show / Hide Locations', 'novel-proofreading' ); ?></button>
         <div class="locations-wrap hidden">
             <h3>4.1&nbsp;<?php _e( 'List of Locations', 'novel-proofreading' ); ?></h3>
-            <table class="widefat striped">
+            <div class="novel-proofreading-scroll-table">
+                <table class="widefat striped">
                 <thead>
                     <tr>
                         <th><?php _e( 'Book', 'novel-proofreading' ); ?></th>
@@ -4770,6 +4779,7 @@ function novel_proofreading_admin_page() {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
 
             <h3>4.2&nbsp;<?php _e( 'Add Location', 'novel-proofreading' ); ?></h3>
             <form method="post">
@@ -4876,7 +4886,8 @@ function novel_proofreading_admin_page() {
         <button class="button" onclick="show_hide('.datetimes-wrap')"><?php _e( 'Show / Hide Datetimes', 'novel-proofreading' ); ?></button>
         <div class="datetimes-wrap hidden">
             <h3>5.1&nbsp;<?php _e( 'List of Datetimes', 'novel-proofreading' ); ?></h3>
-            <table class="widefat striped">
+            <div class="novel-proofreading-scroll-table">
+                <table class="widefat striped">
                 <thead>
                     <tr>
                         <th><?php _e( 'Book', 'novel-proofreading' ); ?></th>
@@ -4937,6 +4948,7 @@ function novel_proofreading_admin_page() {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
 
             <h3>5.2&nbsp;<?php _e( 'Add Datetime', 'novel-proofreading' ); ?></h3>
             <form method="post">
@@ -5023,7 +5035,8 @@ function novel_proofreading_admin_page() {
         <button class="button" onclick="show_hide('.professions-wrap')"><?php _e( 'Show / Hide Professions', 'novel-proofreading' ); ?></button>
         <div class="professions-wrap hidden">
             <h3>6.1&nbsp;<?php _e( 'List of Professions', 'novel-proofreading' ); ?></h3>
-            <table class="widefat striped">
+            <div class="novel-proofreading-scroll-table">
+                <table class="widefat striped">
                 <thead>
                     <tr>
                         <th><?php _e( 'Book', 'novel-proofreading' ); ?></th>
@@ -5082,6 +5095,7 @@ function novel_proofreading_admin_page() {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
 
             <h3>6.2&nbsp;<?php _e( 'Add Profession', 'novel-proofreading' ); ?></h3>
             <form method="post">
@@ -5160,7 +5174,8 @@ function novel_proofreading_admin_page() {
         <button class="button" onclick="show_hide('.storylines-wrap')"><?php _e( 'Show / Hide Storylines', 'novel-proofreading' ); ?></button>
         <div class="storylines-wrap hidden">
             <h3>7.1&nbsp;<?php _e( 'List of Storylines', 'novel-proofreading' ); ?></h3>
-            <table class="widefat striped">
+            <div class="novel-proofreading-scroll-table">
+                <table class="widefat striped">
                 <thead>
                     <tr>
                         <th><?php _e( 'Book', 'novel-proofreading' ); ?></th>
@@ -5217,6 +5232,7 @@ function novel_proofreading_admin_page() {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
 
             <h3>7.2&nbsp;<?php _e( 'Add Storyline', 'novel-proofreading' ); ?></h3>
             <form method="post">
@@ -5284,7 +5300,8 @@ function novel_proofreading_admin_page() {
         <button class="button" onclick="show_hide('.events-wrap')"><?php _e( 'Show / Hide Events', 'novel-proofreading' ); ?></button>
         <div class="events-wrap hidden">
             <h3>8.1&nbsp;<?php _e( 'List of Events', 'novel-proofreading' ); ?></h3>
-            <table class="widefat striped">
+            <div class="novel-proofreading-scroll-table">
+                <table class="widefat striped">
                 <thead>
                     <tr>
                         <th><?php _e( 'Book', 'novel-proofreading' ); ?></th>
@@ -5355,6 +5372,7 @@ function novel_proofreading_admin_page() {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
 
             <h3>8.2&nbsp;<?php _e( 'Add Event', 'novel-proofreading' ); ?></h3>
             <form method="post">
@@ -5506,7 +5524,8 @@ function novel_proofreading_admin_page() {
                     <?php if ($stats['event_count'] === 0) : ?>
                         <p class="notice notice-warning inline"><?php _e( 'This storyline has no linked events.', 'novel-proofreading' ); ?></p>
                     <?php else : ?>
-                        <table class="widefat striped novel-proofreading-chain-table">
+                        <div class="novel-proofreading-scroll-table">
+                            <table class="widefat striped novel-proofreading-chain-table">
                             <thead>
                                 <tr>
                                     <th><?php _e( 'Sequence', 'novel-proofreading' ); ?></th>
@@ -5558,6 +5577,7 @@ function novel_proofreading_admin_page() {
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
+                        </div>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
@@ -5590,7 +5610,8 @@ function novel_proofreading_admin_page() {
             </form>
 
             <h3>10.1&nbsp;<?php _e( 'List of Manuscript References', 'novel-proofreading' ); ?></h3>
-            <table class="widefat striped novel-proofreading-reference-table">
+            <div class="novel-proofreading-scroll-table">
+                <table class="widefat striped novel-proofreading-reference-table">
                 <thead>
                     <tr>
                         <th><?php _e( 'Book', 'novel-proofreading' ); ?></th>
@@ -5728,6 +5749,7 @@ function novel_proofreading_admin_page() {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
 
             <h3>10.2&nbsp;<?php _e( 'Add Manuscript Reference', 'novel-proofreading' ); ?></h3>
             <form method="post" class="novel-proofreading-reference-form">
@@ -5871,7 +5893,8 @@ function novel_proofreading_admin_page() {
         <button class="button" onclick="show_hide('.relics-wrap')"><?php _e( 'Show / Hide Relics', 'novel-proofreading' ); ?></button>
         <div class="relics-wrap hidden">
             <h3>11.1&nbsp;<?php _e( 'List of Relics', 'novel-proofreading' ); ?></h3>
-            <table class="widefat striped">
+            <div class="novel-proofreading-scroll-table">
+                <table class="widefat striped">
                 <thead>
                     <tr>
                         <th><?php _e( 'Book', 'novel-proofreading' ); ?></th>
@@ -5919,6 +5942,7 @@ function novel_proofreading_admin_page() {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
 
             <h3>11.2&nbsp;<?php _e( 'Add Relic', 'novel-proofreading' ); ?></h3>
             <form method="post">

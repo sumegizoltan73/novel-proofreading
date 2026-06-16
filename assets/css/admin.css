@@ -10,6 +10,19 @@
   display: none;
 }
 
+.novel-proofreading-scroll-table {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.novel-proofreading-scroll-table .widefat.striped thead,
+.novel-proofreading-scroll-table .widefat.striped thead th {
+  background-color: white;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
 .novel-proofreading-chain-filter {
   align-items: center;
   display: flex;
