@@ -10,6 +10,29 @@
   display: none;
 }
 
+.novel-proofreading-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-bottom: 0;
+}
+
+.novel-proofreading-tabs .nav-tab {
+  cursor: pointer;
+  margin-bottom: -1px;
+}
+
+.novel-proofreading-tab-pane {
+  background: #fff;
+  border: 1px solid #c3c4c7;
+  border-top: 0;
+  padding: 16px;
+}
+
+.novel-proofreading-tab-pane[hidden] {
+  display: none;
+}
+
 .novel-proofreading-scroll-table {
   max-height: 300px;
   overflow-y: auto;

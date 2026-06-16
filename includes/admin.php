@@ -4168,10 +4168,21 @@ function novel_proofreading_admin_page() {
             </div>
         <?php endif; ?>
 
-        
-        <h2>1.&nbsp;<?php _e( 'Books', 'novel-proofreading' ); ?></h2>
-        <button class="button" onclick="show_hide('.books-wrap')"><?php _e( 'Show / Hide Books', 'novel-proofreading' ); ?></button>
-        <div class="books-wrap hidden">
+        <h2 class="nav-tab-wrapper novel-proofreading-tabs" role="tablist" aria-label="<?php esc_attr_e( 'Novel Proofreading sections', 'novel-proofreading' ); ?>">
+            <button type="button" class="nav-tab nav-tab-active" id="novel-proofreading-tab-books-tab" data-bs-toggle="tab" data-bs-target="#novel-proofreading-tab-books" role="tab" aria-controls="novel-proofreading-tab-books" aria-selected="true"><?php _e( 'Books', 'novel-proofreading' ); ?></button>
+            <button type="button" class="nav-tab" id="novel-proofreading-tab-series-tab" data-bs-toggle="tab" data-bs-target="#novel-proofreading-tab-series" role="tab" aria-controls="novel-proofreading-tab-series" aria-selected="false"><?php _e( 'Series', 'novel-proofreading' ); ?></button>
+            <button type="button" class="nav-tab" id="novel-proofreading-tab-persons-tab" data-bs-toggle="tab" data-bs-target="#novel-proofreading-tab-persons" role="tab" aria-controls="novel-proofreading-tab-persons" aria-selected="false"><?php _e( 'Person', 'novel-proofreading' ); ?></button>
+            <button type="button" class="nav-tab" id="novel-proofreading-tab-locations-tab" data-bs-toggle="tab" data-bs-target="#novel-proofreading-tab-locations" role="tab" aria-controls="novel-proofreading-tab-locations" aria-selected="false"><?php _e( 'Locations', 'novel-proofreading' ); ?></button>
+            <button type="button" class="nav-tab" id="novel-proofreading-tab-datetimes-tab" data-bs-toggle="tab" data-bs-target="#novel-proofreading-tab-datetimes" role="tab" aria-controls="novel-proofreading-tab-datetimes" aria-selected="false"><?php _e( 'Datetimes', 'novel-proofreading' ); ?></button>
+            <button type="button" class="nav-tab" id="novel-proofreading-tab-professions-tab" data-bs-toggle="tab" data-bs-target="#novel-proofreading-tab-professions" role="tab" aria-controls="novel-proofreading-tab-professions" aria-selected="false"><?php _e( 'Professions', 'novel-proofreading' ); ?></button>
+            <button type="button" class="nav-tab" id="novel-proofreading-tab-storylines-tab" data-bs-toggle="tab" data-bs-target="#novel-proofreading-tab-storylines" role="tab" aria-controls="novel-proofreading-tab-storylines" aria-selected="false"><?php _e( 'Storylines', 'novel-proofreading' ); ?></button>
+            <button type="button" class="nav-tab" id="novel-proofreading-tab-events-tab" data-bs-toggle="tab" data-bs-target="#novel-proofreading-tab-events" role="tab" aria-controls="novel-proofreading-tab-events" aria-selected="false"><?php _e( 'Events', 'novel-proofreading' ); ?></button>
+            <button type="button" class="nav-tab" id="novel-proofreading-tab-storyline-chains-tab" data-bs-toggle="tab" data-bs-target="#novel-proofreading-tab-storyline-chains" role="tab" aria-controls="novel-proofreading-tab-storyline-chains" aria-selected="false"><?php _e( 'Storyline Chains', 'novel-proofreading' ); ?></button>
+            <button type="button" class="nav-tab" id="novel-proofreading-tab-manuscript-references-tab" data-bs-toggle="tab" data-bs-target="#novel-proofreading-tab-manuscript-references" role="tab" aria-controls="novel-proofreading-tab-manuscript-references" aria-selected="false"><?php _e( 'Manuscript references', 'novel-proofreading' ); ?></button>
+            <button type="button" class="nav-tab" id="novel-proofreading-tab-relics-tab" data-bs-toggle="tab" data-bs-target="#novel-proofreading-tab-relics" role="tab" aria-controls="novel-proofreading-tab-relics" aria-selected="false"><?php _e( 'Relics', 'novel-proofreading' ); ?></button>
+        </h2>
+
+        <div id="novel-proofreading-tab-books" class="books-wrap novel-proofreading-tab-pane tab-pane show active" role="tabpanel" aria-labelledby="novel-proofreading-tab-books-tab">
             <h3>1.1&nbsp;<?php _e( 'List of Books', 'novel-proofreading' ); ?></h3>
             <div class="novel-proofreading-scroll-table">
                 <table class="widefat striped">
@@ -4267,9 +4278,7 @@ function novel_proofreading_admin_page() {
             </form>
         </div>
 
-        <h2>2.&nbsp;<?php _e( 'Series', 'novel-proofreading' ); ?></h2>
-        <button class="button" onclick="show_hide('.series-wrap')"><?php _e( 'Show / Hide Series', 'novel-proofreading' ); ?></button>
-        <div class="series-wrap hidden">
+        <div id="novel-proofreading-tab-series" class="series-wrap novel-proofreading-tab-pane tab-pane" role="tabpanel" aria-labelledby="novel-proofreading-tab-series-tab" hidden>
             <h3>2.1&nbsp;<?php _e( 'List of Series', 'novel-proofreading' ); ?></h3>
             <div class="novel-proofreading-scroll-table">
                 <table class="widefat striped">
@@ -4435,9 +4444,7 @@ function novel_proofreading_admin_page() {
 
         </div>
 
-        <h2>3.&nbsp;<?php _e( 'Person', 'novel-proofreading' ); ?></h2>
-        <button class="button" onclick="show_hide('.persons-wrap')"><?php _e( 'Show / Hide Persons', 'novel-proofreading' ); ?></button>
-        <div class="persons-wrap hidden">
+        <div id="novel-proofreading-tab-persons" class="persons-wrap novel-proofreading-tab-pane tab-pane" role="tabpanel" aria-labelledby="novel-proofreading-tab-persons-tab" hidden>
             <h3>3.1&nbsp;<?php _e( 'List of Persons', 'novel-proofreading' ); ?></h3>
             <div class="novel-proofreading-scroll-table">
                 <table class="widefat striped">
@@ -4709,9 +4716,7 @@ function novel_proofreading_admin_page() {
 
         </div>
 
-        <h2>4.&nbsp;<?php _e( 'Locations', 'novel-proofreading' ); ?></h2>
-        <button class="button" onclick="show_hide('.locations-wrap')"><?php _e( 'Show / Hide Locations', 'novel-proofreading' ); ?></button>
-        <div class="locations-wrap hidden">
+        <div id="novel-proofreading-tab-locations" class="locations-wrap novel-proofreading-tab-pane tab-pane" role="tabpanel" aria-labelledby="novel-proofreading-tab-locations-tab" hidden>
             <h3>4.1&nbsp;<?php _e( 'List of Locations', 'novel-proofreading' ); ?></h3>
             <div class="novel-proofreading-scroll-table">
                 <table class="widefat striped">
@@ -4882,9 +4887,7 @@ function novel_proofreading_admin_page() {
             </form>
         </div>
 
-        <h2>5.&nbsp;<?php _e( 'Datetimes', 'novel-proofreading' ); ?></h2>
-        <button class="button" onclick="show_hide('.datetimes-wrap')"><?php _e( 'Show / Hide Datetimes', 'novel-proofreading' ); ?></button>
-        <div class="datetimes-wrap hidden">
+        <div id="novel-proofreading-tab-datetimes" class="datetimes-wrap novel-proofreading-tab-pane tab-pane" role="tabpanel" aria-labelledby="novel-proofreading-tab-datetimes-tab" hidden>
             <h3>5.1&nbsp;<?php _e( 'List of Datetimes', 'novel-proofreading' ); ?></h3>
             <div class="novel-proofreading-scroll-table">
                 <table class="widefat striped">
@@ -5031,9 +5034,7 @@ function novel_proofreading_admin_page() {
             </form>
         </div>
 
-        <h2>6.&nbsp;<?php _e( 'Professions', 'novel-proofreading' ); ?></h2>
-        <button class="button" onclick="show_hide('.professions-wrap')"><?php _e( 'Show / Hide Professions', 'novel-proofreading' ); ?></button>
-        <div class="professions-wrap hidden">
+        <div id="novel-proofreading-tab-professions" class="professions-wrap novel-proofreading-tab-pane tab-pane" role="tabpanel" aria-labelledby="novel-proofreading-tab-professions-tab" hidden>
             <h3>6.1&nbsp;<?php _e( 'List of Professions', 'novel-proofreading' ); ?></h3>
             <div class="novel-proofreading-scroll-table">
                 <table class="widefat striped">
@@ -5170,9 +5171,7 @@ function novel_proofreading_admin_page() {
             </form>
         </div>
 
-        <h2>7.&nbsp;<?php _e( 'Storylines', 'novel-proofreading' ); ?></h2>
-        <button class="button" onclick="show_hide('.storylines-wrap')"><?php _e( 'Show / Hide Storylines', 'novel-proofreading' ); ?></button>
-        <div class="storylines-wrap hidden">
+        <div id="novel-proofreading-tab-storylines" class="storylines-wrap novel-proofreading-tab-pane tab-pane" role="tabpanel" aria-labelledby="novel-proofreading-tab-storylines-tab" hidden>
             <h3>7.1&nbsp;<?php _e( 'List of Storylines', 'novel-proofreading' ); ?></h3>
             <div class="novel-proofreading-scroll-table">
                 <table class="widefat striped">
@@ -5296,9 +5295,7 @@ function novel_proofreading_admin_page() {
             </form>
         </div>
 
-        <h2>8.&nbsp;<?php _e( 'Events', 'novel-proofreading' ); ?></h2>
-        <button class="button" onclick="show_hide('.events-wrap')"><?php _e( 'Show / Hide Events', 'novel-proofreading' ); ?></button>
-        <div class="events-wrap hidden">
+        <div id="novel-proofreading-tab-events" class="events-wrap novel-proofreading-tab-pane tab-pane" role="tabpanel" aria-labelledby="novel-proofreading-tab-events-tab" hidden>
             <h3>8.1&nbsp;<?php _e( 'List of Events', 'novel-proofreading' ); ?></h3>
             <div class="novel-proofreading-scroll-table">
                 <table class="widefat striped">
@@ -5469,9 +5466,7 @@ function novel_proofreading_admin_page() {
             </form>
         </div>
 
-        <h2>9.&nbsp;<?php _e( 'Storyline Chains', 'novel-proofreading' ); ?></h2>
-        <button class="button" onclick="show_hide('.storyline-chains-wrap')"><?php _e( 'Show / Hide Storyline Chains', 'novel-proofreading' ); ?></button>
-        <div class="storyline-chains-wrap hidden">
+        <div id="novel-proofreading-tab-storyline-chains" class="storyline-chains-wrap novel-proofreading-tab-pane tab-pane" role="tabpanel" aria-labelledby="novel-proofreading-tab-storyline-chains-tab" hidden>
             <form method="get" class="novel-proofreading-chain-filter">
                 <input type="hidden" name="page" value="novel-proofreading" />
                 <label for="novel-proofreading-chain-book-id"><?php _e( 'Book', 'novel-proofreading' ); ?></label>
@@ -5583,9 +5578,7 @@ function novel_proofreading_admin_page() {
             <?php endforeach; ?>
         </div>
 
-        <h2>10.&nbsp;<?php _e( 'Manuscript references', 'novel-proofreading' ); ?></h2>
-        <button class="button" onclick="show_hide('.manuscript-references-wrap')"><?php _e( 'Show / Hide Manuscript References', 'novel-proofreading' ); ?></button>
-        <div class="manuscript-references-wrap hidden">
+        <div id="novel-proofreading-tab-manuscript-references" class="manuscript-references-wrap novel-proofreading-tab-pane tab-pane" role="tabpanel" aria-labelledby="novel-proofreading-tab-manuscript-references-tab" hidden>
             <form method="get" class="novel-proofreading-chain-filter">
                 <input type="hidden" name="page" value="novel-proofreading" />
                 <label for="novel-proofreading-reference-book-filter"><?php _e( 'Book', 'novel-proofreading' ); ?></label>
@@ -5889,9 +5882,7 @@ function novel_proofreading_admin_page() {
             </form>
         </div>
 
-        <h2>11.&nbsp;<?php _e( 'Relics', 'novel-proofreading' ); ?></h2>
-        <button class="button" onclick="show_hide('.relics-wrap')"><?php _e( 'Show / Hide Relics', 'novel-proofreading' ); ?></button>
-        <div class="relics-wrap hidden">
+        <div id="novel-proofreading-tab-relics" class="relics-wrap novel-proofreading-tab-pane tab-pane" role="tabpanel" aria-labelledby="novel-proofreading-tab-relics-tab" hidden>
             <h3>11.1&nbsp;<?php _e( 'List of Relics', 'novel-proofreading' ); ?></h3>
             <div class="novel-proofreading-scroll-table">
                 <table class="widefat striped">

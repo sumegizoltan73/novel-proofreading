@@ -1,7 +1,3 @@
-function show_hide(selector) {
-    jQuery(selector).toggleClass("hidden");
-}
-
 function confirm_delete(button) {
     var form = jQuery(button).closest("form").get(0);
 
@@ -31,6 +27,74 @@ function confirm_delete(button) {
 }
 
 jQuery(function ($) {
+    function getStoredNovelProofreadingTab() {
+        try {
+            return window.sessionStorage.getItem("novelProofreadingActiveTab");
+        } catch (error) {
+            return "";
+        }
+    }
+
+    function storeNovelProofreadingTab(targetSelector) {
+        try {
+            window.sessionStorage.setItem("novelProofreadingActiveTab", targetSelector);
+        } catch (error) {
+            return;
+        }
+    }
+
+    function activateNovelProofreadingTab($tab, updateHash) {
+        var targetSelector = $tab.data("bs-target");
+        var $target = $(targetSelector);
+
+        if (!$target.length) {
+            return;
+        }
+
+        $(".novel-proofreading-tabs [role='tab']")
+            .removeClass("nav-tab-active")
+            .attr("aria-selected", "false");
+
+        $(".novel-proofreading-tab-pane")
+            .removeClass("show active")
+            .attr("hidden", true);
+
+        $tab
+            .addClass("nav-tab-active")
+            .attr("aria-selected", "true");
+
+        $target
+            .addClass("show active")
+            .removeAttr("hidden");
+
+        storeNovelProofreadingTab(targetSelector);
+
+        if (updateHash && window.history && window.history.replaceState) {
+            window.history.replaceState(null, "", targetSelector);
+        }
+    }
+
+    function initializeNovelProofreadingTabs() {
+        var activeTarget = window.location.hash;
+        var $activeTab;
+
+        if (!activeTarget) {
+            activeTarget = getStoredNovelProofreadingTab();
+        }
+
+        if (activeTarget) {
+            $activeTab = $(".novel-proofreading-tabs [role='tab']").filter(function () {
+                return $(this).data("bs-target") === activeTarget;
+            });
+        }
+
+        if (!$activeTab || !$activeTab.length) {
+            $activeTab = $(".novel-proofreading-tabs [role='tab']").first();
+        }
+
+        activateNovelProofreadingTab($activeTab, false);
+    }
+
     function filterRelatedOptions($bookSelect) {
         var bookId = $bookSelect.val();
         var formId = $bookSelect.attr("form");
@@ -403,4 +467,36 @@ jQuery(function ($) {
     $(document).on("click", ".novel-proofreading-add-label", function () {
         addReferenceLabel($(this).data("reference-id"));
     });
+
+    $(document).on("click", ".novel-proofreading-tabs [role='tab']", function () {
+        activateNovelProofreadingTab($(this), true);
+    });
+
+    $(document).on("keydown", ".novel-proofreading-tabs [role='tab']", function (event) {
+        var keys = ["ArrowLeft", "ArrowRight", "Home", "End"];
+
+        if (keys.indexOf(event.key) === -1) {
+            return;
+        }
+
+        var $tabs = $(".novel-proofreading-tabs [role='tab']");
+        var currentIndex = $tabs.index(this);
+        var nextIndex = currentIndex;
+
+        if (event.key === "ArrowLeft") {
+            nextIndex = currentIndex === 0 ? $tabs.length - 1 : currentIndex - 1;
+        } else if (event.key === "ArrowRight") {
+            nextIndex = currentIndex === $tabs.length - 1 ? 0 : currentIndex + 1;
+        } else if (event.key === "Home") {
+            nextIndex = 0;
+        } else if (event.key === "End") {
+            nextIndex = $tabs.length - 1;
+        }
+
+        event.preventDefault();
+        $tabs.eq(nextIndex).trigger("focus");
+        activateNovelProofreadingTab($tabs.eq(nextIndex), true);
+    });
+
+    initializeNovelProofreadingTabs();
 });
