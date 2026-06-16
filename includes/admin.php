@@ -142,6 +142,152 @@ function novel_proofreading_get_labels_by_reference_ids($reference_ids, $ref_typ
     return $labels;
 }
 
+function novel_proofreading_normalize_label_group_part($value) {
+    return sanitize_title(
+        trim(
+            (string) $value
+        )
+    );
+}
+
+function novel_proofreading_get_label_group_definitions($reference_item, $referenced_type_id) {
+    static $crossreference_type_id = null;
+
+    if ($crossreference_type_id === null) {
+        $crossreference_type_id = novel_proofreading_get_label_ref_type_id('CROSSREFERENCE');
+    }
+
+    switch ($referenced_type_id) {
+        case $crossreference_type_id:
+            $groups = [];
+            $book_id = intval($reference_item['book_id']);
+            $chapter = trim((string) ($reference_item['chapter'] ?? ''));
+            $page = trim((string) ($reference_item['page'] ?? ''));
+
+            if ($chapter !== '') {
+                $groups[] = [
+                    'key' => implode(
+                        ':',
+                        [
+                            'crossreference',
+                            'book',
+                            $book_id,
+                            'chapter',
+                            novel_proofreading_normalize_label_group_part($chapter)
+                        ]
+                    ),
+                    'title' => sprintf(
+                        __( 'Chapter: %s', 'novel-proofreading' ),
+                        $chapter
+                    )
+                ];
+            }
+
+            if ($page !== '') {
+                $groups[] = [
+                    'key' => implode(
+                        ':',
+                        [
+                            'crossreference',
+                            'book',
+                            $book_id,
+                            'page',
+                            novel_proofreading_normalize_label_group_part($page)
+                        ]
+                    ),
+                    'title' => sprintf(
+                        __( 'Page: %s', 'novel-proofreading' ),
+                        $page
+                    )
+                ];
+            }
+
+            return $groups;
+
+        default:
+            return [];
+    }
+}
+
+function novel_proofreading_build_label_groups_for_references($items, $referenced_type_id) {
+    $groups = [];
+    $item_group_keys = [];
+
+    foreach ($items as $item) {
+        $labels = $item['labels'] ?? [];
+
+        if (empty($labels)) {
+            continue;
+        }
+
+        $group_definitions = novel_proofreading_get_label_group_definitions(
+            $item,
+            $referenced_type_id
+        );
+
+        if (empty($group_definitions)) {
+            continue;
+        }
+
+        foreach ($group_definitions as $group_definition) {
+            $group_key = $group_definition['key'];
+
+            if (! isset($groups[$group_key])) {
+                $groups[$group_key] = [
+                    'key' => $group_key,
+                    'title' => $group_definition['title'],
+                    'label_ids' => [],
+                    'labels' => []
+                ];
+            }
+
+            $item_group_keys[$item['id']][] = $group_key;
+
+            foreach ($labels as $label) {
+                $label_id = intval($label['id']);
+
+                if ($label_id <= 0 || isset($groups[$group_key]['label_ids'][$label_id])) {
+                    continue;
+                }
+
+                $groups[$group_key]['label_ids'][$label_id] = $label_id;
+                $groups[$group_key]['labels'][] = [
+                    'id' => $label_id,
+                    'label' => $label['label']
+                ];
+            }
+        }
+    }
+
+    foreach ($groups as $group_key => $group) {
+        $groups[$group_key]['label_ids'] = array_values(
+            $group['label_ids']
+        );
+    }
+
+    foreach ($items as $index => $item) {
+        $label_ids = array_map(
+            'intval',
+            wp_list_pluck(
+                $item['labels'] ?? [],
+                'id'
+            )
+        );
+        $label_groups = [];
+
+        foreach (array_unique($item_group_keys[$item['id']] ?? []) as $group_key) {
+            if (isset($groups[$group_key])) {
+                $label_groups[] = $groups[$group_key];
+            }
+        }
+
+        $items[$index]['label_ids'] = $label_ids;
+        $items[$index]['label_groups'] = $label_groups;
+    }
+
+    return $items;
+}
+
 function novel_proofreading_manuscript_reference_exists($reference_id) {
     global $wpdb;
 
@@ -3595,12 +3741,16 @@ function novel_proofreading_get_manuscript_references($book_id = 0, $type = '') 
             'id'
         )
     );
+    $label_ref_type_id = novel_proofreading_get_label_ref_type_id('CROSSREFERENCE');
 
     foreach ($items as $index => $item) {
         $items[$index]['labels'] = $labels_by_reference_id[$item['id']] ?? [];
     }
 
-    return $items;
+    return novel_proofreading_build_label_groups_for_references(
+        $items,
+        $label_ref_type_id
+    );
 }
 
 function novel_proofreading_reference_entity_belongs_to_book($table_suffix, $id, $book_id) {
@@ -5620,7 +5770,8 @@ function novel_proofreading_admin_page() {
                 <tbody>
                     <?php foreach ( $manuscript_reference_items as $reference_item ) : ?>
                         <?php $reference_form_id = 'novel-proofreading-edit-reference-' . intval($reference_item['id']); ?>
-                        <tr class="novel-proofreading-reference-row">
+                        <?php $reference_label_ids = implode(',', array_map('intval', $reference_item['label_ids'] ?? [])); ?>
+                        <tr class="novel-proofreading-reference-row" data-reference-id="<?php echo esc_attr($reference_item['id']); ?>" data-label-ids="<?php echo esc_attr($reference_label_ids); ?>">
                             <td>
                                 <select form="<?php echo esc_attr($reference_form_id); ?>" name="book_id" class="novel-proofreading-book-select" required>
                                     <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
@@ -5726,13 +5877,31 @@ function novel_proofreading_admin_page() {
                                 </form>
                             </td>
                         </tr>
-                        <tr class="novel-proofreading-reference-label-row">
+                        <tr class="novel-proofreading-reference-label-row" data-reference-id="<?php echo esc_attr($reference_item['id']); ?>" data-label-ids="<?php echo esc_attr($reference_label_ids); ?>">
                             <td colspan="8">
                                 <span class="novel-proofreading-labels-title"><?php _e( 'Labels:', 'novel-proofreading' ); ?></span>
                                 <span class="novel-proofreading-label-list" data-reference-id="<?php echo esc_attr($reference_item['id']); ?>">
-                                    <?php foreach ( $reference_item['labels'] as $label_item ) : ?>
-                                        <span class="novel-proofreading-badge is-label" data-label-id="<?php echo esc_attr($label_item['id']); ?>"><?php echo esc_html($label_item['label']); ?></span>
-                                    <?php endforeach; ?>
+                                    <?php if (! empty($reference_item['label_groups'])) : ?>
+                                        <?php foreach ( $reference_item['label_groups'] as $label_group ) : ?>
+                                            <button
+                                                type="button"
+                                                class="novel-proofreading-label-group"
+                                                data-label-group-key="<?php echo esc_attr($label_group['key']); ?>"
+                                                data-label-ids="<?php echo esc_attr(implode(',', array_map('intval', $label_group['label_ids']))); ?>"
+                                            >
+                                                <span class="novel-proofreading-label-group-title"><?php echo esc_html($label_group['title']); ?></span>
+                                                <span class="novel-proofreading-label-group-items">
+                                                    <?php foreach ( $label_group['labels'] as $label_item ) : ?>
+                                                        <span class="novel-proofreading-badge is-label" data-label-id="<?php echo esc_attr($label_item['id']); ?>"><?php echo esc_html($label_item['label']); ?></span>
+                                                    <?php endforeach; ?>
+                                                </span>
+                                            </button>
+                                        <?php endforeach; ?>
+                                    <?php else : ?>
+                                        <?php foreach ( $reference_item['labels'] as $label_item ) : ?>
+                                            <span class="novel-proofreading-badge is-label" data-label-id="<?php echo esc_attr($label_item['id']); ?>"><?php echo esc_html($label_item['label']); ?></span>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </span>
                                 <button type="button" class="button button-small novel-proofreading-add-label" data-reference-id="<?php echo esc_attr($reference_item['id']); ?>">
                                     +

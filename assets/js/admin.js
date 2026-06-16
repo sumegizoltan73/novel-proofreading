@@ -333,12 +333,85 @@ jQuery(function ($) {
             });
     }
 
+    function parseReferenceLabelIds(value) {
+        return String(value || "")
+            .split(",")
+            .map(function (item) {
+                return item.trim();
+            })
+            .filter(function (item) {
+                return item !== "";
+            });
+    }
+
+    function hasSharedReferenceLabelId(firstIds, secondIds) {
+        return firstIds.some(function (firstId) {
+            return secondIds.indexOf(firstId) !== -1;
+        });
+    }
+
+    function clearReferenceLabelGroupFilter() {
+        $(".novel-proofreading-label-group").removeClass("is-active");
+        $(".novel-proofreading-reference-row, .novel-proofreading-reference-label-row")
+            .removeAttr("hidden");
+    }
+
+    function applyReferenceLabelGroupFilter($group) {
+        var groupKey = $group.data("label-group-key");
+        var groupLabelIds = parseReferenceLabelIds($group.data("label-ids"));
+
+        if ($group.hasClass("is-active")) {
+            clearReferenceLabelGroupFilter();
+            return;
+        }
+
+        $(".novel-proofreading-label-group").removeClass("is-active");
+        $(".novel-proofreading-label-group")
+            .filter(function () {
+                return $(this).data("label-group-key") === groupKey;
+            })
+            .addClass("is-active");
+
+        $(".novel-proofreading-reference-row, .novel-proofreading-reference-label-row")
+            .each(function () {
+                var $row = $(this);
+                var rowLabelIds = parseReferenceLabelIds($row.data("label-ids"));
+
+                $row.prop(
+                    "hidden",
+                    !hasSharedReferenceLabelId(rowLabelIds, groupLabelIds)
+                );
+            });
+    }
+
+    function addReferenceLabelIdToRows(referenceId, labelId) {
+        if (!labelId) {
+            return;
+        }
+
+        $('.novel-proofreading-reference-row[data-reference-id="' + referenceId + '"], .novel-proofreading-reference-label-row[data-reference-id="' + referenceId + '"]')
+            .each(function () {
+                var $row = $(this);
+                var labelIds = parseReferenceLabelIds($row.data("label-ids"));
+                var labelIdValue = String(labelId);
+
+                if (labelIds.indexOf(labelIdValue) === -1) {
+                    labelIds.push(labelIdValue);
+                }
+
+                $row.data("label-ids", labelIds.join(","));
+                $row.attr("data-label-ids", labelIds.join(","));
+            });
+    }
+
     function appendReferenceLabel(referenceId, item) {
         var $list = $('.novel-proofreading-label-list[data-reference-id="' + referenceId + '"]');
 
         if (!$list.length || !item || !item.label) {
             return;
         }
+
+        addReferenceLabelIdToRows(referenceId, item.id);
 
         $list.append(
             ' <span class="novel-proofreading-badge is-label" data-label-id="' +
@@ -466,6 +539,10 @@ jQuery(function ($) {
 
     $(document).on("click", ".novel-proofreading-add-label", function () {
         addReferenceLabel($(this).data("reference-id"));
+    });
+
+    $(document).on("click", ".novel-proofreading-label-group", function () {
+        applyReferenceLabelGroupFilter($(this));
     });
 
     $(document).on("click", ".novel-proofreading-tabs [role='tab']", function () {

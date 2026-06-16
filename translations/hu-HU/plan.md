@@ -191,5 +191,22 @@ A 11. Relics (azaz ereklyék) szakasz is szükséges új beviteli mezők szakasz
 Badge alapú címkék hozzáadási lehetősége szükséges az 10.1 Kézirathivatkozások listája résznél, a táblázat sorainál. Minden sornál egy következő sorban csak badge alapú címke hozzáadása szükséges egy + gombbal. Ez a sor egy "Labels:" (Címkék) szöveggel bevezetve sorolja fel a hozzáadott címkéket, amelyek lehetnek bármilyen többszavas szöveg is. A címkék egy új táblába kerülnek, amely tábla a novel_proofreading_labels és többféle másik táblához kapcsolódhat. Így a datamodel.md fájlban lévő adatszerkezet szükséges hozzá. A címkék hozzáadásához ajax hívás lenne ideális, alkalmanként bekért szöveggel. A címkéhez tároljuk a referenced_id adatot, ami a hozzáadás helye szerinti adat, így a kéziratok listájánál a "LABEL_REF_TYPE" kategóriájú rekord a novel_proofreading_types táblából, amelyek ennél a listánál "CROSSREFERENCE". Fel is kell venni az új rekordokat a novel_proofreading_types táblába "LABEL_REF_TYPE" kategóriával és a következő értékekkel: (STORYLINE, EVENT, PERSON, LOCATION, TIME, PROFESSION, STORYLINE_CHAIN, CROSSREFERENCE).
 A badge hozzáadási lehetőség egyenlőre csak a Kézirathivatkozások listájánál kell. A badge színe legyen a "novel-proofreading-badge is-info" css osztályhoz hasonló új szín, talán szürke, fehér betűkkel.
 
-## Tizenegyedik módosítás - Scroll tábla szükséges a listáknál
+## Tizenegyedik módosítás - Scroll tábla szükséges a listáknál (Implementált)
 Átalakítás szükséges a listáknál, scroll-table viselkedés mintát kell beállítani a "widefat striped" css osztállyal ellátott table vezérlőelemeknél. Egy wrapper div-ben kell elhelyezni a table tag-et, ami div magassága 300px lesz, és overflow-y tulajdonsága auto. A táblázat head elemét position:sticky és top:0px és background-color:white stílusokkal kell ellátni. Célszerűen stíluslappal lesznek beállítva az új értékek.
+
+## Tizenkettedik módosítás - Bootstrap-szerű tab működés (Implementált)
+Codex / ChatGPT:
+Megvalósítottam a fő szakaszokat Bootstrap-szerű tab működéssel.
+Változott:
+[includes/admin.php (line 4171)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/includes/admin.php:4171): az eddigi h2 + Show / Hide szerkezet helyett egy h2.nav-tab-wrapper tab navigáció van.
+A fő wrapper div-ek tabpanel panelek lettek, stabil id-val, aria-labelledby kapcsolattal és Bootstrap-mintájú tab-pane show active osztályokkal.
+A gombokon van data-bs-toggle="tab" és data-bs-target, de nem húztam be Bootstrap függőséget.
+[assets/js/admin.js (line 27)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/assets/js/admin.js:27): saját tabváltó logika kezeli az aktív tabot, a panelek rejtését, hash-t, sessionStorage-t és billentyűzetes navigációt.
+[assets/css/admin.css (line 13)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/assets/css/admin.css:13): bekerült a tab sor és tab panelek admin stílusa.
+Kivettem a régi show_hide() függvényt és a Show / Hide ... gombokat.
+
+## Tizenharmadik módosítás - Címke csoportokkal szűrés
+Szükség van egy címkecsoportokkal való szűrési lehetőségre, amikor az összetartozó címkék alapján történik úgy szűrés, hogy minden címkéhez tartozó sor megjelenjen a szűrés után, ami az adott csoportban összetartozó címke.
+Az összetarrtozás alapja a fejezet vagy az oldalszám például a kézirathivatkozásoknál, külön switch alapú programozással meghatározva a címkéhez tartozó kategória (referenced_type_id) alapján.
+Így a címkék kijelzése egy-egy cimke csoporttal történik, egy címke több csoportban is szerepelhet, és a csoport egészére lehetséges kattintással történik a szűrés, vagy a szűrés kikapcsolása. Kattintás után így a csopoirt közös halványszürke hátterével lehet jelezni, hogy bekapcsolat a szűrés.
+Ezt a funkciót egyenlőre csak a Kézirathivatkozások listájánál kell bevezetni.

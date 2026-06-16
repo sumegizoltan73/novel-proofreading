@@ -153,3 +153,33 @@ button.novel-proofreading-badge:hover {
   margin-right: 6px;
   vertical-align: middle;
 }
+
+.novel-proofreading-label-group {
+  align-items: flex-start;
+  background: #fff;
+  border: 1px solid #c3c4c7;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  text-align: left;
+}
+
+.novel-proofreading-label-group:hover,
+.novel-proofreading-label-group.is-active {
+  background: #f0f0f1;
+}
+
+.novel-proofreading-label-group-title {
+  color: #50575e;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.novel-proofreading-label-group-items {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
