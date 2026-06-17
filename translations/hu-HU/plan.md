@@ -220,3 +220,69 @@ Módosítottam:
 [assets/js/admin.js (line 341)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/assets/js/admin.js:341): kattintásra a csoport szűr, újra kattintásra kikapcsolja a szűrést.
 [assets/css/admin.css (line 157)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/assets/css/admin.css:157): az aktív címkecsoport halványszürke hátteret kap.
 A szűrés úgy működik, hogy egy csoport címkéire kattintva minden olyan kézirathivatkozás sor megjelenik, amelynek van bármelyik címkéje a kiválasztott csoportból. A fő sor és a hozzá tartozó címkesor együtt rejtőzik/jelenik meg.
+
+## Tizennegyedik módosítás - Címke csoportokkal szűrés II. (Implementált)
+Rosszul fejeztem ki magam az előbb, nem a sorok között kellene csoportokba foglalni a címkéket, bár érdekes működést hozott, de inkább ott elegendő ha csak a címkék szerepelnek. A csoportokhoz használt jelölések, vagy logika maradjon, mert jó az ilyen elvű összeválogatás, így a data-label-ids és a data-label-group-key a button-on maradjon meg, de más funkció kell hozzá, csak egy popup ablakot kell megjelenítsen. A popup ablakban legyen felsorolva a data-label-ids labelje, csoportosítva, és a data-label-broup-key -ből a title, alatta felsorolva a címkéket. A címke group alapú szűrés lehetősége a táblázat felett szükséges, külön sávban, a meglévő könyv és típus szűrés alatt. Ott pedig fel kell sorolni minden címkét, de csoportokba rendezve, attól függően, hogy fejezet alapján tartozik-e hozzá más címke, vagy az oldalszám alapján tartozik-e hozzá más címke.
+
+Codex / ChatGPT:
+Átállítottam a működést a pontosítás szerint.
+Most így működik:
+A kézirathivatkozás sorok alatt újra csak egyszerű címke badge-ek látszanak.
+A soroknál megmaradtak a csoportadatok kis (i) popup gombokon: data-label-group-key, data-label-group-title, data-label-ids.
+Az (i) gomb már nem szűr, csak popupot nyit, benne a csoport címe és a hozzá tartozó címkék listája.
+A tényleges címkecsoport alapú szűrés átkerült a Kézirathivatkozások táblázat fölé, a könyv/típus szűrő alá.
+A felső szűrősáv fejezet és oldalszám alapú csoportokra bontva listázza a címkéket; ezekre kattintva szűr, újra kattintva kikapcsolja.
+
+## Tizenötödik módosítás - Címke csoportokkal szűrés III. (Implementált)
+Ezt a szűrést akartam, csak a szűrésnél lévő címkecsoportokat össze kellene voni, nem kell kiírni a fejezet és oldalszám adatokat, de egy csoportba azok a címkék tartozzanak, amelyek az oldalszám alapján összetartoznak, és pluszba még hozzá azok a címkék is, amelyek ezen oldalszámokon keresztül más címkéket is tartalmaznak. A csoport így leszűr olyan címkéket is, amelyek csak köztes kapcsolat révén tartoznak össze. Konkrétan a következő lesz az első címkecsoport:
+1985, Házassági évfordulók (Mert: label = "1985" és fejezet = "1985-ben" ->  label = "Házassági évfordulók" is és label = "1985" is, és fejezet = "Titanic" -> ... lesz még ide talán label = "időutazás", ha a "Titanic" fejezetet feldolgozom, és rakok ott ki ilyen címkét.)
+A címkék láncolata is érdekes összefoglalva, ha van valamilyen kapcsolat a címkékkel jelzett soroknál.
+
+Codex / ChatGPT:
+Átalakítottam a címkecsoport-szűrést láncolt, összevont csoportokra.
+Most a felső szűrősávban már nem külön “fejezet” és “oldal” csoportok jelennek meg, hanem összefüggő címkeláncok. A logika lényege:
+azonos fejezeten vagy oldalon együtt szereplő címkék összekapcsolódnak,
+ha egy címke másik fejezeten/oldalon további címkékkel is kapcsolatban van, azok is ugyanabba a csoportba kerülnek,
+a szűrőgomb címe a csoport címkéiből áll, például: 1985, Házassági évfordulók,
+a szűrés továbbra is data-label-ids alapján működik, így a köztes kapcsolaton keresztül tartozó sorok is megjelennek.
+A soroknál lévő (i) popup gombok megmaradtak, és a popupban most a címkék mellett a kapcsolati pontok is láthatók, például mely fejezet/oldal kapcsolta össze a címkéket.
+
+## Tizenhatodik módosítás - Címke csoportokkal szűrés IV. (Implementált - nem lett jó, visszavonásra kerül)
+Használd ezt a lekérdezést a címkecsoportok előállításához: 
+SELECT
+	l.label,
+    m1.id as mapping_id,
+    m1.page,
+    m1.chapter
+FROM wp_novel_proofreading_labels l
+INNER JOIN wp_novel_proofreading_types t
+	ON t.id = l.referenced_type_id
+JOIN wp_novel_proofreading_common_mapping m1
+	ON m1.id = l.referenced_id
+    OR EXISTS (
+    	SELECT m2.id
+        FROM wp_novel_proofreading_common_mapping m2
+        WHERE m2.page = m1.page OR m2.chapter = m1.chapter
+    )
+WHERE 
+		t.name = 'CROSSREFERENCE'
+GROUP BY m1.id, m1.page, m1.chapter, l.label
+ORDER BY CONVERT(m1.page, UNSIGNED), m1.chapter, REPLACE(l.label, ' ', '');
+
+PHP segítségével használd a soron következő csoport megállapításához a sorbarendezésnél előálló eltéréseket a mapping_id, majd a page, majd a chapter esetén úgy, hogy ha a soron kövekező rekordnál nem lenne azonos a chapter sem már, de az oldalszám még marad azonos, akkor az még változatlanul a korábbi csoport.
+Jobb megoldást nem tudtam kitalálni, a LEAD() OVER függvény lenne jobb, de ez a logika nem valósítható meg vele.
+Az admin.php-ban a lista szűréséhez ezt a csoportosítást nem kell használni, csak egy újabb sávban ki kell csoportosítva írni, egyszerű szövegként, a csoprotokat keretezve valahogy, button-al is jó közrefogni, de nem kell rá eseménykezelő.
+A címkecsoportokon belül csak egyszer kell kiírni minden címkét, így a label_id vagy mapping_id nem lesz használva, helyette a szöveges adattal lesz majd szűrés.
+
+## Tizenhetedik módosítás - Címke csoportokkal szűrés V. (Implementált - végleges jó változat)
+A Related label groups feliratú szűrő csoportok lesznek jók, csak deduplikáció szükséges, nem kellenek fejlécszövegek, és egy csoportban csak egyszer kell szerepeltetni egy címkét. A csoportok jók, csak ha olyan csoport adódik, ahol ugyanazok a deduplikált elemek, mint egy másik korábbi csoportban, akkor az a csoport nem szükséges hogy megjelenjen másodszor is.
+A szűrés ezek után csak a címke szöveg alapján kell úgy, hogy bármelyik címke ha tartozik a rekordhoz a csoportból, akkor megjelenhet. 
+
+Codex / ChatGPT:
+Átállítottam a Related label groups szűrést a kért működésre.
+A változás lényege:
+Nincs külön fejlécszöveg a csoportsávban.
+Egy csoporton belül minden címke csak egyszer jelenik meg, címkeszöveg alapján deduplikálva.
+Ha két csoport deduplikált címkeszöveg-készlete azonos, csak az első jelenik meg.
+A szűrés már nem label_id, hanem címkeszöveg alapján történik: ha a rekord bármely címkéje szerepel a kiválasztott csoportban, a rekord megjelenik.
+A korábbi SQL-es “Sequential label groups” extra sávot és helper-t eltávolítottam.

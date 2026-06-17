@@ -344,29 +344,56 @@ jQuery(function ($) {
             });
     }
 
-    function hasSharedReferenceLabelId(firstIds, secondIds) {
-        return firstIds.some(function (firstId) {
-            return secondIds.indexOf(firstId) !== -1;
+    function normalizeReferenceLabelText(value) {
+        return String(value || "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .toLowerCase();
+    }
+
+    function parseReferenceLabelTexts(value) {
+        var items = [];
+
+        if (Array.isArray(value)) {
+            items = value;
+        } else if (typeof value === "string" && value !== "") {
+            try {
+                items = JSON.parse(value);
+            } catch (error) {
+                items = value.split(",");
+            }
+        }
+
+        return items
+            .map(normalizeReferenceLabelText)
+            .filter(function (item) {
+                return item !== "";
+            });
+    }
+
+    function hasSharedReferenceLabelText(firstLabels, secondLabels) {
+        return firstLabels.some(function (firstLabel) {
+            return secondLabels.indexOf(firstLabel) !== -1;
         });
     }
 
     function clearReferenceLabelGroupFilter() {
-        $(".novel-proofreading-label-group").removeClass("is-active");
+        $(".novel-proofreading-label-group-filter").removeClass("is-active");
         $(".novel-proofreading-reference-row, .novel-proofreading-reference-label-row")
             .removeAttr("hidden");
     }
 
     function applyReferenceLabelGroupFilter($group) {
         var groupKey = $group.data("label-group-key");
-        var groupLabelIds = parseReferenceLabelIds($group.data("label-ids"));
+        var groupLabelTexts = parseReferenceLabelTexts($group.attr("data-label-texts"));
 
         if ($group.hasClass("is-active")) {
             clearReferenceLabelGroupFilter();
             return;
         }
 
-        $(".novel-proofreading-label-group").removeClass("is-active");
-        $(".novel-proofreading-label-group")
+        $(".novel-proofreading-label-group-filter").removeClass("is-active");
+        $(".novel-proofreading-label-group-filter")
             .filter(function () {
                 return $(this).data("label-group-key") === groupKey;
             })
@@ -375,13 +402,77 @@ jQuery(function ($) {
         $(".novel-proofreading-reference-row, .novel-proofreading-reference-label-row")
             .each(function () {
                 var $row = $(this);
-                var rowLabelIds = parseReferenceLabelIds($row.data("label-ids"));
+                var rowLabelTexts = parseReferenceLabelTexts($row.attr("data-label-texts"));
 
                 $row.prop(
                     "hidden",
-                    !hasSharedReferenceLabelId(rowLabelIds, groupLabelIds)
+                    !hasSharedReferenceLabelText(rowLabelTexts, groupLabelTexts)
                 );
             });
+    }
+
+    function renderReferenceLabelGroupPopup($group) {
+        var title = $group.data("label-group-title") || $group.find(".novel-proofreading-label-group-title").first().text();
+        var labels = $group
+            .find(".novel-proofreading-badge.is-label")
+            .map(function () {
+                return $(this).text();
+            })
+            .get();
+        var relations = $group
+            .find(".novel-proofreading-label-group-relations span")
+            .map(function () {
+                return $(this).text();
+            })
+            .get();
+
+        if (!labels.length) {
+            labels = parseReferenceLabelIds($group.data("label-ids"));
+        }
+
+        return (
+            '<div class="novel-proofreading-label-group-popup-content">' +
+            "<h3>" +
+            escapeHtml(title) +
+            "</h3>" +
+            "<ul>" +
+            labels
+                .map(function (label) {
+                    return "<li>" + escapeHtml(label) + "</li>";
+                })
+                .join("") +
+            "</ul>" +
+            (relations.length
+                ? "<h4>" + escapeHtml("Connections") + "</h4><ul>" +
+                    relations
+                        .map(function (relation) {
+                            return "<li>" + escapeHtml(relation) + "</li>";
+                        })
+                        .join("") +
+                    "</ul>"
+                : "") +
+            "</div>"
+        );
+    }
+
+    function showReferenceLabelGroupPopup($group) {
+        var title = $group.data("label-group-title") || $group.find(".novel-proofreading-label-group-title").first().text();
+        var html = renderReferenceLabelGroupPopup($group);
+
+        if (typeof Swal === "undefined") {
+            window.alert(
+                $("<div>")
+                    .html(html)
+                    .text()
+            );
+            return;
+        }
+
+        Swal.fire({
+            title: title,
+            html: html,
+            width: 560
+        });
     }
 
     function addReferenceLabelIdToRows(referenceId, labelId) {
@@ -404,6 +495,25 @@ jQuery(function ($) {
             });
     }
 
+    function addReferenceLabelTextToRows(referenceId, label) {
+        if (!label) {
+            return;
+        }
+
+        $('.novel-proofreading-reference-row[data-reference-id="' + referenceId + '"], .novel-proofreading-reference-label-row[data-reference-id="' + referenceId + '"]')
+            .each(function () {
+                var $row = $(this);
+                var labels = parseReferenceLabelTexts($row.attr("data-label-texts"));
+                var normalizedLabel = normalizeReferenceLabelText(label);
+
+                if (labels.indexOf(normalizedLabel) === -1) {
+                    labels.push(normalizedLabel);
+                }
+
+                $row.attr("data-label-texts", JSON.stringify(labels));
+            });
+    }
+
     function appendReferenceLabel(referenceId, item) {
         var $list = $('.novel-proofreading-label-list[data-reference-id="' + referenceId + '"]');
 
@@ -412,6 +522,7 @@ jQuery(function ($) {
         }
 
         addReferenceLabelIdToRows(referenceId, item.id);
+        addReferenceLabelTextToRows(referenceId, item.label);
 
         $list.append(
             ' <span class="novel-proofreading-badge is-label" data-label-id="' +
@@ -541,8 +652,12 @@ jQuery(function ($) {
         addReferenceLabel($(this).data("reference-id"));
     });
 
-    $(document).on("click", ".novel-proofreading-label-group", function () {
+    $(document).on("click", ".novel-proofreading-label-group-filter", function () {
         applyReferenceLabelGroupFilter($(this));
+    });
+
+    $(document).on("click", ".novel-proofreading-label-group-popup", function () {
+        showReferenceLabelGroupPopup($(this));
     });
 
     $(document).on("click", ".novel-proofreading-tabs [role='tab']", function () {

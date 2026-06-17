@@ -154,6 +154,19 @@ button.novel-proofreading-badge:hover {
   vertical-align: middle;
 }
 
+.novel-proofreading-label-group-filter-bar {
+  background: #f6f7f7;
+  border: 1px solid #dcdcde;
+  margin: 0 0 16px;
+  padding: 12px;
+}
+
+.novel-proofreading-label-group-filter-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .novel-proofreading-label-group {
   align-items: flex-start;
   background: #fff;
@@ -168,7 +181,7 @@ button.novel-proofreading-badge:hover {
 }
 
 .novel-proofreading-label-group:hover,
-.novel-proofreading-label-group.is-active {
+.novel-proofreading-label-group-filter.is-active {
   background: #f0f0f1;
 }
 
@@ -182,4 +195,16 @@ button.novel-proofreading-badge:hover {
   display: inline-flex;
   flex-wrap: wrap;
   gap: 4px;
+}
+
+.novel-proofreading-label-group-popup {
+  margin-left: 4px;
+}
+
+.novel-proofreading-label-group-popup .novel-proofreading-label-group-title {
+  color: inherit;
+}
+
+.novel-proofreading-label-group-popup-content {
+  text-align: left;
 }
