@@ -196,15 +196,3 @@ button.novel-proofreading-badge:hover {
   flex-wrap: wrap;
   gap: 4px;
 }
-
-.novel-proofreading-label-group-popup {
-  margin-left: 4px;
-}
-
-.novel-proofreading-label-group-popup .novel-proofreading-label-group-title {
-  color: inherit;
-}
-
-.novel-proofreading-label-group-popup-content {
-  text-align: left;
-}

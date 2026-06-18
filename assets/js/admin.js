@@ -411,70 +411,6 @@ jQuery(function ($) {
             });
     }
 
-    function renderReferenceLabelGroupPopup($group) {
-        var title = $group.data("label-group-title") || $group.find(".novel-proofreading-label-group-title").first().text();
-        var labels = $group
-            .find(".novel-proofreading-badge.is-label")
-            .map(function () {
-                return $(this).text();
-            })
-            .get();
-        var relations = $group
-            .find(".novel-proofreading-label-group-relations span")
-            .map(function () {
-                return $(this).text();
-            })
-            .get();
-
-        if (!labels.length) {
-            labels = parseReferenceLabelIds($group.data("label-ids"));
-        }
-
-        return (
-            '<div class="novel-proofreading-label-group-popup-content">' +
-            "<h3>" +
-            escapeHtml(title) +
-            "</h3>" +
-            "<ul>" +
-            labels
-                .map(function (label) {
-                    return "<li>" + escapeHtml(label) + "</li>";
-                })
-                .join("") +
-            "</ul>" +
-            (relations.length
-                ? "<h4>" + escapeHtml("Connections") + "</h4><ul>" +
-                    relations
-                        .map(function (relation) {
-                            return "<li>" + escapeHtml(relation) + "</li>";
-                        })
-                        .join("") +
-                    "</ul>"
-                : "") +
-            "</div>"
-        );
-    }
-
-    function showReferenceLabelGroupPopup($group) {
-        var title = $group.data("label-group-title") || $group.find(".novel-proofreading-label-group-title").first().text();
-        var html = renderReferenceLabelGroupPopup($group);
-
-        if (typeof Swal === "undefined") {
-            window.alert(
-                $("<div>")
-                    .html(html)
-                    .text()
-            );
-            return;
-        }
-
-        Swal.fire({
-            title: title,
-            html: html,
-            width: 560
-        });
-    }
-
     function addReferenceLabelIdToRows(referenceId, labelId) {
         if (!labelId) {
             return;
@@ -523,6 +459,14 @@ jQuery(function ($) {
 
         addReferenceLabelIdToRows(referenceId, item.id);
         addReferenceLabelTextToRows(referenceId, item.label);
+
+        if (
+            $list.find(".novel-proofreading-badge.is-label").filter(function () {
+                return normalizeReferenceLabelText($(this).text()) === normalizeReferenceLabelText(item.label);
+            }).length
+        ) {
+            return;
+        }
 
         $list.append(
             ' <span class="novel-proofreading-badge is-label" data-label-id="' +
@@ -654,10 +598,6 @@ jQuery(function ($) {
 
     $(document).on("click", ".novel-proofreading-label-group-filter", function () {
         applyReferenceLabelGroupFilter($(this));
-    });
-
-    $(document).on("click", ".novel-proofreading-label-group-popup", function () {
-        showReferenceLabelGroupPopup($(this));
     });
 
     $(document).on("click", ".novel-proofreading-tabs [role='tab']", function () {

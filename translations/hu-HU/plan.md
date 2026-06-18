@@ -286,3 +286,6 @@ Egy csoporton belül minden címke csak egyszer jelenik meg, címkeszöveg alapj
 Ha két csoport deduplikált címkeszöveg-készlete azonos, csak az első jelenik meg.
 A szűrés már nem label_id, hanem címkeszöveg alapján történik: ha a rekord bármely címkéje szerepel a kiválasztott csoportban, a rekord megjelenik.
 A korábbi SQL-es “Sequential label groups” extra sávot és helper-t eltávolítottam.
+
+## Tizennyolcadik módosítás - Címkék megjelenítése a 10.1 Kézirathivatkozások listájában (Implementált - címkék is a végleges jó változattal)
+Vissza kell alakítani a 10.1 Kézirathivatkozások listájában a címkék megjelenítését, egyszerű módozatra, csak olyan címke jelenjen meg, ami a Kézirathivatkozáshoz hozzá lett adva, és csak egyszer. Így nem szükséges a kattinthatóság sem, a popup megjelenítés sem kell itt. 
