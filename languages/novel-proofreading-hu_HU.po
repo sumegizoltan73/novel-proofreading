@@ -672,3 +672,35 @@ msgstr "A címkét nem sikerült hozzáadni."
 #: includes/admin.php:5717
 msgid "Labels:"
 msgstr "Címkék:"
+
+#: includes/admin.php
+msgid "Storyline is required."
+msgstr "Cselekményszál megadása kötelező."
+
+#: includes/admin.php
+msgid "Related storyline must be different from the storyline."
+msgstr "A kapcsolódó cselekményszálnak eltérőnek kell lennie a cselekményszáltól."
+
+#: includes/admin.php
+msgid "Storyline link already exists."
+msgstr "A cselekményszál-hivatkozás már létezik."
+
+#: includes/admin.php
+msgid "Storyline link could not be added."
+msgstr "A cselekményszál-hivatkozást nem sikerült hozzáadni."
+
+#: includes/admin.php
+msgid "Storyline link added."
+msgstr "Cselekményszál-hivatkozás hozzáadva."
+
+#: includes/admin.php
+msgid "Storyline reference"
+msgstr "Cselekményszál hivatkozás"
+
+#: includes/admin.php
+msgid "Related storyline"
+msgstr "Kapcsolódó cselekményszál"
+
+#: includes/admin.php
+msgid "Add Storyline Reference"
+msgstr "Cselekményszál hivatkozás hozzáadása"

@@ -3441,6 +3441,22 @@ function novel_proofreading_remove_storyline($id) {
 
     $table =
         $wpdb->prefix . 'novel_proofreading_storylines';
+    $table_storyline_links =
+        $wpdb->prefix . 'novel_proofreading_storyline_links';
+
+    $wpdb->query(
+        $wpdb->prepare(
+            "
+            DELETE FROM {$table_storyline_links}
+
+            WHERE
+                   storyline_id = %d
+                OR related_storyline_id = %d
+            ",
+            $id,
+            $id
+        )
+    );
 
     $wpdb->query(
         $wpdb->prepare(
@@ -3455,6 +3471,98 @@ function novel_proofreading_remove_storyline($id) {
     );
 
     return __( 'Storyline deleted.', 'novel-proofreading' );
+}
+
+function novel_proofreading_add_storyline_link() {
+    global $wpdb;
+
+    $book_id = intval($_POST['book_id'] ?? 0);
+    $storyline_id = intval($_POST['storyline_id'] ?? 0);
+    $related_storyline_id = intval($_POST['related_storyline_id'] ?? 0);
+
+    if ($book_id <= 0) {
+        return __( 'Book is required.', 'novel-proofreading' );
+    }
+
+    if ($storyline_id <= 0 || $related_storyline_id <= 0) {
+        return __( 'Storyline is required.', 'novel-proofreading' );
+    }
+
+    if ($storyline_id === $related_storyline_id) {
+        return __( 'Related storyline must be different from the storyline.', 'novel-proofreading' );
+    }
+
+    if (
+        ! novel_proofreading_storyline_belongs_to_book($storyline_id, $book_id) ||
+        ! novel_proofreading_storyline_belongs_to_book($related_storyline_id, $book_id)
+    ) {
+        return __( 'Storyline must belong to the selected book.', 'novel-proofreading' );
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_storyline_links';
+    $now = current_time(
+        'mysql',
+        true
+    );
+
+    $exists = intval(
+        $wpdb->get_var(
+            $wpdb->prepare(
+                "
+                SELECT
+                    COUNT(*)
+
+                FROM
+                    {$table}
+
+                WHERE
+                        book_id = %d
+                    AND storyline_id = %d
+                    AND related_storyline_id = %d
+                ",
+                $book_id,
+                $storyline_id,
+                $related_storyline_id
+            )
+        )
+    ) > 0;
+
+    if ($exists) {
+        return __( 'Storyline link already exists.', 'novel-proofreading' );
+    }
+
+    $result = $wpdb->insert(
+        $table,
+        [
+            'book_id' => $book_id,
+            'storyline_id' => $storyline_id,
+            'related_storyline_id' => $related_storyline_id,
+            'created_at' => $now,
+            'created_by' => get_current_user_id(),
+            'updated_at' => $now,
+            'updated_by' => get_current_user_id()
+        ],
+        [
+            '%d',
+            '%d',
+            '%d',
+            '%s',
+            '%d',
+            '%s',
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'INSERT ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Storyline link could not be added.', 'novel-proofreading' );
+    }
+
+    return __( 'Storyline link added.', 'novel-proofreading' );
 }
 
 function novel_proofreading_update_chain_event($id) {
@@ -3596,6 +3704,8 @@ function novel_proofreading_get_storyline_chains($book_id = 0) {
         $wpdb->prefix . 'novel_proofreading_events';
     $table_mapping =
         $wpdb->prefix . 'novel_proofreading_common_mapping';
+    $table_storyline_links =
+        $wpdb->prefix . 'novel_proofreading_storyline_links';
 
     $where = '';
     $params = [];
@@ -3660,6 +3770,7 @@ function novel_proofreading_get_storyline_chains($book_id = 0) {
                 'storyline_name' => $row->storyline_name,
                 'description' => $row->storyline_description,
                 'storyline_references' => [],
+                'related_storylines' => [],
                 'events' => [],
                 'stats' => [
                     'event_count' => 0,
@@ -3758,6 +3869,36 @@ function novel_proofreading_get_storyline_chains($book_id = 0) {
     }
 
     foreach ($chains as $storyline_id => $chain) {
+        $related_storylines = $wpdb->get_results(
+            $wpdb->prepare(
+                "
+                SELECT
+                    st.id,
+                    st.storyline_name
+
+                FROM
+                    {$table_storyline_links} sl
+                INNER JOIN
+                    {$table_storylines} st ON st.id = sl.related_storyline_id
+
+                WHERE
+                    sl.storyline_id = %d
+
+                ORDER BY
+                    st.storyline_name,
+                    st.id
+                ",
+                $storyline_id
+            )
+        );
+
+        foreach ($related_storylines as $related_storyline) {
+            $chains[$storyline_id]['related_storylines'][] = [
+                'id' => intval($related_storyline->id),
+                'storyline_name' => $related_storyline->storyline_name
+            ];
+        }
+
         $chains[$storyline_id]['stats']['has_suggestion'] =
             ! empty(novel_proofreading_get_storyline_suggestions($storyline_id));
 
@@ -4460,6 +4601,10 @@ function novel_proofreading_admin_page() {
             $admin_notice = novel_proofreading_update_chain_event(
                 intval($_POST['event_id'] ?? 0)
             );
+        }
+
+        if ($action === 'add_storyline_link') {
+            $admin_notice = novel_proofreading_add_storyline_link();
         }
 
         if ($action === 'add_manuscript_reference') {
@@ -5842,7 +5987,7 @@ function novel_proofreading_admin_page() {
             <?php foreach ( $storyline_chain_items as $chain ) : ?>
                 <?php $stats = $chain['stats']; ?>
                 <div class="novel-proofreading-chain">
-                    <h3>
+                    <h3 id="novel-proofreading-storyline-chain-<?php echo esc_attr($chain['id']); ?>">
                         <?php echo esc_html($chain['storyline_name']); ?>
                         <span class="description"><?php echo esc_html($chain['book_title']); ?></span>
                     </h3>
@@ -5869,6 +6014,16 @@ function novel_proofreading_admin_page() {
                             <span class="novel-proofreading-badge"><?php echo esc_html(sprintf(__('Storyline refs: %s', 'novel-proofreading'), implode(', ', $chain['storyline_references']))); ?></span>
                         <?php endif; ?>
                     </div>
+
+                    <?php if (! empty($chain['related_storylines'])) : ?>
+                        <div class="novel-proofreading-storyline-branches">
+                            <?php foreach ( $chain['related_storylines'] as $related_storyline ) : ?>
+                                <a href="#novel-proofreading-storyline-chain-<?php echo esc_attr($related_storyline['id']); ?>">
+                                    <?php echo esc_html($related_storyline['storyline_name']); ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
 
                     <?php if ($stats['event_count'] === 0) : ?>
                         <p class="notice notice-warning inline"><?php _e( 'This storyline has no linked events.', 'novel-proofreading' ); ?></p>
@@ -6262,6 +6417,66 @@ function novel_proofreading_admin_page() {
 
                 <button type="submit" class="button button-primary" <?php disabled(empty($items)); ?>>
                     + <?php _e( 'Add Manuscript Reference', 'novel-proofreading' ); ?>
+                </button>
+            </form>
+
+            <h3>10.3&nbsp;<?php _e( 'Storyline reference', 'novel-proofreading' ); ?></h3>
+            <form method="post">
+                <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                <input type="hidden" name="novel_proofreading_action" value="add_storyline_link" />
+
+                <table class="form-table" role="presentation">
+                    <tbody>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-storyline-link-book-id"><?php _e( 'Book', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-storyline-link-book-id" name="book_id" class="novel-proofreading-book-select" required>
+                                    <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $items as $item ) : ?>
+                                        <option value="<?php echo esc_attr($item['id']); ?>">
+                                            <?php echo esc_html($item['title'] . ' - ' . $item['author'] . ' (' . $item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-storyline-link-storyline-id"><?php _e( 'Storyline', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-storyline-link-storyline-id" name="storyline_id" class="novel-proofreading-storyline-select" required>
+                                    <option value="0"><?php _e( 'Select storyline', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $storyline_items as $item ) : ?>
+                                        <option value="<?php echo esc_attr($item['id']); ?>" data-book-id="<?php echo esc_attr($item['book_id']); ?>">
+                                            <?php echo esc_html(trim($item['storyline_name'] . ' ') . $item['book_title']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-storyline-link-related-storyline-id"><?php _e( 'Related storyline', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-storyline-link-related-storyline-id" name="related_storyline_id" class="novel-proofreading-storyline-select" required>
+                                    <option value="0"><?php _e( 'Select storyline', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $storyline_items as $item ) : ?>
+                                        <option value="<?php echo esc_attr($item['id']); ?>" data-book-id="<?php echo esc_attr($item['book_id']); ?>">
+                                            <?php echo esc_html(trim($item['storyline_name'] . ' ') . $item['book_title']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button type="submit" class="button button-primary" <?php disabled(empty($items) || empty($storyline_items)); ?>>
+                    + <?php _e( 'Add Storyline Reference', 'novel-proofreading' ); ?>
                 </button>
             </form>
         </div>

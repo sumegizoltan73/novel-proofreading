@@ -672,3 +672,35 @@ msgstr "Label konnte nicht hinzugefügt werden."
 #: includes/admin.php:5717
 msgid "Labels:"
 msgstr "Labels:"
+
+#: includes/admin.php
+msgid "Storyline is required."
+msgstr "Storyline ist erforderlich."
+
+#: includes/admin.php
+msgid "Related storyline must be different from the storyline."
+msgstr "Die verknüpfte Storyline muss sich von der Storyline unterscheiden."
+
+#: includes/admin.php
+msgid "Storyline link already exists."
+msgstr "Storyline-Verknüpfung existiert bereits."
+
+#: includes/admin.php
+msgid "Storyline link could not be added."
+msgstr "Storyline-Verknüpfung konnte nicht hinzugefügt werden."
+
+#: includes/admin.php
+msgid "Storyline link added."
+msgstr "Storyline-Verknüpfung hinzugefügt."
+
+#: includes/admin.php
+msgid "Storyline reference"
+msgstr "Storyline-Referenz"
+
+#: includes/admin.php
+msgid "Related storyline"
+msgstr "Verknüpfte Storyline"
+
+#: includes/admin.php
+msgid "Add Storyline Reference"
+msgstr "Storyline-Referenz hinzufügen"

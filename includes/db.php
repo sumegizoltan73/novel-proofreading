@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define('NOVEL_PROOFREADING_DB_VERSION', '1.2');
+define('NOVEL_PROOFREADING_DB_VERSION', '1.3');
 
 function novel_proofreading_install() {
 
@@ -453,6 +453,8 @@ function novel_proofreading_create_tables() {
         $wpdb->prefix . 'novel_proofreading_storylines';
     $events_table_name =
         $wpdb->prefix . 'novel_proofreading_events';
+    $storyline_links_table_name =
+        $wpdb->prefix . 'novel_proofreading_storyline_links';
     $sql = "
     CREATE TABLE $storylines_table_name (
 
@@ -510,6 +512,34 @@ function novel_proofreading_create_tables() {
             book_id,
             storyline_id,
             sequence_no
+        )
+
+    ) $charset_collate;
+
+    CREATE TABLE $storyline_links_table_name (
+
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+        book_id BIGINT UNSIGNED NOT NULL,
+        storyline_id BIGINT UNSIGNED NOT NULL,
+        related_storyline_id BIGINT UNSIGNED NOT NULL,
+
+        created_at DATETIME NOT NULL,
+        created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        updated_at DATETIME NULL,
+        updated_by BIGINT UNSIGNED NULL,
+
+        PRIMARY KEY  (id),
+
+        UNIQUE KEY idx_storyline_related (
+            book_id,
+            storyline_id,
+            related_storyline_id
+        ),
+
+        KEY idx_related_storyline (
+            book_id,
+            related_storyline_id
         )
 
     ) $charset_collate;

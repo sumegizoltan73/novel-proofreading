@@ -106,7 +106,7 @@ Szerintem jó irány az önálló 10. szakasz, de nem nevezném túl általános
 
 Ez pontosabban leírja, mire való: azt rögzíti, hogy egy szereplő, helyszín, időpont, esemény, történetszál stb. hol fordul elő a kéziratban.
 
-A meglévő adatmodell erre alkalmas: a `novel_proofreading_common_mapping` már tartalmazza a `type`, `page`, `chapter`, `storyline_id`, `event_id`, `person_id`, `location_id`, `time_id` mezőket a [datamodel.md](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/translations/hu-HU/datamodel.md:141) és [db.php](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/includes/db.php:174) alapján.
+A meglévő adatmodell erre alkalmas: a `novel_proofreading_common_mapping` már tartalmazza a `type`, `page`, `chapter`, `storyline_id`, `event_id`, `person_id`, `location_id`, `time_id` mezőket a [datamodel.md](translations/hu-HU/datamodel.md:141) és [db.php](includes/db.php:174) alapján.
 
 Én ezt a UI-t javasolnám:
 
@@ -158,9 +158,9 @@ A 3.2 Add Person szakasz alatt létre kell hozni egy 3.3 Person name and alias m
 Codex / ChatGPT:
 Megvalósítottam a 3.3 Person name and alias mapping szakaszt.
 A változtatások:
-[includes/db.php](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/includes/db.php): DB verzió 0.9, új tábla: novel_proofreading_person_alias_mapping.
-[includes/admin.php](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/includes/admin.php): új mapping CRUD logika, validáció, action routing, és a 3.2 alatti 3.3 admin UI.
-[datamodel.md](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/translations/hu-HU/datamodel.md): új mapping tábla dokumentálva.
+[includes/db.php](includes/db.php): DB verzió 0.9, új tábla: novel_proofreading_person_alias_mapping.
+[includes/admin.php](includes/admin.php): új mapping CRUD logika, validáció, action routing, és a 3.2 alatti 3.3 admin UI.
+[datamodel.md](translations/hu-HU/datamodel.md): új mapping tábla dokumentálva.
 A 3.3 szakaszban lehet:
 meglévő person-alias kapcsolatok listázása,
 kapcsolat szerkesztése könyv / név / alias selectekkel,
@@ -198,11 +198,11 @@ A badge hozzáadási lehetőség egyenlőre csak a Kézirathivatkozások listáj
 Codex / ChatGPT:
 Megvalósítottam a fő szakaszokat Bootstrap-szerű tab működéssel.
 Változott:
-[includes/admin.php (line 4171)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/includes/admin.php:4171): az eddigi h2 + Show / Hide szerkezet helyett egy h2.nav-tab-wrapper tab navigáció van.
+[includes/admin.php (line 4171)](includes/admin.php:4171): az eddigi h2 + Show / Hide szerkezet helyett egy h2.nav-tab-wrapper tab navigáció van.
 A fő wrapper div-ek tabpanel panelek lettek, stabil id-val, aria-labelledby kapcsolattal és Bootstrap-mintájú tab-pane show active osztályokkal.
 A gombokon van data-bs-toggle="tab" és data-bs-target, de nem húztam be Bootstrap függőséget.
-[assets/js/admin.js (line 27)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/assets/js/admin.js:27): saját tabváltó logika kezeli az aktív tabot, a panelek rejtését, hash-t, sessionStorage-t és billentyűzetes navigációt.
-[assets/css/admin.css (line 13)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/assets/css/admin.css:13): bekerült a tab sor és tab panelek admin stílusa.
+[assets/js/admin.js (line 27)](assets/js/admin.js:27): saját tabváltó logika kezeli az aktív tabot, a panelek rejtését, hash-t, sessionStorage-t és billentyűzetes navigációt.
+[assets/css/admin.css (line 13)](assets/css/admin.css:13): bekerült a tab sor és tab panelek admin stílusa.
 Kivettem a régi show_hide() függvényt és a Show / Hide ... gombokat.
 
 ## Tizenharmadik módosítás - Címke csoportokkal szűrés (Implementált)
@@ -214,11 +214,11 @@ Ezt a funkciót egyenlőre csak a Kézirathivatkozások listájánál kell bevez
 Codex / ChatGPT:
 Elkészült a címkecsoportos szűrés a Kézirathivatkozások listájánál.
 Módosítottam:
-[includes/admin.php (line 145)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/includes/admin.php:145): bekerült a címkecsoport-képzés switch alapú helperrel. A CROSSREFERENCE címketípusnál most fejezet és oldalszám alapján képez csoportokat.
-[includes/admin.php (line 5768)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/includes/admin.php:5768): a kézirathivatkozás sorok és címkesorok megkapják a szűréshez szükséges data-label-ids adatot.
-[includes/admin.php (line 5876)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/includes/admin.php:5876): a címkék csoportosítva jelennek meg, egy csoport gombként kattintható.
-[assets/js/admin.js (line 341)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/assets/js/admin.js:341): kattintásra a csoport szűr, újra kattintásra kikapcsolja a szűrést.
-[assets/css/admin.css (line 157)](/Users/sumegizoltan/github/_uj/plugins/novel-proofreading/assets/css/admin.css:157): az aktív címkecsoport halványszürke hátteret kap.
+[includes/admin.php (line 145)](includes/admin.php:145): bekerült a címkecsoport-képzés switch alapú helperrel. A CROSSREFERENCE címketípusnál most fejezet és oldalszám alapján képez csoportokat.
+[includes/admin.php (line 5768)](includes/admin.php:5768): a kézirathivatkozás sorok és címkesorok megkapják a szűréshez szükséges data-label-ids adatot.
+[includes/admin.php (line 5876)](includes/admin.php:5876): a címkék csoportosítva jelennek meg, egy csoport gombként kattintható.
+[assets/js/admin.js (line 341)](assets/js/admin.js:341): kattintásra a csoport szűr, újra kattintásra kikapcsolja a szűrést.
+[assets/css/admin.css (line 157)](assets/css/admin.css:157): az aktív címkecsoport halványszürke hátteret kap.
 A szűrés úgy működik, hogy egy csoport címkéire kattintva minden olyan kézirathivatkozás sor megjelenik, amelynek van bármelyik címkéje a kiválasztott csoportból. A fő sor és a hozzá tartozó címkesor együtt rejtőzik/jelenik meg.
 
 ## Tizennegyedik módosítás - Címke csoportokkal szűrés II. (Implementált)
@@ -289,3 +289,15 @@ A korábbi SQL-es “Sequential label groups” extra sávot és helper-t eltáv
 
 ## Tizennyolcadik módosítás - Címkék megjelenítése a 10.1 Kézirathivatkozások listájában (Implementált - címkék is a végleges jó változattal)
 Vissza kell alakítani a 10.1 Kézirathivatkozások listájában a címkék megjelenítését, egyszerű módozatra, csak olyan címke jelenjen meg, ami a Kézirathivatkozáshoz hozzá lett adva, és csak egyszer. Így nem szükséges a kattinthatóság sem, a popup megjelenítés sem kell itt. 
+
+## Tizenkilencedik módosítás - 10.3 Cselekményszál hivatkozás
+10.3 Cselekményszál hivatkozás címmel be kell vezetni egy cselekményszál láncolást, ahol cselekményszálhoz lehet hivatkozni másik cselekményszálat. Ez a könyv kiválasztót, cselekményszál kiválasztót, és egy harmadik "Kapcsolódó cselekményszál" elnvezéssel ellátott cselekményszál kiválasztót tartalmaz majd csak. Listás nézet nem kell itt hozzá. A cselekményszál-láncok résznél az Események:... kezdetű közös információs sávok alatt külön sávban bal oldali margóval kell a közvetlen leágazásokat egymás alá felsorolni. A felsorolás kattintható legyen, és ezen a szakaszon navigáljon oda a csatolt Cselekményszálhoz, egyszerű oldalon belüli <a> tagekkel, ahol id-val ellátott tag-et kap a h3 tag, és a kattintható hivatkozás felsorolás meg a href-es értékét.
+
+Codex / ChatGPT:
+Elkészült a 10.3 Cselekményszál hivatkozás funkció.
+A lényeg:
+Új DB tábla: novel_proofreading_storyline_links, DB verzió 1.3-ra emelve: [includes/db.php (line 4)](includes/db.php:4)
+Új mentési action: add_storyline_link, validációval, duplikáció- és önhivatkozás-ellenőrzéssel: [includes/admin.php (line 3476)](includes/admin.php:3476)
+Új 10.3 form a kézirathivatkozások tabon: könyv, cselekményszál, kapcsolódó cselekményszál: [includes/admin.php (line 6421)](includes/admin.php:6421)
+A Cselekményszál-láncok nézetben a h3 kapott belső anchor célpontot, alatta pedig megjelennek a közvetlen leágazások kattintható linkként: [includes/admin.php (line 5988)](includes/admin.php:5988)
+Magyar fordítás és .mo frissítés is bekerült az új feliratokra.
