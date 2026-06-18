@@ -301,3 +301,6 @@ A lényeg:
 Új 10.3 form a kézirathivatkozások tabon: könyv, cselekményszál, kapcsolódó cselekményszál: [includes/admin.php (line 6421)](includes/admin.php:6421)
 A Cselekményszál-láncok nézetben a h3 kapott belső anchor célpontot, alatta pedig megjelennek a közvetlen leágazások kattintható linkként: [includes/admin.php (line 5988)](includes/admin.php:5988)
 Magyar fordítás és .mo frissítés is bekerült az új feliratokra.
+
+## Huszadik módosítás - (i) a Cselekményszál-láncok résznél
+A Cselekményszál-láncok résznél a szűrés gomb mellett jobra egy nyomógombszerű (i) szükséges, ami kattintás után megjeleníti a cselekményszálak leírását, de a cselekményszál szakaszoknál az elnevezés alatt külön sávban. A kattintható kapcsolódó cselekményszál alatt is a hozzátartozó leírás külön legyen megjelenítve, hasonló behúzással, mint az elnevezés. Az (i) gomb alapértelmezetten kikapcsolt, tehát nincs alapértelemzetten megjelenítve az extra leírás.

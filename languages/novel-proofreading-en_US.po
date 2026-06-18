@@ -458,6 +458,10 @@ msgstr "All books"
 msgid "Filter"
 msgstr "Filter"
 
+#: includes/admin.php
+msgid "Show storyline descriptions"
+msgstr "Show storyline descriptions"
+
 #: admin.php:4974
 msgid "No storyline chains found."
 msgstr "No storyline chains found."

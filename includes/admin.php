@@ -3874,7 +3874,8 @@ function novel_proofreading_get_storyline_chains($book_id = 0) {
                 "
                 SELECT
                     st.id,
-                    st.storyline_name
+                    st.storyline_name,
+                    st.description
 
                 FROM
                     {$table_storyline_links} sl
@@ -3895,7 +3896,8 @@ function novel_proofreading_get_storyline_chains($book_id = 0) {
         foreach ($related_storylines as $related_storyline) {
             $chains[$storyline_id]['related_storylines'][] = [
                 'id' => intval($related_storyline->id),
-                'storyline_name' => $related_storyline->storyline_name
+                'storyline_name' => $related_storyline->storyline_name,
+                'description' => $related_storyline->description
             ];
         }
 
@@ -5978,6 +5980,7 @@ function novel_proofreading_admin_page() {
                     <?php endforeach; ?>
                 </select>
                 <button type="submit" class="button"><?php _e( 'Filter', 'novel-proofreading' ); ?></button>
+                <button type="button" class="button novel-proofreading-storyline-description-toggle" aria-pressed="false" title="<?php esc_attr_e( 'Show storyline descriptions', 'novel-proofreading' ); ?>">i</button>
             </form>
 
             <?php if (empty($storyline_chain_items)) : ?>
@@ -5991,6 +5994,11 @@ function novel_proofreading_admin_page() {
                         <?php echo esc_html($chain['storyline_name']); ?>
                         <span class="description"><?php echo esc_html($chain['book_title']); ?></span>
                     </h3>
+                    <?php if (trim((string) $chain['description']) !== '') : ?>
+                        <div class="novel-proofreading-storyline-description" hidden>
+                            <?php echo esc_html($chain['description']); ?>
+                        </div>
+                    <?php endif; ?>
 
                     <div class="novel-proofreading-chain-stats">
                         <span class="novel-proofreading-badge"><?php echo esc_html(sprintf(__('Events: %d', 'novel-proofreading'), $stats['event_count'])); ?></span>
@@ -6018,9 +6026,16 @@ function novel_proofreading_admin_page() {
                     <?php if (! empty($chain['related_storylines'])) : ?>
                         <div class="novel-proofreading-storyline-branches">
                             <?php foreach ( $chain['related_storylines'] as $related_storyline ) : ?>
-                                <a href="#novel-proofreading-storyline-chain-<?php echo esc_attr($related_storyline['id']); ?>">
-                                    <?php echo esc_html($related_storyline['storyline_name']); ?>
-                                </a>
+                                <div class="novel-proofreading-storyline-branch">
+                                    <a href="#novel-proofreading-storyline-chain-<?php echo esc_attr($related_storyline['id']); ?>">
+                                        <?php echo esc_html($related_storyline['storyline_name']); ?>
+                                    </a>
+                                    <?php if (trim((string) $related_storyline['description']) !== '') : ?>
+                                        <div class="novel-proofreading-storyline-description novel-proofreading-storyline-branch-description" hidden>
+                                            <?php echo esc_html($related_storyline['description']); ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>

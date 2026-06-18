@@ -457,6 +457,10 @@ msgstr "Minden könyv"
 msgid "Filter"
 msgstr "Szűrés"
 
+#: includes/admin.php
+msgid "Show storyline descriptions"
+msgstr "Cselekményszál-leírások megjelenítése"
+
 #: admin.php:4974
 msgid "No storyline chains found."
 msgstr "Nem találhatók cselekményszál-láncok."

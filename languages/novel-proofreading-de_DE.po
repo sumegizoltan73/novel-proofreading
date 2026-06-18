@@ -457,6 +457,10 @@ msgstr "Alle Bücher"
 msgid "Filter"
 msgstr "Filter"
 
+#: includes/admin.php
+msgid "Show storyline descriptions"
+msgstr "Handlungsstrangbeschreibungen anzeigen"
+
 #: admin.php:4974
 msgid "No storyline chains found."
 msgstr "Keine Handlungsstrangketten gefunden."

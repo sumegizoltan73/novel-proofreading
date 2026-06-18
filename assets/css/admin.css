@@ -63,6 +63,14 @@
   margin-bottom: 8px;
 }
 
+.novel-proofreading-storyline-description {
+  background: #f6f7f7;
+  border-left: 4px solid #72aee6;
+  color: #3c434a;
+  margin: 0 0 12px;
+  padding: 8px 10px;
+}
+
 .novel-proofreading-chain-stats {
   display: flex;
   flex-wrap: wrap;
@@ -75,6 +83,10 @@
   flex-direction: column;
   gap: 4px;
   margin: 0 0 12px 24px;
+}
+
+.novel-proofreading-storyline-branch-description {
+  margin: 4px 0 6px;
 }
 
 .novel-proofreading-badge {

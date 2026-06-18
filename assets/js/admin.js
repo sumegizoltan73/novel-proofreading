@@ -581,6 +581,17 @@ jQuery(function ($) {
         showStorylineSuggestions($(this).data("storyline-id"));
     });
 
+    $(document).on("click", ".novel-proofreading-storyline-description-toggle", function () {
+        var $button = $(this);
+        var $wrap = $button.closest(".storyline-chains-wrap");
+        var isActive = $button.attr("aria-pressed") === "true";
+
+        $button.attr("aria-pressed", isActive ? "false" : "true");
+        $wrap
+            .find(".novel-proofreading-storyline-description")
+            .prop("hidden", isActive);
+    });
+
     $(document).on("click", ".novel-proofreading-person-alias-badge", function () {
         showPersonAliases($(this).data("person-id"));
     });
