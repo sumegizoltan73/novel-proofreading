@@ -302,5 +302,15 @@ A lényeg:
 A Cselekményszál-láncok nézetben a h3 kapott belső anchor célpontot, alatta pedig megjelennek a közvetlen leágazások kattintható linkként: [includes/admin.php (line 5988)](includes/admin.php:5988)
 Magyar fordítás és .mo frissítés is bekerült az új feliratokra.
 
-## Huszadik módosítás - (i) a Cselekményszál-láncok résznél
+## Huszadik módosítás - (i) a Cselekményszál-láncok résznél 
 A Cselekményszál-láncok résznél a szűrés gomb mellett jobra egy nyomógombszerű (i) szükséges, ami kattintás után megjeleníti a cselekményszálak leírását, de a cselekményszál szakaszoknál az elnevezés alatt külön sávban. A kattintható kapcsolódó cselekményszál alatt is a hozzátartozó leírás külön legyen megjelenítve, hasonló behúzással, mint az elnevezés. Az (i) gomb alapértelmezetten kikapcsolt, tehát nincs alapértelemzetten megjelenítve az extra leírás.
+
+Codex / ChatGPT:
+Implemented the storyline-description toggle in the Storyline Chains section.
+Changed:
+Added an i button next to Filter, default off.
+Clicking it shows/hides storyline descriptions.
+Main storyline descriptions render under the storyline title in a separate bar.
+Related storyline descriptions render under each related link with the same branch indentation.
+Related storyline query now loads description.
+Added CSS/JS and updated PO/MO translations for the tooltip.
