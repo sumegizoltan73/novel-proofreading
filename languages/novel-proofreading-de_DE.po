@@ -505,6 +505,10 @@ msgstr "Letzte: %s"
 msgid "Storyline refs: %s"
 msgstr "Handlungsstrang-Referenzen: %s"
 
+#: includes/admin.php
+msgid "|-> This storyline"
+msgstr "|-> Dieser Handlungsstrang"
+
 #: admin.php:5009
 msgid "This storyline has no linked events."
 msgstr "Dieser Handlungsstrang hat keine verknüpften Ereignisse."

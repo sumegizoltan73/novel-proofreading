@@ -314,3 +314,15 @@ Main storyline descriptions render under the storyline title in a separate bar.
 Related storyline descriptions render under each related link with the same branch indentation.
 Related storyline query now loads description.
 Added CSS/JS and updated PO/MO translations for the tooltip.
+
+## Huszonegyedik módosítás - Útvonal a cselekményszál hivatkozásoknál, előző cselekményszálak felsorolásával
+Útvonalkénti szerepet kapnak a cselekményszál hivatkozások az előző cselekményszálak felsorolásával a Cselekményszál-láncok tab-on.
+Az előző, és a következő cselekményszál hivatkozások között külön sorban egy "|-> Ez a cselekményszál" szöveget kell megjeleníteni, így jelölve azt is, ha nincsenek előző cselekményszálak, és újonnan indított cseelkményszálról van szó. Az előző hivatkozások behúzása legyen a mostani behúzás, az "|-> Ez a cselekményszál" szöveg 100 px-el beljebb legyen, majd még 100 pixellel beljebb a mostani következő hivatkozások linkje.
+
+Codex / ChatGPT:
+Elkészítettem a Cselekményszál-láncok útvonalas megjelenítését.
+Módosítások:
+[includes/admin.php (line 3773)](includes/admin.php:3773): bekerült a bejövő, “előző” cselekményszál-hivatkozások gyűjtése.
+[includes/admin.php (line 6059)](includes/admin.php:6059): a nézet most sorrendben mutatja az előző hivatkozásokat, a |-> Ez a cselekményszál sort, majd a következő hivatkozásokat.
+[assets/css/admin.css (line 81)](assets/css/admin.css:81): beállítottam a behúzásokat: előző 24px, aktuális +100px, következő még +100px.
+Frissítettem a .po, .mo és .pot fordításokat az új szöveghez.

@@ -505,6 +505,10 @@ msgstr "Utolsó: %s"
 msgid "Storyline refs: %s"
 msgstr "Cselekményszál-hivatkozások: %s"
 
+#: includes/admin.php
+msgid "|-> This storyline"
+msgstr "|-> Ez a cselekményszál"
+
 #: admin.php:5009
 msgid "This storyline has no linked events."
 msgstr "Ehhez a cselekményszálhoz nincsenek kapcsolt események."

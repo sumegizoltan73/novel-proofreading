@@ -506,6 +506,10 @@ msgstr "Last: %s"
 msgid "Storyline refs: %s"
 msgstr "Storyline refs: %s"
 
+#: includes/admin.php
+msgid "|-> This storyline"
+msgstr "|-> This storyline"
+
 #: admin.php:5009
 msgid "This storyline has no linked events."
 msgstr "This storyline has no linked events."

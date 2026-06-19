@@ -3770,6 +3770,7 @@ function novel_proofreading_get_storyline_chains($book_id = 0) {
                 'storyline_name' => $row->storyline_name,
                 'description' => $row->storyline_description,
                 'storyline_references' => [],
+                'previous_storylines' => [],
                 'related_storylines' => [],
                 'events' => [],
                 'stats' => [
@@ -3869,6 +3870,38 @@ function novel_proofreading_get_storyline_chains($book_id = 0) {
     }
 
     foreach ($chains as $storyline_id => $chain) {
+        $previous_storylines = $wpdb->get_results(
+            $wpdb->prepare(
+                "
+                SELECT
+                    st.id,
+                    st.storyline_name,
+                    st.description
+
+                FROM
+                    {$table_storyline_links} sl
+                INNER JOIN
+                    {$table_storylines} st ON st.id = sl.storyline_id
+
+                WHERE
+                    sl.related_storyline_id = %d
+
+                ORDER BY
+                    st.storyline_name,
+                    st.id
+                ",
+                $storyline_id
+            )
+        );
+
+        foreach ($previous_storylines as $previous_storyline) {
+            $chains[$storyline_id]['previous_storylines'][] = [
+                'id' => intval($previous_storyline->id),
+                'storyline_name' => $previous_storyline->storyline_name,
+                'description' => $previous_storyline->description
+            ];
+        }
+
         $related_storylines = $wpdb->get_results(
             $wpdb->prepare(
                 "
@@ -6023,22 +6056,45 @@ function novel_proofreading_admin_page() {
                         <?php endif; ?>
                     </div>
 
-                    <?php if (! empty($chain['related_storylines'])) : ?>
-                        <div class="novel-proofreading-storyline-branches">
-                            <?php foreach ( $chain['related_storylines'] as $related_storyline ) : ?>
-                                <div class="novel-proofreading-storyline-branch">
-                                    <a href="#novel-proofreading-storyline-chain-<?php echo esc_attr($related_storyline['id']); ?>">
-                                        <?php echo esc_html($related_storyline['storyline_name']); ?>
-                                    </a>
-                                    <?php if (trim((string) $related_storyline['description']) !== '') : ?>
-                                        <div class="novel-proofreading-storyline-description novel-proofreading-storyline-branch-description" hidden>
-                                            <?php echo esc_html($related_storyline['description']); ?>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endforeach; ?>
+                    <div class="novel-proofreading-storyline-route">
+                        <?php if (! empty($chain['previous_storylines'])) : ?>
+                            <div class="novel-proofreading-storyline-route-previous">
+                                <?php foreach ( $chain['previous_storylines'] as $previous_storyline ) : ?>
+                                    <div class="novel-proofreading-storyline-branch">
+                                        <a href="#novel-proofreading-storyline-chain-<?php echo esc_attr($previous_storyline['id']); ?>">
+                                            <?php echo esc_html($previous_storyline['storyline_name']); ?>
+                                        </a>
+                                        <?php if (trim((string) $previous_storyline['description']) !== '') : ?>
+                                            <div class="novel-proofreading-storyline-description novel-proofreading-storyline-branch-description" hidden>
+                                                <?php echo esc_html($previous_storyline['description']); ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="novel-proofreading-storyline-route-current">
+                            <?php _e( '|-> This storyline', 'novel-proofreading' ); ?>
                         </div>
-                    <?php endif; ?>
+
+                        <?php if (! empty($chain['related_storylines'])) : ?>
+                            <div class="novel-proofreading-storyline-branches">
+                                <?php foreach ( $chain['related_storylines'] as $related_storyline ) : ?>
+                                    <div class="novel-proofreading-storyline-branch">
+                                        <a href="#novel-proofreading-storyline-chain-<?php echo esc_attr($related_storyline['id']); ?>">
+                                            <?php echo esc_html($related_storyline['storyline_name']); ?>
+                                        </a>
+                                        <?php if (trim((string) $related_storyline['description']) !== '') : ?>
+                                            <div class="novel-proofreading-storyline-description novel-proofreading-storyline-branch-description" hidden>
+                                                <?php echo esc_html($related_storyline['description']); ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
 
                     <?php if ($stats['event_count'] === 0) : ?>
                         <p class="notice notice-warning inline"><?php _e( 'This storyline has no linked events.', 'novel-proofreading' ); ?></p>

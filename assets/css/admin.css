@@ -78,11 +78,27 @@
   margin: 8px 0 12px;
 }
 
+.novel-proofreading-storyline-route {
+  margin: 0 0 12px;
+}
+
+.novel-proofreading-storyline-route-previous,
 .novel-proofreading-storyline-branches {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin: 0 0 12px 24px;
+}
+
+.novel-proofreading-storyline-route-previous {
+  margin-left: 24px;
+}
+
+.novel-proofreading-storyline-route-current {
+  margin: 4px 0 4px 124px;
+}
+
+.novel-proofreading-storyline-branches {
+  margin-left: 224px;
 }
 
 .novel-proofreading-storyline-branch-description {
