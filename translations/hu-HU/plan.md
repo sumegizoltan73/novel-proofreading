@@ -290,7 +290,7 @@ A korábbi SQL-es “Sequential label groups” extra sávot és helper-t eltáv
 ## Tizennyolcadik módosítás - Címkék megjelenítése a 10.1 Kézirathivatkozások listájában (Implementált - címkék is a végleges jó változattal)
 Vissza kell alakítani a 10.1 Kézirathivatkozások listájában a címkék megjelenítését, egyszerű módozatra, csak olyan címke jelenjen meg, ami a Kézirathivatkozáshoz hozzá lett adva, és csak egyszer. Így nem szükséges a kattinthatóság sem, a popup megjelenítés sem kell itt. 
 
-## Tizenkilencedik módosítás - 10.3 Cselekményszál hivatkozás
+## Tizenkilencedik módosítás - 10.3 Cselekményszál hivatkozás (Implementált)
 10.3 Cselekményszál hivatkozás címmel be kell vezetni egy cselekményszál láncolást, ahol cselekményszálhoz lehet hivatkozni másik cselekményszálat. Ez a könyv kiválasztót, cselekményszál kiválasztót, és egy harmadik "Kapcsolódó cselekményszál" elnvezéssel ellátott cselekményszál kiválasztót tartalmaz majd csak. Listás nézet nem kell itt hozzá. A cselekményszál-láncok résznél az Események:... kezdetű közös információs sávok alatt külön sávban bal oldali margóval kell a közvetlen leágazásokat egymás alá felsorolni. A felsorolás kattintható legyen, és ezen a szakaszon navigáljon oda a csatolt Cselekményszálhoz, egyszerű oldalon belüli <a> tagekkel, ahol id-val ellátott tag-et kap a h3 tag, és a kattintható hivatkozás felsorolás meg a href-es értékét.
 
 Codex / ChatGPT:
@@ -302,7 +302,7 @@ A lényeg:
 A Cselekményszál-láncok nézetben a h3 kapott belső anchor célpontot, alatta pedig megjelennek a közvetlen leágazások kattintható linkként: [includes/admin.php (line 5988)](includes/admin.php:5988)
 Magyar fordítás és .mo frissítés is bekerült az új feliratokra.
 
-## Huszadik módosítás - (i) a Cselekményszál-láncok résznél 
+## Huszadik módosítás - (i) a Cselekményszál-láncok résznél (Implementált)
 A Cselekményszál-láncok résznél a szűrés gomb mellett jobra egy nyomógombszerű (i) szükséges, ami kattintás után megjeleníti a cselekményszálak leírását, de a cselekményszál szakaszoknál az elnevezés alatt külön sávban. A kattintható kapcsolódó cselekményszál alatt is a hozzátartozó leírás külön legyen megjelenítve, hasonló behúzással, mint az elnevezés. Az (i) gomb alapértelmezetten kikapcsolt, tehát nincs alapértelemzetten megjelenítve az extra leírás.
 
 Codex / ChatGPT:
@@ -315,7 +315,7 @@ Related storyline descriptions render under each related link with the same bran
 Related storyline query now loads description.
 Added CSS/JS and updated PO/MO translations for the tooltip.
 
-## Huszonegyedik módosítás - Útvonal a cselekményszál hivatkozásoknál, előző cselekményszálak felsorolásával
+## Huszonegyedik módosítás - Útvonal a cselekményszál hivatkozásoknál, előző cselekményszálak felsorolásával (Implementált)
 Útvonalkénti szerepet kapnak a cselekményszál hivatkozások az előző cselekményszálak felsorolásával a Cselekményszál-láncok tab-on.
 Az előző, és a következő cselekményszál hivatkozások között külön sorban egy "|-> Ez a cselekményszál" szöveget kell megjeleníteni, így jelölve azt is, ha nincsenek előző cselekményszálak, és újonnan indított cseelkményszálról van szó. Az előző hivatkozások behúzása legyen a mostani behúzás, az "|-> Ez a cselekményszál" szöveg 100 px-el beljebb legyen, majd még 100 pixellel beljebb a mostani következő hivatkozások linkje.
 
