@@ -3865,7 +3865,9 @@ function novel_proofreading_get_storyline_chains($book_id = 0) {
                 $chains[$storyline_id]['stats']['first_reference'] = $reference;
             }
 
-            $chains[$storyline_id]['stats']['last_reference'] = $reference;
+            if ($chains[$storyline_id]['stats']['first_reference'] === '') {
+                $chains[$storyline_id]['stats']['last_reference'] = $reference;
+            }
         }
     }
 
