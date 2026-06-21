@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define('NOVEL_PROOFREADING_DB_VERSION', '1.5');
+define('NOVEL_PROOFREADING_DB_VERSION', '1.6');
 
 function novel_proofreading_install() {
 
@@ -593,6 +593,8 @@ function novel_proofreading_create_tables() {
             UNION ALL SELECT 'GALAXY', 'AREA_TYPE'
             UNION ALL SELECT 'ANOTHER_GALAXY', 'AREA_TYPE'
             UNION ALL SELECT 'ANOTHER_PLANET', 'AREA_TYPE'
+            UNION ALL SELECT 'MOON', 'AREA_TYPE'
+            UNION ALL SELECT 'ASTEROID', 'AREA_TYPE'
             UNION ALL SELECT 'EARTH', 'AREA_TYPE'
             UNION ALL SELECT 'COUNTRY', 'AREA_TYPE'
             UNION ALL SELECT 'CITY', 'AREA_TYPE'
