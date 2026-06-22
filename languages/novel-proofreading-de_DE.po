@@ -712,3 +712,27 @@ msgstr "Verknüpfte Storyline"
 #: includes/admin.php
 msgid "Add Storyline Reference"
 msgstr "Storyline-Referenz hinzufügen"
+
+#: includes/admin.php
+msgid "Person trait is required."
+msgstr "Personenmerkmal ist erforderlich."
+
+#: includes/admin.php
+msgid "Person trait reference could not be added."
+msgstr "Personenmerkmal-Referenz konnte nicht hinzugefügt werden."
+
+#: includes/admin.php
+msgid "Person trait reference added."
+msgstr "Personenmerkmal-Referenz hinzugefügt."
+
+#: includes/admin.php
+msgid "Person trait"
+msgstr "Personenmerkmal"
+
+#: includes/admin.php
+msgid "Select person trait"
+msgstr "Personenmerkmal auswählen"
+
+#: includes/admin.php
+msgid "Add Person Trait"
+msgstr "Personenmerkmal hinzufügen"

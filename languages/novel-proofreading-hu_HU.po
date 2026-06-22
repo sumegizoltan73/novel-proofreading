@@ -712,3 +712,27 @@ msgstr "Kapcsolódó cselekményszál"
 #: includes/admin.php
 msgid "Add Storyline Reference"
 msgstr "Cselekményszál hivatkozás hozzáadása"
+
+#: includes/admin.php
+msgid "Person trait is required."
+msgstr "Személy jellemvonás megadása kötelező."
+
+#: includes/admin.php
+msgid "Person trait reference could not be added."
+msgstr "A személy jellemvonás hivatkozást nem sikerült hozzáadni."
+
+#: includes/admin.php
+msgid "Person trait reference added."
+msgstr "Személy jellemvonás hivatkozás hozzáadva."
+
+#: includes/admin.php
+msgid "Person trait"
+msgstr "Személy jellemvonása"
+
+#: includes/admin.php
+msgid "Select person trait"
+msgstr "Válasszon személy jellemvonást"
+
+#: includes/admin.php
+msgid "Add Person Trait"
+msgstr "Személy jellemvonás hozzáadása"

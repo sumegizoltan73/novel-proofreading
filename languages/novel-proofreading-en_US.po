@@ -713,3 +713,27 @@ msgstr "Related storyline"
 #: includes/admin.php
 msgid "Add Storyline Reference"
 msgstr "Add Storyline Reference"
+
+#: includes/admin.php
+msgid "Person trait is required."
+msgstr "Person trait is required."
+
+#: includes/admin.php
+msgid "Person trait reference could not be added."
+msgstr "Person trait reference could not be added."
+
+#: includes/admin.php
+msgid "Person trait reference added."
+msgstr "Person trait reference added."
+
+#: includes/admin.php
+msgid "Person trait"
+msgstr "Person trait"
+
+#: includes/admin.php
+msgid "Select person trait"
+msgstr "Select person trait"
+
+#: includes/admin.php
+msgid "Add Person Trait"
+msgstr "Add Person Trait"

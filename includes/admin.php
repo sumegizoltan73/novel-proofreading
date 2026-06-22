@@ -3960,7 +3960,23 @@ function novel_proofreading_get_entity_label($type, $row) {
     }
 
     if ($type === 'PERSON') {
-        return trim($row->person_name . ' ' . $row->person_alias);
+        $parts = [
+            trim($row->person_name . ' ' . $row->person_alias)
+        ];
+
+        if (! empty($row->person_related_subtype)) {
+            $parts[] = $row->person_related_subtype;
+        }
+
+        if (! empty($row->location_name) || ! empty($row->location_alias)) {
+            $parts[] = trim($row->location_name . ' ' . $row->location_alias);
+        }
+
+        if (! empty($row->time_name)) {
+            $parts[] = $row->time_name;
+        }
+
+        return implode(', ', array_filter($parts));
     }
 
     if ($type === 'LOCATION') {
@@ -4345,6 +4361,142 @@ function novel_proofreading_add_manuscript_reference() {
     return __( 'Manuscript reference added.', 'novel-proofreading' );
 }
 
+function novel_proofreading_sanitize_person_trait_reference_data() {
+    $book_id = intval($_POST['book_id'] ?? 0);
+
+    if ($book_id <= 0) {
+        return new WP_Error(
+            'missing_person_trait_reference_book',
+            __( 'Book is required.', 'novel-proofreading' )
+        );
+    }
+
+    $person_id = intval($_POST['person_id'] ?? 0);
+
+    if ($person_id <= 0) {
+        return new WP_Error(
+            'missing_person_trait_reference_person',
+            __( 'Person is required.', 'novel-proofreading' )
+        );
+    }
+
+    $person_related_subtype = sanitize_text_field(
+        wp_unslash($_POST['person_related_subtype'] ?? '')
+    );
+    $person_subtypes = wp_list_pluck(
+        novel_proofreading_get_type_options('PERSON_SUBTYPE'),
+        'name'
+    );
+
+    if (! in_array($person_related_subtype, $person_subtypes, true)) {
+        return new WP_Error(
+            'missing_person_trait_reference_subtype',
+            __( 'Person trait is required.', 'novel-proofreading' )
+        );
+    }
+
+    $location_id = intval($_POST['location_id'] ?? 0);
+    $time_id = intval($_POST['time_id'] ?? 0);
+
+    $entity_checks = [
+        'persons' => $person_id,
+        'locations' => $location_id,
+        'datetimes' => $time_id
+    ];
+
+    foreach ($entity_checks as $table_suffix => $entity_id) {
+        if (
+            $entity_id > 0 &&
+            ! novel_proofreading_reference_entity_belongs_to_book($table_suffix, $entity_id, $book_id)
+        ) {
+            return new WP_Error(
+                'invalid_person_trait_reference_entity_book',
+                __( 'Referenced item must belong to the selected book.', 'novel-proofreading' )
+            );
+        }
+    }
+
+    return [
+        'book_id' => $book_id,
+        'type' => 'PERSON',
+        'person_related_subtype' => $person_related_subtype,
+        'description' => sanitize_textarea_field(
+            wp_unslash($_POST['description'] ?? '')
+        ),
+        'page' => sanitize_text_field(
+            wp_unslash($_POST['page'] ?? '')
+        ),
+        'chapter' => sanitize_text_field(
+            wp_unslash($_POST['chapter'] ?? '')
+        ),
+        'storyline_id' => null,
+        'event_id' => null,
+        'person_id' => $person_id,
+        'location_id' => $location_id > 0 ? $location_id : null,
+        'time_id' => $time_id > 0 ? $time_id : null,
+        'relics_id' => null
+    ];
+}
+
+function novel_proofreading_add_person_trait_reference() {
+    global $wpdb;
+
+    $data = novel_proofreading_sanitize_person_trait_reference_data();
+
+    if (is_wp_error($data)) {
+        return $data->get_error_message();
+    }
+
+    $table =
+        $wpdb->prefix . 'novel_proofreading_common_mapping';
+
+    $now = current_time(
+        'mysql',
+        true
+    );
+
+    $result = $wpdb->insert(
+        $table,
+        array_merge(
+            $data,
+            [
+                'created_at' => $now,
+                'created_by' => get_current_user_id(),
+                'updated_at' => $now,
+                'updated_by' => get_current_user_id()
+            ]
+        ),
+        [
+            '%d',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%d',
+            '%d',
+            '%d',
+            '%d',
+            '%d',
+            '%d',
+            '%s',
+            '%d',
+            '%s',
+            '%d'
+        ]
+    );
+
+    if ($result === false) {
+        error_log(
+            'INSERT ERROR: ' . $wpdb->last_error
+        );
+
+        return __( 'Person trait reference could not be added.', 'novel-proofreading' );
+    }
+
+    return __( 'Person trait reference added.', 'novel-proofreading' );
+}
+
 function novel_proofreading_update_manuscript_reference($id) {
     global $wpdb;
 
@@ -4644,6 +4796,10 @@ function novel_proofreading_admin_page() {
             $admin_notice = novel_proofreading_add_storyline_link();
         }
 
+        if ($action === 'add_person_trait_reference') {
+            $admin_notice = novel_proofreading_add_person_trait_reference();
+        }
+
         if ($action === 'add_manuscript_reference') {
             $admin_notice = novel_proofreading_add_manuscript_reference();
         }
@@ -4681,6 +4837,7 @@ function novel_proofreading_admin_page() {
         $selected_chain_book_id
     );
     $common_type_items = novel_proofreading_get_type_options('COMMON_TYPE');
+    $person_subtype_items = novel_proofreading_get_type_options('PERSON_SUBTYPE');
     $selected_reference_book_id = intval($_GET['reference_book_id'] ?? 0);
     $selected_reference_type = sanitize_text_field(
         wp_unslash($_GET['reference_type'] ?? '')
@@ -6550,6 +6707,109 @@ function novel_proofreading_admin_page() {
 
                 <button type="submit" class="button button-primary" <?php disabled(empty($items) || empty($storyline_items)); ?>>
                     + <?php _e( 'Add Storyline Reference', 'novel-proofreading' ); ?>
+                </button>
+            </form>
+
+            <h3>10.4&nbsp;<?php _e( 'Person trait', 'novel-proofreading' ); ?></h3>
+            <form method="post">
+                <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                <input type="hidden" name="novel_proofreading_action" value="add_person_trait_reference" />
+
+                <table class="form-table" role="presentation">
+                    <tbody>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-person-trait-book-id"><?php _e( 'Book', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <select id="novel-proofreading-person-trait-book-id" name="book_id" class="novel-proofreading-book-select" required>
+                                    <option value=""><?php _e( 'Select book', 'novel-proofreading' ); ?></option>
+                                    <?php foreach ( $items as $item ) : ?>
+                                        <option value="<?php echo esc_attr($item['id']); ?>">
+                                            <?php echo esc_html($item['title'] . ' - ' . $item['author'] . ' (' . $item['year'] . ')'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><?php _e( 'Referenced item', 'novel-proofreading' ); ?></th>
+                            <td>
+                                <p>
+                                    <label for="novel-proofreading-person-trait-person-id"><?php _e( 'Person', 'novel-proofreading' ); ?></label><br />
+                                    <select id="novel-proofreading-person-trait-person-id" name="person_id" class="novel-proofreading-person-select" required>
+                                        <option value="0"><?php _e( 'Select person', 'novel-proofreading' ); ?></option>
+                                        <?php foreach ( $person_items as $item ) : ?>
+                                            <option value="<?php echo esc_attr($item['id']); ?>" data-book-id="<?php echo esc_attr($item['book_id']); ?>">
+                                                <?php echo esc_html(trim($item['name'] . ' ' . $item['alias']) . ' - ' . $item['book_title']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </p>
+                                <p>
+                                    <label for="novel-proofreading-person-trait-location-id"><?php _e( 'Location', 'novel-proofreading' ); ?></label><br />
+                                    <select id="novel-proofreading-person-trait-location-id" name="location_id" class="novel-proofreading-location-select">
+                                        <option value="0"><?php _e( 'Select location', 'novel-proofreading' ); ?></option>
+                                        <?php foreach ( $location_items as $item ) : ?>
+                                            <option value="<?php echo esc_attr($item['id']); ?>" data-book-id="<?php echo esc_attr($item['book_id']); ?>">
+                                                <?php echo esc_html(trim($item['name'] . ' ' . $item['alias']) . ' - ' . $item['book_title']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </p>
+                                <p>
+                                    <label for="novel-proofreading-person-trait-time-id"><?php _e( 'Time', 'novel-proofreading' ); ?></label><br />
+                                    <select id="novel-proofreading-person-trait-time-id" name="time_id" class="novel-proofreading-time-select">
+                                        <option value="0"><?php _e( 'Select time', 'novel-proofreading' ); ?></option>
+                                        <?php foreach ( $datetime_items as $item ) : ?>
+                                            <option value="<?php echo esc_attr($item['id']); ?>" data-book-id="<?php echo esc_attr($item['book_id']); ?>">
+                                                <?php echo esc_html($item['name'] . ' (' . $item['time_description'] . ') - ' . $item['book_title']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </p>
+                                <p>
+                                    <label for="novel-proofreading-person-trait-subtype"><?php _e( 'Person trait', 'novel-proofreading' ); ?></label><br />
+                                    <select id="novel-proofreading-person-trait-subtype" name="person_related_subtype" required>
+                                        <option value=""><?php _e( 'Select person trait', 'novel-proofreading' ); ?></option>
+                                        <?php foreach ( $person_subtype_items as $type_item ) : ?>
+                                            <option value="<?php echo esc_attr($type_item['name']); ?>">
+                                                <?php echo esc_html($type_item['name']); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-person-trait-chapter"><?php _e( 'Chapter', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" id="novel-proofreading-person-trait-chapter" name="chapter" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-person-trait-page"><?php _e( 'Page', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" id="novel-proofreading-person-trait-page" name="page" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="novel-proofreading-person-trait-description"><?php _e( 'Description', 'novel-proofreading' ); ?></label>
+                            </th>
+                            <td>
+                                <textarea id="novel-proofreading-person-trait-description" name="description" rows="3"></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button type="submit" class="button button-primary" <?php disabled(empty($items) || empty($person_items) || empty($person_subtype_items)); ?>>
+                    + <?php _e( 'Add Person Trait', 'novel-proofreading' ); ?>
                 </button>
             </form>
         </div>

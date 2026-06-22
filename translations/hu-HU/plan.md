@@ -326,3 +326,21 @@ Módosítások:
 [includes/admin.php (line 6059)](includes/admin.php:6059): a nézet most sorrendben mutatja az előző hivatkozásokat, a |-> Ez a cselekményszál sort, majd a következő hivatkozásokat.
 [assets/css/admin.css (line 81)](assets/css/admin.css:81): beállítottam a behúzásokat: előző 24px, aktuális +100px, következő még +100px.
 Frissítettem a .po, .mo és .pot fordításokat az új szöveghez.
+
+## Huszonkettedik módosítás - Személy jellemvonás (Implementált)
+Egy új adatrögzítési lehetőség szükséges a 10.4 Személy jellemvonása résszel.
+Ez a rész a 10.3 Cselekményszál hivatkozás rész alatt kap helyet, mert a mapping táblába rögzít adatokat.
+Egy mapping rögzítési lehetőség lesz ez, fix PERSON típussal.
+A beviteli lehetőségek a következők: könyv, Hivatkozott elem (személy, helyszín, idő, és új jellemvonás választó), és fejezet, oldal, leírás. Vagyis a cselekményszál, és esemény, valamint az ereklye megadása itt nem lesz lehetséges. 
+A jellemvonás választó az a mapping tábla person_related_subtype mezőjébe kerül be, és a PERSON_SUBTYPE kategóriájú típusokat lehet kiválasztani. A mezőbe a szöveges érték kerüljön be.
+
+
+Codex / ChatGPT:
+Elkészült a 10.4 Személy jellemvonása rögzítés.
+Módosítások:
+Új 10.4 admin űrlap a 10.3 alatt: könyv, személy, helyszín, idő, jellemvonás, fejezet, oldal, leírás: [includes/admin.php (line 6713)](includes/admin.php:6713)
+Mentés a novel_proofreading_common_mapping táblába type = PERSON értékkel, a jellemvonás a person_related_subtype mezőbe kerül: [includes/admin.php (line 4364)](includes/admin.php:4364)
+A jellemvonás csak PERSON_SUBTYPE kategóriából választható.
+Storyline, event és relic mező nincs az új formban, és a mentés is null értékkel zárja ki őket.
+A 10.1 listában a PERSON típusú hivatkozásnál megjelenik a jellemvonás, illetve a mentett hely/idő kontextus is: [includes/admin.php (line 3960)](includes/admin.php:3960)
+Frissítettem a .po, .pot és .mo fordítási fájlokat.
