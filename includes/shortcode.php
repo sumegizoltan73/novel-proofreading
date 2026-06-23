@@ -23,6 +23,9 @@ function novel_proofreading_plugin_render( $atts = [] ) {
     if ($atts['view'] === 'storyline_chains') {
         return novel_proofreading_plugin_render_storyline_chains($atts);
     }
+    else if ($atts['view'] === 'storyline_chains_and_events') {
+        return novel_proofreading_plugin_render_storyline_chains_and_events($atts);
+    }
 
     novel_proofreading_plugin_enqueue_assets();
 
@@ -151,6 +154,192 @@ function novel_proofreading_plugin_render_storyline_chains($atts) {
                         </div>
                     <?php endforeach; ?>
                 </div>
+            </article>
+        <?php endforeach; ?>
+    </div>
+
+    <script>
+    (function () {
+        var root = document.getElementById(<?php echo wp_json_encode($instance_id); ?>);
+        if (!root) {
+            return;
+        }
+
+        var toggle = root.querySelector('.novel-proofreading-details-toggle');
+        if (!toggle) {
+            return;
+        }
+
+        toggle.addEventListener('click', function () {
+            var isOpen = toggle.getAttribute('aria-pressed') === 'true';
+            var nextOpen = !isOpen;
+            var bands = root.querySelectorAll('.novel-proofreading-detail-bands');
+
+            for (var i = 0; i < bands.length; i++) {
+                bands[i].hidden = !nextOpen;
+            }
+
+            toggle.setAttribute('aria-pressed', nextOpen ? 'true' : 'false');
+            toggle.textContent = nextOpen
+                ? <?php echo wp_json_encode(__('Hide details', 'novel-proofreading')); ?>
+                : <?php echo wp_json_encode(__('Details', 'novel-proofreading')); ?>;
+        });
+    }());
+    </script>
+
+    <?php
+
+    return ob_get_clean();
+}
+
+function novel_proofreading_plugin_render_storyline_chains_and_events($atts) {
+
+    if (! function_exists('novel_proofreading_get_storyline_chains')) {
+        return '';
+    }
+
+    novel_proofreading_plugin_enqueue_frontend_assets();
+
+    $book_id = intval($atts['book_id']);
+    $details_open = $atts['details'] === 'open';
+    $chains = novel_proofreading_get_storyline_chains($book_id);
+    $instance_id = 'novel-proofreading-storyline-list-' . uniqid();
+
+    ob_start();
+    ?>
+
+    <div id="<?php echo esc_attr($instance_id); ?>" class="novel-proofreading-list novel-proofreading-storyline-chain-list">
+        <div class="novel-proofreading-list-toolbar">
+            <button
+                type="button"
+                class="novel-proofreading-details-toggle"
+                aria-pressed="<?php echo esc_attr($details_open ? 'true' : 'false'); ?>"
+            >
+                <?php echo esc_html($details_open ? __('Hide details', 'novel-proofreading') : __('Details', 'novel-proofreading')); ?>
+            </button>
+        </div>
+
+        <?php if (empty($chains)) : ?>
+            <p class="novel-proofreading-empty"><?php _e( 'No storyline chains found.', 'novel-proofreading' ); ?></p>
+        <?php endif; ?>
+
+        <?php foreach ($chains as $chain) : ?>
+            <?php
+            $stats = $chain['stats'];
+            $detail_groups = novel_proofreading_plugin_get_storyline_detail_groups($chain);
+            $anchor_id = novel_proofreading_plugin_get_storyline_anchor_id($instance_id, $chain['id']);
+            ?>
+            <article class="novel-proofreading-list-item novel-proofreading-storyline-chain-item">
+                <h3 id="<?php echo esc_attr($anchor_id); ?>" class="novel-proofreading-list-title">
+                    <?php echo esc_html($chain['storyline_name']); ?>
+                    <span class="novel-proofreading-list-subtitle"><?php echo esc_html($chain['book_title']); ?></span>
+                </h3>
+                <?php if (trim((string) $chain['description']) !== '') : ?>
+                    <div class="novel-proofreading-storyline-description novel-proofreading-detail-bands" <?php echo $details_open ? '' : 'hidden'; ?>>
+                        <?php echo esc_html($chain['description']); ?>
+                    </div>
+                <?php endif; ?>
+
+                <div class="novel-proofreading-chain-stats">
+                    <span class="novel-proofreading-badge"><?php echo esc_html(sprintf(__('Events: %d', 'novel-proofreading'), $stats['event_count'])); ?></span>
+                    <span class="novel-proofreading-badge <?php echo $stats['has_opening'] ? 'is-ok' : 'is-warning'; ?>"><?php echo esc_html($stats['has_opening'] ? __('Has opening', 'novel-proofreading') : __('Missing opening', 'novel-proofreading')); ?></span>
+                    <span class="novel-proofreading-badge <?php echo $stats['has_closing'] ? 'is-ok' : 'is-warning'; ?>"><?php echo esc_html($stats['has_closing'] ? __('Closed', 'novel-proofreading') : __('Missing closing', 'novel-proofreading')); ?></span>
+                    <?php if ($stats['has_return']) : ?>
+                        <span class="novel-proofreading-badge is-info"><?php _e( 'Has return', 'novel-proofreading' ); ?></span>
+                    <?php endif; ?>
+                    <?php if ($stats['first_reference'] !== '') : ?>
+                        <span class="novel-proofreading-badge"><?php echo esc_html(sprintf(__('First: %s', 'novel-proofreading'), $stats['first_reference'])); ?></span>
+                    <?php endif; ?>
+                    <?php if ($stats['last_reference'] !== '') : ?>
+                        <span class="novel-proofreading-badge"><?php echo esc_html(sprintf(__('Last: %s', 'novel-proofreading'), $stats['last_reference'])); ?></span>
+                    <?php endif; ?>
+                    <?php if (! empty($chain['storyline_references'])) : ?>
+                        <span class="novel-proofreading-badge"><?php echo esc_html(sprintf(__('Storyline refs: %s', 'novel-proofreading'), implode(', ', $chain['storyline_references']))); ?></span>
+                    <?php endif; ?>
+                </div>
+
+                <div class="novel-proofreading-storyline-route">
+                    <?php if (! empty($chain['previous_storylines'])) : ?>
+                        <div class="novel-proofreading-storyline-route-previous">
+                            <?php foreach ($chain['previous_storylines'] as $previous_storyline) : ?>
+                                <a href="#<?php echo esc_attr(novel_proofreading_plugin_get_storyline_anchor_id($instance_id, $previous_storyline['id'])); ?>">
+                                    <?php echo esc_html($previous_storyline['storyline_name']); ?>
+                                </a>
+                                <?php if (trim((string) $previous_storyline['description']) !== '') : ?>
+                                    <div class="novel-proofreading-storyline-description novel-proofreading-storyline-branch-description novel-proofreading-detail-bands" <?php echo $details_open ? '' : 'hidden'; ?>>
+                                        <?php echo esc_html($previous_storyline['description']); ?>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="novel-proofreading-storyline-route-current">
+                        <?php _e( '|-> This storyline', 'novel-proofreading' ); ?>
+                    </div>
+
+                    <?php if (! empty($chain['related_storylines'])) : ?>
+                        <div class="novel-proofreading-storyline-branches">
+                            <?php foreach ($chain['related_storylines'] as $related_storyline) : ?>
+                                <a href="#<?php echo esc_attr(novel_proofreading_plugin_get_storyline_anchor_id($instance_id, $related_storyline['id'])); ?>">
+                                    <?php echo esc_html($related_storyline['storyline_name']); ?>
+                                </a>
+                                <?php if (trim((string) $related_storyline['description']) !== '') : ?>
+                                    <div class="novel-proofreading-storyline-description novel-proofreading-storyline-branch-description novel-proofreading-detail-bands" <?php echo $details_open ? '' : 'hidden'; ?>>
+                                        <?php echo esc_html($related_storyline['description']); ?>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="novel-proofreading-detail-bands" <?php echo $details_open ? '' : 'hidden'; ?>>
+                    <?php foreach ($detail_groups as $group) : ?>
+                        <?php if (empty($group['items'])) : ?>
+                            <?php continue; ?>
+                        <?php endif; ?>
+                        <div class="novel-proofreading-detail-band">
+                            <span class="novel-proofreading-detail-label"><?php echo esc_html($group['label']); ?>:</span>
+                            <span class="novel-proofreading-detail-badges">
+                                <?php foreach ($group['items'] as $item) : ?>
+                                    <span class="novel-proofreading-badge <?php echo esc_attr($group['class']); ?>"><?php echo esc_html($item['label']); ?></span>
+                                <?php endforeach; ?>
+                            </span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <?php if ($stats['event_count'] === 0) : ?>
+                    <p class="notice notice-warning inline"><?php _e( 'This storyline has no linked events.', 'novel-proofreading' ); ?></p>
+                <?php else : ?>
+                    <div class="novel-proofreading-scroll-table">
+                        <table class="widefat striped novel-proofreading-chain-table">
+                        <thead>
+                            <tr>
+                                <th><?php _e( 'Sequence', 'novel-proofreading' ); ?></th>
+                                <th><?php _e( 'Role', 'novel-proofreading' ); ?></th>
+                                <th><?php _e( 'Event', 'novel-proofreading' ); ?></th>
+                                <th><?php _e( 'Description', 'novel-proofreading' ); ?></th>
+                                <th><?php _e( 'References', 'novel-proofreading' ); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ( $chain['events'] as $event ) : ?>
+                                <tr>
+                                    <td><?php echo esc_attr($event['sequence_no']); ?></td>
+                                    <td>
+                                        <?php echo esc_attr($event['chain_role']); ?>
+                                    </td>
+                                    <td><?php echo esc_html($event['event_name']); ?></td>
+                                    <td><?php echo esc_html($event['description']); ?></td>
+                                    <td><?php echo esc_html(implode(', ', array_unique($event['references']))); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    </div>
+                <?php endif; ?>
             </article>
         <?php endforeach; ?>
     </div>
