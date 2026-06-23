@@ -270,8 +270,8 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
             l2.alias AS location_alias,
             d2.id AS time_id,
             d2.name AS time_name,
-            r.id AS relic_id,
-            r.relic_name
+            r2.id AS relic_id,
+            r2.relic_name
 
         FROM
             {$table_mapping} cm
@@ -329,7 +329,20 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
                 WHERE m.time_id is not null and m2.storyline_id is not null AND m.type = 'TIME'
             ) d2 ON d2.storyline_id = cm.storyline_id
         LEFT JOIN
-            {$table_relics} r ON r.id = cm.relics_id
+            (
+                SELECT DISTINCT
+                    m2.storyline_id,
+                    r.id,
+                    r.relic_name
+                FROM {$table_mapping} m
+                JOIN {$table_mapping} m2
+                    ON m.chapter = m2.chapter and m.page = m2.page
+                JOIN {$table_relics} r
+                    ON m.relics_id = r.id
+                LEFT JOIN {$table_mapping} m3
+                    ON m.relics_id = m3.relics_id AND m.chapter = m3.chapter
+                WHERE m.relics_id is not null and m2.storyline_id is not null AND m.type = 'RELIC'
+            ) r2 ON r2.storyline_id = cm.storyline_id
 
         WHERE
             {$where}
@@ -341,7 +354,7 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
             p2.person_related_subtype,
             l2.name,
             d2.name,
-            r.relic_name
+            r2.relic_name
     ";
 
     $rows = $wpdb->get_results(
