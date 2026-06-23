@@ -261,9 +261,10 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
     $sql = "
         SELECT
             cm.id AS mapping_id,
-            p.id AS person_id,
-            p.name AS person_name,
-            p.alias AS person_alias,
+            p2.id AS person_id,
+            p2.name AS person_name,
+            p2.alias AS person_alias,
+            p2.person_related_subtype,
             l.id AS location_id,
             l.name AS location_name,
             l.alias AS location_alias,
@@ -275,7 +276,27 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
         FROM
             {$table_mapping} cm
         LEFT JOIN
-            {$table_persons} p ON p.id = cm.person_id
+            (
+                SELECT DISTINCT
+                    m2.storyline_id,
+                    p.id,
+                    p.name,
+                    p.alias,
+                    m3.person_related_subtype
+                FROM {$table_mapping} m
+                JOIN {$table_mapping} m2
+                    ON m.chapter = m2.chapter and m.page = m2.page
+                JOIN {$table_persons} p
+                    ON m.person_id = p.id
+                LEFT JOIN {$table_mapping} m3
+                    ON m.person_id = m3.person_id AND m.chapter = m3.chapter
+                WHERE m.person_id is not null and m2.storyline_id is not null AND m.type = 'PERSON'
+                    and (m3.person_related_subtype is not null or not exists (
+                        select * 
+                        from {$table_mapping} m4 
+                        where m4.person_related_subtype is not null and m4.person_id = m3.person_id
+                    ))
+            ) p2 ON p2.storyline_id = cm.storyline_id
         LEFT JOIN
             {$table_locations} l ON l.id = cm.location_id
         LEFT JOIN
@@ -288,7 +309,9 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
 
         ORDER BY
             cm.id,
-            p.name,
+            p2.name,
+            p2.alias,
+            p2.person_related_subtype,
             l.name,
             d.name,
             r.relic_name
@@ -305,7 +328,7 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
         novel_proofreading_plugin_add_storyline_detail_item(
             $empty['persons'],
             intval($row->person_id),
-            trim($row->person_name . ' ' . $row->person_alias),
+            trim($row->person_name . ' ' . $row->person_alias . ' ' . $row->person_related_subtype),
             intval($row->mapping_id)
         );
         novel_proofreading_plugin_add_storyline_detail_item(
