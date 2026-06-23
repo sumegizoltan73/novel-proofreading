@@ -268,8 +268,8 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
             l2.id AS location_id,
             l2.name AS location_name,
             l2.alias AS location_alias,
-            d.id AS time_id,
-            d.name AS time_name,
+            d2.id AS time_id,
+            d2.name AS time_name,
             r.id AS relic_id,
             r.relic_name
 
@@ -312,10 +312,22 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
                 LEFT JOIN {$table_mapping} m3
                     ON m.location_id = m3.location_id AND m.chapter = m3.chapter
                 WHERE m.location_id is not null and m2.storyline_id is not null AND m.type = 'LOCATION'
-                ORDER BY m2.storyline_id ASC, l.name, l.alias
             ) l2 ON l2.storyline_id = cm.storyline_id
         LEFT JOIN
-            {$table_datetimes} d ON d.id = cm.time_id
+            (
+                SELECT DISTINCT
+                    m2.storyline_id,
+                    d.id,
+                    d.name
+                FROM {$table_mapping} m
+                JOIN {$table_mapping} m2
+                    ON m.chapter = m2.chapter and m.page = m2.page
+                JOIN {$table_datetimes} d
+                    ON m.time_id = d.id
+                LEFT JOIN {$table_mapping} m3
+                    ON m.time_id = m3.time_id AND m.chapter = m3.chapter
+                WHERE m.time_id is not null and m2.storyline_id is not null AND m.type = 'TIME'
+            ) d2 ON d2.storyline_id = cm.storyline_id
         LEFT JOIN
             {$table_relics} r ON r.id = cm.relics_id
 
@@ -328,7 +340,7 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
             p2.alias,
             p2.person_related_subtype,
             l2.name,
-            d.name,
+            d2.name,
             r.relic_name
     ";
 
