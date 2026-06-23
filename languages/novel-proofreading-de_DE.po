@@ -281,6 +281,10 @@ msgstr "Person"
 msgid "List of Persons"
 msgstr "Liste der Personen"
 
+#: includes/shortcode.php
+msgid "Persons"
+msgstr "Personen"
+
 #: admin.php:3944
 msgid "Name"
 msgstr "Name"
@@ -460,6 +464,14 @@ msgstr "Filter"
 #: includes/admin.php
 msgid "Show storyline descriptions"
 msgstr "Handlungsstrangbeschreibungen anzeigen"
+
+#: includes/shortcode.php
+msgid "Details"
+msgstr "Details"
+
+#: includes/shortcode.php
+msgid "Hide details"
+msgstr "Details ausblenden"
 
 #: admin.php:4974
 msgid "No storyline chains found."

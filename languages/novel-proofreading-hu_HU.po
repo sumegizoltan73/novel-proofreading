@@ -281,6 +281,10 @@ msgstr "Személy"
 msgid "List of Persons"
 msgstr "Személyek listája"
 
+#: includes/shortcode.php
+msgid "Persons"
+msgstr "Személyek"
+
 #: admin.php:3944
 msgid "Name"
 msgstr "Név"
@@ -460,6 +464,14 @@ msgstr "Szűrés"
 #: includes/admin.php
 msgid "Show storyline descriptions"
 msgstr "Cselekményszál-leírások megjelenítése"
+
+#: includes/shortcode.php
+msgid "Details"
+msgstr "Részletek"
+
+#: includes/shortcode.php
+msgid "Hide details"
+msgstr "Részletek elrejtése"
 
 #: admin.php:4974
 msgid "No storyline chains found."

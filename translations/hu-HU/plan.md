@@ -344,3 +344,106 @@ A jellemvonás csak PERSON_SUBTYPE kategóriából választható.
 Storyline, event és relic mező nincs az új formban, és a mentés is null értékkel zárja ki őket.
 A 10.1 listában a PERSON típusú hivatkozásnál megjelenik a jellemvonás, illetve a mentett hely/idő kontextus is: [includes/admin.php (line 3960)](includes/admin.php:3960)
 Frissítettem a .po, .pot és .mo fordítási fájlokat.
+
+## Huszonharmadik módosítás - Frontend shortcode segítségével listás nézet a Cselekményszál-láncok részére (Implementált)
+Frontend shortcode segítségével listás nézet szükséges a Cselekményszál-láncok részére.
+Kérnék javaslatot és tervet ehhez, mert ennek a mintájára lenne más listás nézet is, például Helyszínek és Személyek és időpontok kombinált listás nézet, meg más hasonló listás nézet még.
+Jelenleg csak a Cselekményszál-láncok listás nézet szükséges, de egy "Részletek" kapcsoló segítségével megjelenítésre kerülne az adott cselekményszál személyei, helyszínei, időpontjai, ereklyéi külön sávban mindegyik az útvonal sáv alatt. Nem szükséges egyéb adat ehhez, további részletezés csak a többi jövőbeli listánál lenne. A felsorolás badge kontolként lenne ideális, valamilyen halvány kiemeléssel, vagy szürke, vagy sárga kiemeléssel, de egészen fakó színűvel, és a betűszín lenne változó típusonként, így például a személyek felsorolásánál sötét kék betűszín lehetne, a helyszínek felsorolásánál világosabb kék lehetene.
+
+# Frontend Cselekményszál-Lánc Lista Shortcode
+
+## Summary
+A meglévő `[novel_proofreading]` shortcode kapjon `view` alapú működést, első új nézetként:
+
+```text
+[novel_proofreading view="storyline_chains" book_id="123" details="closed"]
+```
+
+A meglévő alapértelmezett shortcode-viselkedés marad változatlan. A Cselekményszál-lánc frontend nézet olvasói lista lesz, admin szerkesztési mezők nélkül, a későbbi Helyszínek / Személyek / Időpontok listanézetekhez újrahasználható renderelési mintával.
+
+## Key Changes
+- `includes/shortcode.php` kapjon dispatch logikát:
+  - ha nincs `view`, marad a jelenlegi naptár renderelés;
+  - `view="storyline_chains"` esetén új frontend lánclista renderelő fut;
+  - támogatott attribútumok: `book_id`, `details`;
+  - `book_id=0` vagy hiányzó `book_id` minden könyvet listáz.
+- A láncadatokat a meglévő `novel_proofreading_get_storyline_chains($book_id)` alapján kell használni, de a frontend renderelés ne jelenítsen meg admin táblázatot, mentést, szűrő űrlapot vagy szerkeszthető mezőt.
+- Készüljön külön helper a kapcsolt részletekhez:
+  - személyek, helyszínek, időpontok, ereklyék lekérése `novel_proofreading_common_mapping` alapján;
+  - egy cselekményszálhoz tartozzon minden olyan rekord, amely közvetlenül a `storyline_id`-ra mutat, vagy a cselekményszál valamelyik eseményére (`event_id`) mutat;
+  - azonos entitásokat deduplikálni kell ID alapján;
+  - megjelenítési sorrend: első előfordulás sorrendje, majd név.
+- A frontend markup legyen jövőbiztos, például:
+  - `.novel-proofreading-list`
+  - `.novel-proofreading-list-item`
+  - `.novel-proofreading-storyline-route`
+  - `.novel-proofreading-detail-bands`
+  - `.novel-proofreading-detail-band`
+  - `.novel-proofreading-badge is-person|is-location|is-time|is-relic`
+- A „Részletek” kapcsoló alapból zárt legyen (`details="closed"`), és egy globális kapcsolóval mutassa/elrejtse minden cselekményszál részletsávját.
+- A részletsávok az útvonal sáv alatt jelenjenek meg, külön sorban:
+  - `Személyek: [badge] [badge]`
+  - `Helyszínek: [badge] [badge]`
+  - `Időpontok: [badge] [badge]`
+  - `Ereklyék: [badge] [badge]`
+- Badge stílus:
+  - nagyon halvány, közös háttér: világosszürke vagy fakó sárgás árnyalat;
+  - típusonként eltérő betűszín;
+  - személy: sötétkék;
+  - helyszín: világosabb kék;
+  - időpont: tompa lila vagy szürkéskék;
+  - ereklye: tompa barna vagy okker.
+
+## Public Interface
+- Elsődleges shortcode:
+  ```text
+  [novel_proofreading view="storyline_chains"]
+  ```
+- Könyvre szűrt használat:
+  ```text
+  [novel_proofreading view="storyline_chains" book_id="123"]
+  ```
+- Részletek alapból nyitva, ha később szükséges:
+  ```text
+  [novel_proofreading view="storyline_chains" details="open"]
+  ```
+- A későbbi listanézetek ugyanebbe a mintába illeszkedjenek:
+  ```text
+  [novel_proofreading view="locations"]
+  [novel_proofreading view="person_time_locations"]
+  ```
+
+## Test Plan
+- Ellenőrizni kell, hogy a régi `[novel_proofreading]` továbbra is a jelenlegi naptárnézetet adja.
+- Ellenőrizni kell, hogy `[novel_proofreading view="storyline_chains"]` minden könyv cselekményszál-láncát listázza.
+- Ellenőrizni kell, hogy `book_id` attribútummal csak az adott könyv láncai jelennek meg.
+- Ellenőrizni kell a „Részletek” kapcsolót:
+  - alapból rejtett;
+  - kattintásra megjelennek a személy/hely/idő/ereklye badge sávok;
+  - újabb kattintásra eltűnnek.
+- Ellenőrizni kell az üres állapotokat:
+  - nincs lánc;
+  - van lánc, de nincs kapcsolt személy/hely/idő/ereklye;
+  - duplikált mapping rekordok esetén egy badge csak egyszer jelenik meg.
+- Ellenőrizni kell frontend oldalon, hogy nem töltődnek be feleslegesen admin szerkesztő UI-elemek.
+
+## Assumptions
+- A frontend könyvszűrés nem kap külön űrlapot; csak shortcode attribútummal történik.
+- A kapcsolt részletek a cselekményszál közvetlen mappingjeiből és a lánc eseményeinek mappingjeiből állnak össze.
+- A jelenlegi admin láncnézet működése és adatsorrendje marad változatlan.
+
+
+Codex / ChatGPT:
+Implemented.
+Main changes:
+Added view dispatch to [includes/shortcode.php (line 10)](includes/shortcode.php:10), preserving the old default calendar shortcode.
+Added [novel_proofreading view="storyline_chains" book_id="123" details="closed"].
+Added frontend-only storyline chain rendering with global Details toggle, route links, stats badges, and detail badge bands for persons, locations, datetimes, and relics.
+Added detail aggregation/deduping from direct storyline mappings and linked event mappings.
+Added frontend styles in [assets/css/style.css (line 1)](assets/css/style.css:1).
+Updated POT/PO/MO translations for Details, Hide details, and Persons.
+Verification:
+php -l passed for changed/relevant PHP files.
+git diff --check passed.
+Recompiled hu_HU, en_US, and de_DE .mo files.
+Note: translations/hu-HU/plan.md was already modified in the worktree and I did not touch it. I did not run a live WordPress/browser runtime test in this environment.

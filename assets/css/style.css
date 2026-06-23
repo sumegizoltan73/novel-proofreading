@@ -1,0 +1,183 @@
+.novel-proofreading-list {
+  color: #1d2327;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.novel-proofreading-list-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 14px;
+}
+
+.novel-proofreading-details-toggle {
+  background: #f6f7f7;
+  border: 1px solid #c3c4c7;
+  border-radius: 4px;
+  color: #1d2327;
+  cursor: pointer;
+  font: inherit;
+  padding: 6px 12px;
+}
+
+.novel-proofreading-details-toggle[aria-pressed="true"] {
+  background: #eef4ff;
+  border-color: #8cace3;
+}
+
+.novel-proofreading-list-item {
+  border-top: 1px solid #dcdcde;
+  padding: 16px 0;
+}
+
+.novel-proofreading-list-item:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.novel-proofreading-list-title {
+  font-size: 20px;
+  line-height: 1.25;
+  margin: 0 0 8px;
+}
+
+.novel-proofreading-list-subtitle {
+  color: #646970;
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 400;
+  margin-left: 8px;
+}
+
+.novel-proofreading-chain-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 12px;
+}
+
+.novel-proofreading-storyline-route {
+  margin: 0 0 12px;
+}
+
+.novel-proofreading-storyline-route-previous,
+.novel-proofreading-storyline-branches {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.novel-proofreading-storyline-route-previous {
+  margin-left: 24px;
+}
+
+.novel-proofreading-storyline-route-current {
+  color: #3c434a;
+  margin: 4px 0 4px 124px;
+}
+
+.novel-proofreading-storyline-branches {
+  margin-left: 224px;
+}
+
+.novel-proofreading-detail-bands {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 10px 0 0;
+}
+
+.novel-proofreading-detail-bands[hidden] {
+  display: none;
+}
+
+.novel-proofreading-detail-band {
+  align-items: flex-start;
+  background: #fbfaf2;
+  border: 1px solid #eee9c8;
+  border-radius: 4px;
+  display: flex;
+  gap: 8px;
+  padding: 7px 9px;
+}
+
+.novel-proofreading-detail-label {
+  color: #50575e;
+  flex: 0 0 auto;
+  font-weight: 600;
+}
+
+.novel-proofreading-detail-badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.novel-proofreading-badge {
+  background: #f0f0f1;
+  border-radius: 4px;
+  display: inline-block;
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 3px 7px;
+}
+
+.novel-proofreading-badge.is-ok {
+  background: #d1e7dd;
+  color: #0a3622;
+}
+
+.novel-proofreading-badge.is-warning {
+  background: #fff3cd;
+  color: #664d03;
+}
+
+.novel-proofreading-badge.is-info {
+  background: #cfe2ff;
+  color: #052c65;
+}
+
+.novel-proofreading-badge.is-person,
+.novel-proofreading-badge.is-location,
+.novel-proofreading-badge.is-time,
+.novel-proofreading-badge.is-relic {
+  background: #f4f1df;
+}
+
+.novel-proofreading-badge.is-person {
+  color: #0b2f6b;
+}
+
+.novel-proofreading-badge.is-location {
+  color: #1f6fa8;
+}
+
+.novel-proofreading-badge.is-time {
+  color: #5d5485;
+}
+
+.novel-proofreading-badge.is-relic {
+  color: #7a5300;
+}
+
+.novel-proofreading-empty {
+  color: #646970;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .novel-proofreading-list-subtitle {
+    display: block;
+    margin: 4px 0 0;
+  }
+
+  .novel-proofreading-storyline-route-current,
+  .novel-proofreading-storyline-branches {
+    margin-left: 24px;
+  }
+
+  .novel-proofreading-detail-band {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
