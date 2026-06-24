@@ -474,7 +474,9 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
                     m3.person_related_subtype
                 FROM {$table_mapping} m
                 JOIN {$table_mapping} m2
-                    ON m.chapter = m2.chapter and m.page = m2.page
+                    ON m.chapter = m2.chapter
+                        and (cast(m.page as int) - 5) < cast(m2.page as int)
+                    	and (cast(m2.page as int) + 5) > cast(m.page as int)
                 JOIN {$table_persons} p
                     ON m.person_id = p.id
                 LEFT JOIN {$table_mapping} m3
@@ -495,7 +497,9 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
                     l.alias
                 FROM {$table_mapping} m
                 JOIN {$table_mapping} m2
-                    ON m.chapter = m2.chapter and m.page = m2.page
+                    ON m.chapter = m2.chapter
+                        and (cast(m.page as int) - 5) < cast(m2.page as int)
+                    	and (cast(m2.page as int) + 5) > cast(m.page as int)
                 JOIN {$table_locations} l
                     ON m.location_id = l.id
                 LEFT JOIN {$table_mapping} m3
@@ -510,7 +514,9 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
                     d.name
                 FROM {$table_mapping} m
                 JOIN {$table_mapping} m2
-                    ON m.chapter = m2.chapter and m.page = m2.page
+                    ON m.chapter = m2.chapter
+                        and (cast(m.page as int) - 5) < cast(m2.page as int)
+                    	and (cast(m2.page as int) + 5) > cast(m.page as int)
                 JOIN {$table_datetimes} d
                     ON m.time_id = d.id
                 LEFT JOIN {$table_mapping} m3
@@ -525,7 +531,9 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
                     r.relic_name
                 FROM {$table_mapping} m
                 JOIN {$table_mapping} m2
-                    ON m.chapter = m2.chapter and m.page = m2.page
+                    ON m.chapter = m2.chapter
+                        and (cast(m.page as int) - 5) < cast(m2.page as int)
+                    	and (cast(m2.page as int) + 5) > cast(m.page as int)
                 JOIN {$table_relics} r
                     ON m.relics_id = r.id
                 LEFT JOIN {$table_mapping} m3
