@@ -497,21 +497,32 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
             ) p2 ON p2.storyline_id = cm.storyline_id
         LEFT JOIN
             (
-                SELECT DISTINCT
-                    m2.storyline_id,
+                SELECT distinct
+                    e.storyline_id,
                     l.id,
                     l.name,
                     l.alias
-                FROM {$table_mapping} m
-                JOIN {$table_mapping} m2
-                    ON m.chapter = m2.chapter
-                        and (cast(m.page as int) - 5) < cast(m2.page as int)
-                    	and (cast(m2.page as int) + 5) > cast(m.page as int)
+                FROM {$table_events} e
+                JOIN {$table_mapping} m
+                    ON m.storyline_id = e.storyline_id
+                JOIN {$table_mapping} m4
+                	ON m4.event_id = e.id
+                JOIN {$table_mapping} m3
+                	ON (m3.chapter = m.chapter or m3.chapter = m4.chapter) and 
+                        exists (
+                            select * 
+                            from {$table_mapping} m2
+                            where m2.type = 'LOCATION'
+                                and (
+                                    ((cast(m.page as int) + 3 > cast(m2.page as int)
+                                    and cast(m2.page as int) > cast(m.page as int) - 3))
+                                    or 
+                                    ((cast(m4.page as int) + 3 > cast(m2.page as int)
+                                    and cast(m2.page as int) > cast(m4.page as int) - 3))
+                                )
+                        )
                 JOIN {$table_locations} l
-                    ON m.location_id = l.id
-                LEFT JOIN {$table_mapping} m3
-                    ON m.location_id = m3.location_id AND m.chapter = m3.chapter
-                WHERE m.location_id is not null and m2.storyline_id is not null AND m.type = 'LOCATION'
+                    ON l.id = m3.location_id
             ) l2 ON l2.storyline_id = cm.storyline_id
         LEFT JOIN
             (
