@@ -12,14 +12,15 @@ function novel_proofreading_plugin_render( $atts = [] ) {
         [
             'view' => '',
             'book_id' => 0,
-            'details' => 'closed'
+            'details' => 'closed',
+            'suggestions' => 'on'
         ],
         $atts,
         'novel_proofreading'
     );
     $atts['view'] = strtolower((string) $atts['view']);
     $atts['details'] = strtolower((string) $atts['details']);
-
+    $atts['suggestions'] = strtolower((string) $atts['suggestions']);
     if ($atts['view'] === 'storyline_chains') {
         return novel_proofreading_plugin_render_storyline_chains($atts);
     }
@@ -203,6 +204,32 @@ function novel_proofreading_plugin_render_storyline_chains_and_events($atts) {
     $book_id = intval($atts['book_id']);
     $details_open = $atts['details'] === 'open';
     $chains = novel_proofreading_get_storyline_chains($book_id);
+    $suggestions = [];
+
+    if ($atts['suggestions'] === 'on' && ! empty($chains)) {
+        global $wpdb;
+
+        $storyline_ids = array_values(array_filter(array_map('intval', array_column($chains, 'id'))));
+        if (! empty($storyline_ids)) {
+            $placeholders = implode(', ', array_fill(0, count($storyline_ids), '%d'));
+            $table_mapping = $wpdb->prefix . 'novel_proofreading_common_mapping';
+            $rows = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT storyline_id, type, description
+                    FROM {$table_mapping}
+                    WHERE storyline_id IN ({$placeholders})
+                        AND type IN ('AGREEMENT', 'SUGGESTION')
+                    ORDER BY id",
+                    $storyline_ids
+                ),
+                ARRAY_A
+            );
+
+            foreach ($rows as $row) {
+                $suggestions[intval($row['storyline_id'])][] = $row;
+            }
+        }
+    }
     $instance_id = 'novel-proofreading-storyline-list-' . uniqid();
 
     ob_start();
@@ -228,6 +255,7 @@ function novel_proofreading_plugin_render_storyline_chains_and_events($atts) {
             $stats = $chain['stats'];
             $detail_groups = novel_proofreading_plugin_get_storyline_detail_groups($chain);
             $anchor_id = novel_proofreading_plugin_get_storyline_anchor_id($instance_id, $chain['id']);
+            $chain_suggestions = $suggestions[intval($chain['id'])] ?? [];
             ?>
             <article class="novel-proofreading-list-item novel-proofreading-storyline-chain-item">
                 <h3 id="<?php echo esc_attr($anchor_id); ?>" class="novel-proofreading-list-title">
@@ -309,6 +337,20 @@ function novel_proofreading_plugin_render_storyline_chains_and_events($atts) {
                         </div>
                     <?php endforeach; ?>
                 </div>
+
+                <?php if (! empty($chain_suggestions)) : ?>
+                    <div class="novel-proofreading-storyline-suggestions">
+                        <?php foreach ($chain_suggestions as $suggestion) : ?>
+                            <?php $suggestion_type = strtolower($suggestion['type']); ?>
+                            <div class="novel-proofreading-storyline-suggestion is-<?php echo esc_attr($suggestion_type); ?>">
+                                <span class="novel-proofreading-badge is-info">
+                                    <?php echo esc_html($suggestion['type'] === 'AGREEMENT' ? __('Agreement', 'novel-proofreading') : __('Suggestion', 'novel-proofreading')); ?>
+                                </span>
+                                <?php echo esc_html($suggestion['description']); ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
 
                 <?php if ($stats['event_count'] === 0) : ?>
                     <p class="notice notice-warning inline"><?php _e( 'This storyline has no linked events.', 'novel-proofreading' ); ?></p>

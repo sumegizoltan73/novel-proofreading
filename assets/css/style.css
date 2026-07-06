@@ -101,6 +101,27 @@
   padding: 7px 9px;
 }
 
+.novel-proofreading-storyline-suggestions {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.novel-proofreading-storyline-suggestion {
+  border-left: 4px solid #dba617;
+  padding: 10px 12px;
+  background: #fff4cc;
+}
+
+.novel-proofreading-storyline-suggestion.is-agreement {
+  border-left-color: #2f8f46;
+  background: #e1f4e5;
+}
+
+.novel-proofreading-storyline-suggestion .novel-proofreading-badge {
+  margin-right: 8px;
+}
+
 .novel-proofreading-detail-label {
   color: #50575e;
   flex: 0 0 auto;
