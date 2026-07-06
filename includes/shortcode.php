@@ -526,37 +526,59 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
             ) l2 ON l2.storyline_id = cm.storyline_id
         LEFT JOIN
             (
-                SELECT DISTINCT
-                    m2.storyline_id,
+                SELECT distinct
+                    e.storyline_id,
                     d.id,
                     d.name
-                FROM {$table_mapping} m
-                JOIN {$table_mapping} m2
-                    ON m.chapter = m2.chapter
-                        and (cast(m.page as int) - 5) < cast(m2.page as int)
-                    	and (cast(m2.page as int) + 5) > cast(m.page as int)
+                FROM {$table_events} e
+                JOIN {$table_mapping} m
+                    ON m.storyline_id = e.storyline_id
+                JOIN {$table_mapping} m4
+                	ON m4.event_id = e.id
+                JOIN {$table_mapping} m3
+                	ON (m3.chapter = m.chapter or m3.chapter = m4.chapter) and 
+                        exists (
+                            select * 
+                            from {$table_mapping} m2
+                            where m2.type = 'TIME'
+                                and (
+                                    ((cast(m.page as int) + 3 > cast(m2.page as int)
+                                    and cast(m2.page as int) > cast(m.page as int) - 3))
+                                    or 
+                                    ((cast(m4.page as int) + 3 > cast(m2.page as int)
+                                    and cast(m2.page as int) > cast(m4.page as int) - 3))
+                                )
+                        )
                 JOIN {$table_datetimes} d
-                    ON m.time_id = d.id
-                LEFT JOIN {$table_mapping} m3
-                    ON m.time_id = m3.time_id AND m.chapter = m3.chapter
-                WHERE m.time_id is not null and m2.storyline_id is not null AND m.type = 'TIME'
+                    ON d.id = m3.time_id
             ) d2 ON d2.storyline_id = cm.storyline_id
         LEFT JOIN
             (
-                SELECT DISTINCT
-                    m2.storyline_id,
+                SELECT distinct
+                    e.storyline_id,
                     r.id,
                     r.relic_name
-                FROM {$table_mapping} m
-                JOIN {$table_mapping} m2
-                    ON m.chapter = m2.chapter
-                        and (cast(m.page as int) - 5) < cast(m2.page as int)
-                    	and (cast(m2.page as int) + 5) > cast(m.page as int)
+                FROM {$table_events} e
+                JOIN {$table_mapping} m
+                    ON m.storyline_id = e.storyline_id
+                JOIN {$table_mapping} m4
+                	ON m4.event_id = e.id
+                JOIN {$table_mapping} m3
+                	ON (m3.chapter = m.chapter or m3.chapter = m4.chapter) and 
+                        exists (
+                            select * 
+                            from {$table_mapping} m2
+                            where m2.type = 'RELIC'
+                                and (
+                                    ((cast(m.page as int) + 3 > cast(m2.page as int)
+                                    and cast(m2.page as int) > cast(m.page as int) - 3))
+                                    or 
+                                    ((cast(m4.page as int) + 3 > cast(m2.page as int)
+                                    and cast(m2.page as int) > cast(m4.page as int) - 3))
+                                )
+                        )
                 JOIN {$table_relics} r
-                    ON m.relics_id = r.id
-                LEFT JOIN {$table_mapping} m3
-                    ON m.relics_id = m3.relics_id AND m.chapter = m3.chapter
-                WHERE m.relics_id is not null and m2.storyline_id is not null AND m.type = 'RELIC'
+                    ON r.id = m3.relics_id
             ) r2 ON r2.storyline_id = cm.storyline_id
 
         WHERE
