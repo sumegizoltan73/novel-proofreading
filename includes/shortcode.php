@@ -434,6 +434,7 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
 
     $table_mapping = $wpdb->prefix . 'novel_proofreading_common_mapping';
     $table_persons = $wpdb->prefix . 'novel_proofreading_persons';
+    $table_events = $wpdb->prefix . 'novel_proofreading_events';
     $table_locations = $wpdb->prefix . 'novel_proofreading_locations';
     $table_datetimes = $wpdb->prefix . 'novel_proofreading_datetimes';
     $table_relics = $wpdb->prefix . 'novel_proofreading_relics';
@@ -466,27 +467,33 @@ function novel_proofreading_plugin_get_storyline_details($chain) {
             {$table_mapping} cm
         LEFT JOIN
             (
-                SELECT DISTINCT
-                    m2.storyline_id,
+                SELECT distinct
+                    e.storyline_id,
                     p.id,
                     p.name,
                     p.alias,
-                    m3.person_related_subtype
-                FROM {$table_mapping} m
-                JOIN {$table_mapping} m2
-                    ON m.chapter = m2.chapter
-                        and (cast(m.page as int) - 5) < cast(m2.page as int)
-                    	and (cast(m2.page as int) + 5) > cast(m.page as int)
+                    case when m3.person_related_subtype is null then m4.person_related_subtype else m3.person_related_subtype end as person_related_subtype
+                FROM {$table_events} e
+                JOIN {$table_mapping} m
+                    ON m.storyline_id = e.storyline_id
+                JOIN {$table_mapping} m4
+                	ON m4.event_id = e.id
+                JOIN {$table_mapping} m3
+                	ON (m3.chapter = m.chapter or m3.chapter = m4.chapter) and 
+                        exists (
+                            select * 
+                            from {$table_mapping} m2
+                            where m2.type = 'PERSON'
+                                and (
+                                    ((cast(m.page as int) + 3 > cast(m2.page as int)
+                                    and cast(m2.page as int) > cast(m.page as int) - 3))
+                                    or 
+                                    ((cast(m4.page as int) + 3 > cast(m2.page as int)
+                                    and cast(m2.page as int) > cast(m4.page as int) - 3))
+                                )
+                        )
                 JOIN {$table_persons} p
-                    ON m.person_id = p.id
-                LEFT JOIN {$table_mapping} m3
-                    ON m.person_id = m3.person_id AND m.chapter = m3.chapter
-                WHERE m.person_id is not null and m2.storyline_id is not null AND m.type = 'PERSON'
-                    and (m3.person_related_subtype is not null or not exists (
-                        select * 
-                        from {$table_mapping} m4 
-                        where m4.person_related_subtype is not null and m4.person_id = m3.person_id
-                    ))
+                    ON p.id = m3.person_id
             ) p2 ON p2.storyline_id = cm.storyline_id
         LEFT JOIN
             (
