@@ -4,6 +4,11 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+add_action(
+    'wp_ajax_novel_proofreading_accept_storyline_agreement',
+    'novel_proofreading_plugin_ajax_accept_storyline_agreement'
+);
+
 /**
  * Common render function
  */
@@ -26,6 +31,9 @@ function novel_proofreading_plugin_render( $atts = [] ) {
     }
     else if ($atts['view'] === 'storyline_chains_and_events') {
         return novel_proofreading_plugin_render_storyline_chains_and_events($atts);
+    }
+    else if ($atts['view'] === 'storyline_agreements') {
+        return novel_proofreading_plugin_render_storyline_agreements($atts);
     }
 
     novel_proofreading_plugin_enqueue_assets();
@@ -50,6 +58,329 @@ function novel_proofreading_plugin_enqueue_frontend_assets() {
             plugin_dir_path(__FILE__) .
             '../assets/css/style.css'
         )
+    );
+}
+
+function novel_proofreading_plugin_render_storyline_agreements($atts) {
+
+    novel_proofreading_plugin_enqueue_frontend_assets();
+
+    $book_id = intval($atts['book_id']);
+    $items = novel_proofreading_plugin_get_storyline_agreements($book_id);
+    $can_accept = current_user_can('edit_posts');
+    $instance_id = 'novel-proofreading-storyline-agreements-' . uniqid();
+
+    ob_start();
+    ?>
+
+    <div
+        id="<?php echo esc_attr($instance_id); ?>"
+        class="novel-proofreading-list novel-proofreading-storyline-agreement-list"
+        data-ajax-url="<?php echo esc_url(admin_url('admin-ajax.php')); ?>"
+        data-nonce="<?php echo esc_attr(wp_create_nonce('novel_proofreading_accept_storyline_agreement')); ?>"
+    >
+        <?php if (empty($items)) : ?>
+            <p class="novel-proofreading-empty"><?php _e( 'No storyline suggestions or agreements found.', 'novel-proofreading' ); ?></p>
+        <?php endif; ?>
+
+        <?php foreach ($items as $item) : ?>
+            <article
+                class="novel-proofreading-list-item novel-proofreading-storyline-agreement-item"
+                data-agreement-id="<?php echo esc_attr($item['id']); ?>"
+            >
+                <div class="novel-proofreading-storyline-agreement-header">
+                    <h3 class="novel-proofreading-list-title">
+                        <?php echo esc_html($item['storyline_name']); ?>
+                        <span class="novel-proofreading-list-subtitle"><?php echo esc_html($item['book_title']); ?></span>
+                    </h3>
+                    <span class="novel-proofreading-badge <?php echo esc_attr($item['type'] === 'AGREEMENT' ? 'is-ok' : 'is-info'); ?>">
+                        <?php echo esc_html($item['type'] === 'AGREEMENT' ? __('Agreement', 'novel-proofreading') : __('Suggestion', 'novel-proofreading')); ?>
+                    </span>
+                </div>
+
+                <?php if ($item['description'] !== '') : ?>
+                    <p class="novel-proofreading-storyline-agreement-description">
+                        <?php echo esc_html($item['description']); ?>
+                    </p>
+                <?php endif; ?>
+
+                <div class="novel-proofreading-chain-stats">
+                    <?php if ($item['chapter'] !== '') : ?>
+                        <span class="novel-proofreading-badge"><?php echo esc_html(sprintf(__('Chapter: %s', 'novel-proofreading'), $item['chapter'])); ?></span>
+                    <?php endif; ?>
+                    <?php if ($item['page'] !== '') : ?>
+                        <span class="novel-proofreading-badge"><?php echo esc_html(sprintf(__('Page: %s', 'novel-proofreading'), $item['page'])); ?></span>
+                    <?php endif; ?>
+                    <?php if ($item['event_name'] !== '') : ?>
+                        <span class="novel-proofreading-badge"><?php echo esc_html(sprintf(__('Event: %s', 'novel-proofreading'), $item['event_name'])); ?></span>
+                    <?php endif; ?>
+                </div>
+
+                <?php if ($can_accept) : ?>
+                    <div class="novel-proofreading-storyline-agreement-actions">
+                        <button type="button" class="novel-proofreading-accept-agreement">
+                            <?php _e( 'Accept modification', 'novel-proofreading' ); ?>
+                        </button>
+                        <span class="novel-proofreading-agreement-status" aria-live="polite"></span>
+                    </div>
+                <?php endif; ?>
+            </article>
+        <?php endforeach; ?>
+    </div>
+
+    <?php if ($can_accept && ! empty($items)) : ?>
+        <script>
+        (function () {
+            var root = document.getElementById(<?php echo wp_json_encode($instance_id); ?>);
+            if (!root) {
+                return;
+            }
+
+            root.addEventListener('click', function (event) {
+                var button = event.target.closest('.novel-proofreading-accept-agreement');
+                if (!button) {
+                    return;
+                }
+
+                var item = button.closest('.novel-proofreading-storyline-agreement-item');
+                var status = item ? item.querySelector('.novel-proofreading-agreement-status') : null;
+                if (!item) {
+                    return;
+                }
+
+                button.disabled = true;
+                if (status) {
+                    status.textContent = <?php echo wp_json_encode(__('Saving...', 'novel-proofreading')); ?>;
+                }
+
+                var body = new URLSearchParams();
+                body.append('action', 'novel_proofreading_accept_storyline_agreement');
+                body.append('nonce', root.getAttribute('data-nonce'));
+                body.append('mapping_id', item.getAttribute('data-agreement-id'));
+
+                fetch(root.getAttribute('data-ajax-url'), {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body: body.toString()
+                })
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (response) {
+                        if (!response || !response.success) {
+                            throw new Error(response && response.data && response.data.message ? response.data.message : <?php echo wp_json_encode(__('Modification could not be accepted.', 'novel-proofreading')); ?>);
+                        }
+
+                        item.classList.add('is-accepted');
+                        if (status) {
+                            status.textContent = response.data.message;
+                        }
+                        button.remove();
+                    })
+                    .catch(function (error) {
+                        button.disabled = false;
+                        if (status) {
+                            status.textContent = error.message;
+                        }
+                    });
+            });
+        }());
+        </script>
+    <?php endif; ?>
+
+    <?php
+
+    return ob_get_clean();
+}
+
+function novel_proofreading_plugin_get_storyline_agreements($book_id = 0) {
+    global $wpdb;
+
+    $table_mapping = $wpdb->prefix . 'novel_proofreading_common_mapping';
+    $table_books = $wpdb->prefix . 'novel_proofreading_books';
+    $table_storylines = $wpdb->prefix . 'novel_proofreading_storylines';
+    $table_events = $wpdb->prefix . 'novel_proofreading_events';
+
+    $where = [
+        "cm.type IN ('AGREEMENT', 'SUGGESTION')",
+        'cm.storyline_id IS NOT NULL',
+        "cm.is_solved = 'N'"
+    ];
+    $params = [];
+
+    if ($book_id > 0) {
+        $where[] = 'cm.book_id = %d';
+        $params[] = $book_id;
+    }
+
+    $sql = "
+        SELECT
+            cm.id,
+            cm.book_id,
+            cm.type,
+            cm.description,
+            cm.page,
+            cm.chapter,
+            cm.storyline_id,
+            cm.event_id,
+            b.title AS book_title,
+            st.storyline_name,
+            e.event_name
+
+        FROM
+            {$table_mapping} cm
+        LEFT JOIN
+            {$table_books} b ON b.id = cm.book_id
+        LEFT JOIN
+            {$table_storylines} st ON st.id = cm.storyline_id
+        LEFT JOIN
+            {$table_events} e ON e.id = cm.event_id
+
+        WHERE
+            " . implode(' AND ', $where) . "
+
+        ORDER BY
+            cm.book_id,
+            st.storyline_name,
+            cm.chapter,
+            cm.page,
+            cm.id
+    ";
+
+    $rows = empty($params)
+        ? $wpdb->get_results($sql)
+        : $wpdb->get_results($wpdb->prepare($sql, $params));
+
+    $items = [];
+    foreach ($rows as $row) {
+        $items[] = [
+            'id' => intval($row->id),
+            'book_id' => intval($row->book_id),
+            'type' => $row->type,
+            'description' => trim((string) $row->description),
+            'page' => trim((string) $row->page),
+            'chapter' => trim((string) $row->chapter),
+            'storyline_id' => intval($row->storyline_id),
+            'event_id' => intval($row->event_id),
+            'book_title' => isset($row->book_title) ? $row->book_title : '',
+            'storyline_name' => isset($row->storyline_name) ? $row->storyline_name : '',
+            'event_name' => isset($row->event_name) ? $row->event_name : ''
+        ];
+    }
+
+    return $items;
+}
+
+function novel_proofreading_plugin_ajax_accept_storyline_agreement() {
+
+    if (! current_user_can('edit_posts')) {
+        wp_send_json_error(
+            [
+                'message' => __( 'You are not allowed to accept modifications.', 'novel-proofreading' )
+            ],
+            403
+        );
+    }
+
+    check_ajax_referer(
+        'novel_proofreading_accept_storyline_agreement',
+        'nonce'
+    );
+
+    $mapping_id = intval($_POST['mapping_id'] ?? 0);
+    if ($mapping_id <= 0) {
+        wp_send_json_error(
+            [
+                'message' => __( 'Modification is required.', 'novel-proofreading' )
+            ],
+            400
+        );
+    }
+
+    global $wpdb;
+
+    $table_mapping = $wpdb->prefix . 'novel_proofreading_common_mapping';
+    $now = current_time('mysql', true);
+    $mapping = $wpdb->get_row(
+        $wpdb->prepare(
+            "
+            SELECT
+                id
+
+            FROM
+                {$table_mapping}
+
+            WHERE
+                    id = %d
+                AND type IN ('AGREEMENT', 'SUGGESTION')
+                AND storyline_id IS NOT NULL
+            ",
+            $mapping_id
+        )
+    );
+
+    if (! $mapping) {
+        wp_send_json_error(
+            [
+                'message' => __( 'Modification does not exist.', 'novel-proofreading' )
+            ],
+            404
+        );
+    }
+
+    $result = $wpdb->update(
+        $table_mapping,
+        [
+            'to_be_solved' => 'N',
+            'is_solved' => 'Y',
+            'solved_at' => $now,
+            'solved_type' => 'ACCEPTED',
+            'updated_at' => $now,
+            'updated_by' => get_current_user_id()
+        ],
+        [
+            'id' => $mapping_id,
+            'is_solved' => 'N'
+        ],
+        [
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%d'
+        ],
+        [
+            '%d',
+            '%s'
+        ]
+    );
+
+    if ($result === false) {
+        wp_send_json_error(
+            [
+                'message' => __( 'Modification could not be accepted.', 'novel-proofreading' )
+            ],
+            500
+        );
+    }
+
+    if (intval($result) === 0) {
+        wp_send_json_error(
+            [
+                'message' => __( 'Modification was already accepted or does not exist.', 'novel-proofreading' )
+            ],
+            409
+        );
+    }
+
+    wp_send_json_success(
+        [
+            'message' => __( 'Modification accepted.', 'novel-proofreading' )
+        ]
     );
 }
 

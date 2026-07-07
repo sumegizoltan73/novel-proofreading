@@ -122,6 +122,49 @@
   margin-right: 8px;
 }
 
+.novel-proofreading-storyline-agreement-item.is-accepted {
+  opacity: 0.68;
+}
+
+.novel-proofreading-storyline-agreement-header {
+  align-items: flex-start;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.novel-proofreading-storyline-agreement-description {
+  margin: 8px 0;
+}
+
+.novel-proofreading-storyline-agreement-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.novel-proofreading-accept-agreement {
+  background: #2271b1;
+  border: 1px solid #135e96;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  padding: 7px 12px;
+}
+
+.novel-proofreading-accept-agreement:disabled {
+  cursor: progress;
+  opacity: 0.72;
+}
+
+.novel-proofreading-agreement-status {
+  color: #50575e;
+  font-size: 13px;
+}
+
 .novel-proofreading-detail-label {
   color: #50575e;
   flex: 0 0 auto;
@@ -200,5 +243,9 @@
   .novel-proofreading-detail-band {
     flex-direction: column;
     gap: 5px;
+  }
+
+  .novel-proofreading-storyline-agreement-header {
+    flex-direction: column;
   }
 }

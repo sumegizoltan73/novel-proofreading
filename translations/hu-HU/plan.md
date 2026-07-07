@@ -447,3 +447,19 @@ php -l passed for changed/relevant PHP files.
 git diff --check passed.
 Recompiled hu_HU, en_US, and de_DE .mo files.
 Note: translations/hu-HU/plan.md was already modified in the worktree and I did not touch it. I did not run a live WordPress/browser runtime test in this environment.
+
+## Huszonnegyedik módosítás - Frontend shortcode segítségével listás nézet alapú Javaslat és Egyezség lista szükséges, a módosítások regisztrálásával
+Frontend shortcode alapú Javaslat és Egyezség lista szükséges, a módosítások regisztrálási lehetőségével. A módosítások egy egyszerű nyomógomb segítségével kerülnek elfogadásra. A lista a view="storyline_agreements" paraméterrel legyen betöltött.
+
+Codex / ChatGPT:
+Elkészült a frontend shortcode nézet.
+Használat:
+[novel_proofreading view="storyline_agreements"]
+Könyvre szűrve:
+[novel_proofreading view="storyline_agreements" book_id="123"]
+Módosítások:
+Új storyline_agreements shortcode nézet az AGREEMENT és SUGGESTION típusú, még nem elfogadott storyline rekordokhoz: [includes/shortcode.php (line 35)](includes/shortcode.php:35)
+Egyszerű “Accept modification” gomb, AJAX mentéssel: [includes/shortcode.php (line 119)](includes/shortcode.php:119)
+Elfogadáskor a rekord is_solved = 'Y', solved_at, solved_type = 'ACCEPTED', updated_by mezőket kap: [includes/shortcode.php (line 334)](includes/shortcode.php:334)
+Frontend stílusok a listához és gombhoz: [assets/css/style.css (line 125)](assets/css/style.css:125)
+Jogosultság: a lista frontendként látszik, de elfogadni csak bejelentkezett, edit_posts jogosultságú felhasználó tud.
