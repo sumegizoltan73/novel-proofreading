@@ -448,7 +448,7 @@ git diff --check passed.
 Recompiled hu_HU, en_US, and de_DE .mo files.
 Note: translations/hu-HU/plan.md was already modified in the worktree and I did not touch it. I did not run a live WordPress/browser runtime test in this environment.
 
-## Huszonnegyedik módosítás - Frontend shortcode segítségével listás nézet alapú Javaslat és Egyezség lista szükséges, a módosítások regisztrálásával
+## Huszonnegyedik módosítás - Frontend shortcode segítségével listás nézet alapú Javaslat és Egyezség lista szükséges, a módosítások regisztrálásával (Implementált)
 Frontend shortcode alapú Javaslat és Egyezség lista szükséges, a módosítások regisztrálási lehetőségével. A módosítások egy egyszerű nyomógomb segítségével kerülnek elfogadásra. A lista a view="storyline_agreements" paraméterrel legyen betöltött.
 
 Codex / ChatGPT:
@@ -463,3 +463,28 @@ Egyszerű “Accept modification” gomb, AJAX mentéssel: [includes/shortcode.p
 Elfogadáskor a rekord is_solved = 'Y', solved_at, solved_type = 'ACCEPTED', updated_by mezőket kap: [includes/shortcode.php (line 334)](includes/shortcode.php:334)
 Frontend stílusok a listához és gombhoz: [assets/css/style.css (line 125)](assets/css/style.css:125)
 Jogosultság: a lista frontendként látszik, de elfogadni csak bejelentkezett, edit_posts jogosultságú felhasználó tud.
+
+## Huszonötödik módosítás - Frontend shortcode átalakítása szükséges memória optimalizálás végett (kielemezve)
+A következő hibaüzenet van az események lista (mindkettő) betöltési próbálkozásakor: Allowed memory size of 268435456 bytes exhausted (tried to allocate 20480 bytes).
+Ezért átalakítani szükséges a shortcode listák megjelenítőjét.
+
+Codex / ChatGPT:
+A hibát nem első körben memóriaemeléssel érdemes kezelni. A konkrét kódban az ok valószínűleg az, hogy az admin oldal betöltésekor minden tab adata egyszerre betöltődik, akkor is, ha rejtve van.
+A leggyanúsabb pontok:
+[includes/admin.php (line 4833)](includes/admin.php:4833): itt mindig lefut az események teljes lekérése:$event_items = novel_proofreading_get_events();
+
+[includes/admin.php (line 4836)](includes/admin.php:4836): itt mindig lefut a storyline chain lista is:$storyline_chain_items = novel_proofreading_get_storyline_chains($selected_chain_book_id);
+
+[includes/admin.php (line 2834)](includes/admin.php:2834): novel_proofreading_get_events() minden eseményt korlát nélkül lekér.
+[includes/admin.php (line 3694)](includes/admin.php:3694): novel_proofreading_get_storyline_chains() több táblát JOIN-ol, és eseményenként/hivatkozásonként sok sor keletkezhet.
+A tartós javítás:
+Az eseménylistához könyv szerinti szűrőt és lapozást kell adni, például 50 vagy 100 sor oldalanként.
+A Storyline Chains listát ne engedjük alapból “All books” módban betölteni nagy adatnál; legyen kötelező vagy alapértelmezett könyvszűrő.
+Az admin oldal ne töltse be előre az összes rejtett tab nehéz listáit. Csak az aktuális tabhoz tartozó adat fusson le, vagy AJAX-szal töltődjön be kattintáskor.
+Az eseménysorokban ne legyen minden sorban teljes book + teljes storyline select, mert ez nagyon gyorsan HTML/memória robbanást okoz: események száma × történetszálak száma.
+A láncolt nézetnél a common_mapping hivatkozásokat külön, csoportosított lekérdezéssel érdemes lekérni, nem egy nagy JOIN-ban minden event-reference kombinációval.
+Átmeneti kerülőút lehet a PHP memória emelése, például wp-config.php-ban:
+define('WP_MEMORY_LIMIT', '512M');
+define('WP_MAX_MEMORY_LIMIT', '512M');
+De ez csak tüneti kezelés. A valódi javítás a listák szűrése/lapozása és a rejtett tabok adatainak lusta betöltése.
+
