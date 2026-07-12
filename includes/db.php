@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define('NOVEL_PROOFREADING_DB_VERSION', '1.6');
+define('NOVEL_PROOFREADING_DB_VERSION', '1.7');
 
 function novel_proofreading_install() {
 
@@ -455,6 +455,8 @@ function novel_proofreading_create_tables() {
         $wpdb->prefix . 'novel_proofreading_events';
     $storyline_links_table_name =
         $wpdb->prefix . 'novel_proofreading_storyline_links';
+    $storyline_chain_cache_table_name =
+        $wpdb->prefix . 'novel_proofreading_storyline_chain_cache';
     $sql = "
     CREATE TABLE $storylines_table_name (
 
@@ -540,6 +542,44 @@ function novel_proofreading_create_tables() {
         KEY idx_related_storyline (
             book_id,
             related_storyline_id
+        )
+
+    ) $charset_collate;
+
+    CREATE TABLE $storyline_chain_cache_table_name (
+
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+        book_id BIGINT UNSIGNED NOT NULL,
+        storyline_id BIGINT UNSIGNED NOT NULL,
+        book_title VARCHAR(1024) NULL,
+        storyline_name VARCHAR(255) NOT NULL,
+        storyline_description TEXT NULL,
+        event_count INT NOT NULL DEFAULT 0,
+        has_opening CHAR(1) NOT NULL DEFAULT 'N',
+        has_return CHAR(1) NOT NULL DEFAULT 'N',
+        has_closing CHAR(1) NOT NULL DEFAULT 'N',
+        has_suggestion CHAR(1) NOT NULL DEFAULT 'N',
+        first_reference VARCHAR(512) NULL,
+        last_reference VARCHAR(512) NULL,
+        storyline_references_json LONGTEXT NULL,
+        previous_storylines_json LONGTEXT NULL,
+        related_storylines_json LONGTEXT NULL,
+        events_json LONGTEXT NULL,
+        stats_json LONGTEXT NULL,
+
+        refreshed_at DATETIME NOT NULL,
+        refreshed_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
+
+        PRIMARY KEY  (id),
+
+        UNIQUE KEY idx_storyline_cache (
+            storyline_id
+        ),
+
+        KEY idx_book_storyline_cache (
+            book_id,
+            storyline_id
         )
 
     ) $charset_collate;

@@ -3691,7 +3691,7 @@ function novel_proofreading_format_mapping_reference($chapter, $page) {
     );
 }
 
-function novel_proofreading_get_storyline_chains($book_id = 0) {
+function novel_proofreading_build_storyline_chains($book_id = 0) {
     global $wpdb;
 
     $chains = [];
@@ -3948,6 +3948,179 @@ function novel_proofreading_get_storyline_chains($book_id = 0) {
     }
 
     return array_values($chains);
+}
+
+function novel_proofreading_decode_cache_json($value, $default = []) {
+    if (! is_string($value) || trim($value) === '') {
+        return $default;
+    }
+
+    $decoded = json_decode($value, true);
+
+    return is_array($decoded) ? $decoded : $default;
+}
+
+function novel_proofreading_get_storyline_chains($book_id = 0) {
+    global $wpdb;
+
+    $table_cache =
+        $wpdb->prefix . 'novel_proofreading_storyline_chain_cache';
+
+    $where = '';
+    $params = [];
+
+    if ($book_id > 0) {
+        $where = 'WHERE book_id = %d';
+        $params[] = $book_id;
+    }
+
+    $sql = "
+        SELECT
+            *
+
+        FROM
+            {$table_cache}
+
+        {$where}
+
+        ORDER BY
+            book_id,
+            storyline_id
+    ";
+
+    $rows = empty($params)
+        ? $wpdb->get_results($sql)
+        : $wpdb->get_results(
+            $wpdb->prepare(
+                $sql,
+                $params
+            )
+        );
+
+    $chains = [];
+
+    foreach ($rows as $row) {
+        $stats = novel_proofreading_decode_cache_json(
+            $row->stats_json ?? '',
+            []
+        );
+
+        $chains[] = [
+            'id' => intval($row->storyline_id),
+            'book_id' => intval($row->book_id),
+            'book_title' => isset($row->book_title) ? $row->book_title : '',
+            'storyline_name' => $row->storyline_name,
+            'description' => $row->storyline_description,
+            'storyline_references' => novel_proofreading_decode_cache_json(
+                $row->storyline_references_json
+            ),
+            'previous_storylines' => novel_proofreading_decode_cache_json(
+                $row->previous_storylines_json
+            ),
+            'related_storylines' => novel_proofreading_decode_cache_json(
+                $row->related_storylines_json
+            ),
+            'events' => novel_proofreading_decode_cache_json(
+                $row->events_json
+            ),
+            'refreshed_at' => $row->refreshed_at,
+            'stats' => [
+                'event_count' => intval($stats['event_count'] ?? $row->event_count),
+                'has_opening' => ! empty($stats['has_opening']) || $row->has_opening === 'Y',
+                'has_return' => ! empty($stats['has_return']) || $row->has_return === 'Y',
+                'has_closing' => ! empty($stats['has_closing']) || $row->has_closing === 'Y',
+                'has_suggestion' => ! empty($stats['has_suggestion']) || $row->has_suggestion === 'Y',
+                'first_reference' => $stats['first_reference'] ?? $row->first_reference ?? '',
+                'last_reference' => $stats['last_reference'] ?? $row->last_reference ?? ''
+            ]
+        ];
+    }
+
+    return $chains;
+}
+
+function novel_proofreading_refresh_storyline_chain_cache($book_id = 0) {
+    global $wpdb;
+
+    $book_id = intval($book_id);
+    $chains = novel_proofreading_build_storyline_chains($book_id);
+    $table_cache =
+        $wpdb->prefix . 'novel_proofreading_storyline_chain_cache';
+
+    if ($book_id > 0) {
+        $wpdb->delete(
+            $table_cache,
+            [
+                'book_id' => $book_id
+            ],
+            [
+                '%d'
+            ]
+        );
+    } else {
+        $wpdb->query(
+            "DELETE FROM {$table_cache}"
+        );
+    }
+
+    $refreshed_at = current_time('mysql');
+    $refreshed_by = get_current_user_id();
+
+    foreach ($chains as $chain) {
+        $stats = $chain['stats'];
+
+        $wpdb->insert(
+            $table_cache,
+            [
+                'book_id' => intval($chain['book_id']),
+                'storyline_id' => intval($chain['id']),
+                'book_title' => $chain['book_title'],
+                'storyline_name' => $chain['storyline_name'],
+                'storyline_description' => $chain['description'],
+                'event_count' => intval($stats['event_count']),
+                'has_opening' => ! empty($stats['has_opening']) ? 'Y' : 'N',
+                'has_return' => ! empty($stats['has_return']) ? 'Y' : 'N',
+                'has_closing' => ! empty($stats['has_closing']) ? 'Y' : 'N',
+                'has_suggestion' => ! empty($stats['has_suggestion']) ? 'Y' : 'N',
+                'first_reference' => $stats['first_reference'] ?? '',
+                'last_reference' => $stats['last_reference'] ?? '',
+                'storyline_references_json' => wp_json_encode($chain['storyline_references']),
+                'previous_storylines_json' => wp_json_encode($chain['previous_storylines']),
+                'related_storylines_json' => wp_json_encode($chain['related_storylines']),
+                'events_json' => wp_json_encode($chain['events']),
+                'stats_json' => wp_json_encode($stats),
+                'refreshed_at' => $refreshed_at,
+                'refreshed_by' => $refreshed_by
+            ],
+            [
+                '%d',
+                '%d',
+                '%s',
+                '%s',
+                '%s',
+                '%d',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%d'
+            ]
+        );
+    }
+
+    return sprintf(
+        /* translators: %d: number of refreshed storyline chains */
+        __( 'Storyline chain cache refreshed. Items: %d', 'novel-proofreading' ),
+        count($chains)
+    );
 }
 
 function novel_proofreading_get_entity_label($type, $row) {
@@ -4789,6 +4962,12 @@ function novel_proofreading_admin_page() {
         if ($action === 'update_chain_event') {
             $admin_notice = novel_proofreading_update_chain_event(
                 intval($_POST['event_id'] ?? 0)
+            );
+        }
+
+        if ($action === 'refresh_storyline_chain_cache') {
+            $admin_notice = novel_proofreading_refresh_storyline_chain_cache(
+                intval($_POST['chain_book_id'] ?? 0)
             );
         }
 
@@ -6174,9 +6353,17 @@ function novel_proofreading_admin_page() {
                 <button type="submit" class="button"><?php _e( 'Filter', 'novel-proofreading' ); ?></button>
                 <button type="button" class="button novel-proofreading-storyline-description-toggle" aria-pressed="false" title="<?php esc_attr_e( 'Show storyline descriptions', 'novel-proofreading' ); ?>">i</button>
             </form>
+            <form method="post" class="novel-proofreading-chain-filter">
+                <?php wp_nonce_field( 'novel_proofreading_books_action', 'novel_proofreading_books_nonce' ); ?>
+                <input type="hidden" name="novel_proofreading_action" value="refresh_storyline_chain_cache" />
+                <input type="hidden" name="chain_book_id" value="<?php echo esc_attr($selected_chain_book_id); ?>" />
+                <button type="submit" class="button button-primary">
+                    <?php _e( 'Refresh storyline chain cache', 'novel-proofreading' ); ?>
+                </button>
+            </form>
 
             <?php if (empty($storyline_chain_items)) : ?>
-                <p><?php _e( 'No storyline chains found.', 'novel-proofreading' ); ?></p>
+                <p><?php _e( 'No storyline chains found in the cache. Use the refresh button to rebuild the cached list.', 'novel-proofreading' ); ?></p>
             <?php endif; ?>
 
             <?php foreach ( $storyline_chain_items as $chain ) : ?>
